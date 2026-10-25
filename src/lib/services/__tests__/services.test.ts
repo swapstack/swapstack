@@ -1,11 +1,13 @@
 import {
-  describeAuthProviderContract,
-  describeBillingProviderContract,
-  describeDataRepositoryContract,
   mockAuthProvider,
   mockBillingProvider,
   mockProfileRepository,
 } from '@/core';
+import {
+  describeAuthProviderContract,
+  describeBillingProviderContract,
+  describeDataRepositoryContract,
+} from '@/core/contracts';
 import { serviceProviders } from '@/lib/services';
 
 describe('serviceProviders Backend Adapter', () => {
@@ -14,22 +16,24 @@ describe('serviceProviders Backend Adapter', () => {
     mockProfileRepository.reset();
   });
 
-  it('exposes backend adapter metadata', () => {
+  it('exposes backend adapter metadata and services', () => {
     expect(serviceProviders.backend.name).toBe('Supabase');
     expect(serviceProviders.backend.mode).toBe('mock');
+    expect(serviceProviders.backend.auth).toBe(mockAuthProvider);
+    expect(serviceProviders.backend.profiles).toBe(mockProfileRepository);
   });
 
-  describe('implements AuthProvider contract', () => {
+  describe('implements auth provider contract', () => {
     describeAuthProviderContract(() => {
       mockAuthProvider.reset();
-      return serviceProviders.backend;
+      return serviceProviders.backend.auth;
     });
   });
 
-  describe('implements DataRepository contract', () => {
+  describe('implements data repository contract', () => {
     describeDataRepositoryContract(() => {
       mockProfileRepository.reset();
-      return serviceProviders.backend;
+      return serviceProviders.backend.profiles;
     });
   });
 });
@@ -44,7 +48,7 @@ describe('serviceProviders Billing Adapter', () => {
     expect(serviceProviders.billing.mode).toBe('mock');
   });
 
-  describe('implements BillingProvider contract', () => {
+  describe('implements billing provider contract', () => {
     describeBillingProviderContract(() => {
       mockBillingProvider.reset();
       return serviceProviders.billing;

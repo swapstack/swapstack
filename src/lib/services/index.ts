@@ -1,13 +1,9 @@
 import type {
   AuthProvider,
-  AuthStateChangeCallback,
   BillingProvider,
-  DataChangeCallback,
   DataRepository,
   EntitlementsChangeCallback,
   Profile,
-  SignInCredentials,
-  SignUpCredentials,
 } from '@/core';
 import {
   mockAuthProvider,
@@ -15,13 +11,12 @@ import {
   mockProfileRepository,
 } from '@/core';
 
-export type BackendAdapter = AuthProvider
-  & DataRepository<Profile> & {
-    readonly name: string;
-    readonly mode: 'live' | 'mock';
-    readonly auth: AuthProvider;
-    readonly profiles: DataRepository<Profile>;
-  };
+export type BackendAdapter = {
+  readonly name: string;
+  readonly mode: 'live' | 'mock';
+  readonly auth: AuthProvider;
+  readonly profiles: DataRepository<Profile>;
+};
 
 export type BillingAdapter = BillingProvider & {
   readonly name: string;
@@ -33,15 +28,6 @@ const mockBackend: BackendAdapter = {
   mode: 'mock',
   auth: mockAuthProvider,
   profiles: mockProfileRepository,
-  signIn: (credentials: SignInCredentials) => mockAuthProvider.signIn(credentials),
-  signUp: (credentials: SignUpCredentials) => mockAuthProvider.signUp(credentials),
-  signOut: () => mockAuthProvider.signOut(),
-  getSession: () => mockAuthProvider.getSession(),
-  onAuthChange: (callback: AuthStateChangeCallback) => mockAuthProvider.onAuthChange(callback),
-  get: (id: string) => mockProfileRepository.get(id),
-  update: (id: string, data: Partial<Profile>) => mockProfileRepository.update(id, data),
-  subscribe: (id: string, callback: DataChangeCallback<Profile>) =>
-    mockProfileRepository.subscribe(id, callback),
 };
 
 const mockBilling: BillingAdapter = {
