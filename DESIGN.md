@@ -20,32 +20,32 @@ colors:
   warning: "#f59e0b"
 typography:
   display:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     fontSize: "30px"
     fontWeight: 700
     lineHeight: 1.2
   headline:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     fontSize: "24px"
     fontWeight: 600
     lineHeight: 1.25
   title:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     fontSize: "20px"
     fontWeight: 600
     lineHeight: 1.3
   body:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     fontSize: "16px"
     fontWeight: 400
     lineHeight: 1.5
   label:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     fontSize: "14px"
     fontWeight: 500
     lineHeight: 1.4
   caption:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     fontSize: "12px"
     fontWeight: 400
     lineHeight: 1.4
@@ -129,7 +129,7 @@ The palette is anchored by a neutral grayscale, supported by semantic accents fo
 
 ## Typography
 
-Typography uses the variable `Inter` font family (falling back to platform system sans-serif: San Francisco on iOS, Roboto on Android).
+Typography relies on the platform's native **system font** (San Francisco on iOS, Roboto on Android) to provide optimal legibility, instant rendering with zero layout shift, and familiar native platform ergonomics without extra font bundle weight.
 
 | Scale | Size | Line Height | Weight | Usage |
 | --- | --- | --- | --- | --- |
