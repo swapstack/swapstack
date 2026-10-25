@@ -24,14 +24,14 @@ export type BillingAdapter = BillingProvider & {
 };
 
 const mockBackend: BackendAdapter = {
-  name: 'Supabase',
+  name: 'Mock',
   mode: 'mock',
   auth: mockAuthProvider,
   profiles: mockProfileRepository,
 };
 
 const mockBilling: BillingAdapter = {
-  name: 'RevenueCat',
+  name: 'Mock',
   mode: 'mock',
   getOfferings: () => mockBillingProvider.getOfferings(),
   purchase: (offeringId: string) => mockBillingProvider.purchase(offeringId),

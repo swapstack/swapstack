@@ -99,8 +99,8 @@ export class MockBillingProvider implements BillingProvider {
       try {
         listener(list);
       }
-      catch {
-        // Silently ignore listener errors to prevent breaking other listeners
+      catch (error) {
+        console.warn('MockBillingProvider listener threw an error:', error);
       }
     }
   }

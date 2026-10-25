@@ -82,6 +82,7 @@ export function describeAuthProviderContract(
         throw new Error('Listener failure');
       });
 
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       provider.onAuthChange(failingListener);
       const unsubscribe = provider.onAuthChange(listener);
 
@@ -94,6 +95,8 @@ export function describeAuthProviderContract(
       unsubscribe();
       await provider.signUp({ email: 'listener2@swapstack.org' });
       expect(listener).toHaveBeenCalledTimes(2);
+      expect(warnSpy).toHaveBeenCalled();
+      warnSpy.mockRestore();
     });
 
     it('throws AuthError with invalid_email code when email is empty', async () => {

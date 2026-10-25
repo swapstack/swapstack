@@ -62,7 +62,12 @@ implements DataRepository<T> {
     const idListeners = this.listeners.get(id);
     if (idListeners) {
       for (const callback of idListeners) {
-        callback(data ? { ...data } : null);
+        try {
+          callback(data ? { ...data } : null);
+        }
+        catch (error) {
+          console.warn('MockDataRepository subscriber threw an error:', error);
+        }
       }
     }
   }

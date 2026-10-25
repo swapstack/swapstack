@@ -17,7 +17,7 @@ describe('serviceProviders Backend Adapter', () => {
   });
 
   it('exposes backend adapter metadata and services', () => {
-    expect(serviceProviders.backend.name).toBe('Supabase');
+    expect(serviceProviders.backend.name).toBe('Mock');
     expect(serviceProviders.backend.mode).toBe('mock');
     expect(serviceProviders.backend.auth).toBe(mockAuthProvider);
     expect(serviceProviders.backend.profiles).toBe(mockProfileRepository);
@@ -44,7 +44,7 @@ describe('serviceProviders Billing Adapter', () => {
   });
 
   it('exposes billing adapter metadata', () => {
-    expect(serviceProviders.billing.name).toBe('RevenueCat');
+    expect(serviceProviders.billing.name).toBe('Mock');
     expect(serviceProviders.billing.mode).toBe('mock');
   });
 

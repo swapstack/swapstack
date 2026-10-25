@@ -130,8 +130,8 @@ export class MockAuthProvider implements AuthProvider {
       try {
         listener(session);
       }
-      catch {
-        // Silently catch listener exceptions so one failing listener does not break others
+      catch (error) {
+        console.warn('MockAuthProvider listener threw an error:', error);
       }
     }
   }

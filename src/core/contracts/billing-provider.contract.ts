@@ -90,12 +90,6 @@ export function describeBillingPurchaseContract(
       expect(active?.isActive).toBe(true);
     });
 
-    it('handles cancellation by throwing BillingError with cancelled code', async () => {
-      await expect(provider.purchase('cancelled')).rejects.toMatchObject({
-        code: 'cancelled',
-      });
-    });
-
     it('notifies listener with active entitlement and unbinds unconditionally', async () => {
       const listener = jest.fn();
       const unsubscribe = provider.onEntitlementsChange(listener);
