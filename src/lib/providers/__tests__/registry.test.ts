@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   MockAuthProvider,
   mockAuthProvider,
@@ -17,25 +19,54 @@ import {
   getProfileRepository,
   initDefaultProviders,
   register,
+  validateProviderConfig,
 } from '../registry';
 
-describe('provider registry', () => {
-  const originalEnv = process.env;
+function setExpoEnv(key: string, value: string | undefined): void {
+  if (value === undefined) {
+    delete process.env[key];
+  }
+  else {
+    process.env[key] = value;
+  }
 
+  try {
+    const virtual = require('expo/virtual/env') as { env: Record<string, string | undefined> };
+    if (value === undefined) {
+      delete virtual.env[key];
+    }
+    else {
+      virtual.env[key] = value;
+    }
+  }
+  catch {
+    // Expo virtual env not present outside babel-preset-expo
+  }
+}
+
+describe('provider registry', () => {
   beforeEach(() => {
-    process.env = { ...originalEnv };
-    delete process.env.EXPO_PUBLIC_AUTH_PROVIDER;
-    delete process.env.AUTH_PROVIDER;
-    delete process.env.EXPO_PUBLIC_DATA_PROVIDER;
-    delete process.env.DATA_PROVIDER;
-    delete process.env.EXPO_PUBLIC_BILLING_PROVIDER;
-    delete process.env.BILLING_PROVIDER;
+    setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     initDefaultProviders();
   });
 
   afterAll(() => {
-    process.env = originalEnv;
+    setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     initDefaultProviders();
+  });
+
+  it('reads env variables using literal references and avoids computed process.env lookups', () => {
+    const registryPath = path.resolve(__dirname, '../registry.ts');
+    const source = fs.readFileSync(registryPath, 'utf8');
+
+    expect(source).not.toMatch(/process\.env\[/);
+    expect(source).toContain('process.env.EXPO_PUBLIC_AUTH_PROVIDER');
+    expect(source).toContain('process.env.EXPO_PUBLIC_DATA_PROVIDER');
+    expect(source).toContain('process.env.EXPO_PUBLIC_BILLING_PROVIDER');
   });
 
   it('resolves defaults to mock providers and adapters', () => {
@@ -58,7 +89,7 @@ describe('provider registry', () => {
     const customAuth = new MockAuthProvider();
     register('auth', 'custom', () => customAuth);
 
-    process.env.EXPO_PUBLIC_AUTH_PROVIDER = 'custom';
+    setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', 'custom');
     expect(getAuthProvider()).toBe(customAuth);
   });
 
@@ -74,12 +105,32 @@ describe('provider registry', () => {
     );
   });
 
-  it('registers and retrieves custom providers', () => {
-    const customAuth = new MockAuthProvider();
-    register('auth', 'custom_auth', () => customAuth);
+  it('caches resolved provider instances and clears cache when re-registering', () => {
+    const factorySpy = jest.fn(() => new MockAuthProvider());
+    register('auth', 'cached_test', factorySpy);
 
-    expect(getAuthProvider('custom_auth')).toBe(customAuth);
-    expect(getAuthProvider('mock')).toBe(mockAuthProvider);
+    const first = getAuthProvider('cached_test');
+    const second = getAuthProvider('cached_test');
+    expect(first).toBe(second);
+    expect(factorySpy).toHaveBeenCalledTimes(1);
+
+    const replacementSpy = jest.fn(() => new MockAuthProvider());
+    register('auth', 'cached_test', replacementSpy);
+
+    const third = getAuthProvider('cached_test');
+    expect(third).not.toBe(first);
+    expect(replacementSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('validates provider config at startup and flags invalid providers', () => {
+    expect(() => validateProviderConfig()).not.toThrow();
+
+    setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', 'bad_auth');
+    setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', 'bad_billing');
+
+    expect(() => validateProviderConfig()).toThrow(
+      /Invalid auth provider "bad_auth"[\s\S]*Invalid billing provider "bad_billing"/,
+    );
   });
 
   describe('contract tests on registered default providers', () => {

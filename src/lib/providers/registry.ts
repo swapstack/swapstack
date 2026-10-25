@@ -33,33 +33,67 @@ export type BillingAdapter = BillingProvider & {
   readonly mode: 'live' | 'mock';
 };
 
-const authRegistry = new Map<string, ProviderFactory<'auth'>>();
-const dataRegistry = new Map<string, ProviderFactory<'data'>>();
-const billingRegistry = new Map<string, ProviderFactory<'billing'>>();
+type RegistryStore = {
+  readonly auth: Map<string, ProviderFactory<'auth'>>;
+  readonly data: Map<string, ProviderFactory<'data'>>;
+  readonly billing: Map<string, ProviderFactory<'billing'>>;
+};
 
-function getRegistry<K extends ProviderKind>(kind: K): Map<string, ProviderFactory<K>> {
-  switch (kind) {
-    case 'auth':
-      return authRegistry as unknown as Map<string, ProviderFactory<K>>;
-    case 'data':
-      return dataRegistry as unknown as Map<string, ProviderFactory<K>>;
-    case 'billing':
-      return billingRegistry as unknown as Map<string, ProviderFactory<K>>;
-  }
-}
+type InstanceStore = {
+  readonly auth: Map<string, AuthProvider>;
+  readonly data: Map<string, DataRepository<Profile>>;
+  readonly billing: Map<string, BillingProvider>;
+};
+
+const registries: RegistryStore = {
+  auth: new Map(),
+  data: new Map(),
+  billing: new Map(),
+};
+
+const instances: InstanceStore = {
+  auth: new Map(),
+  data: new Map(),
+  billing: new Map(),
+};
 
 export function register<K extends ProviderKind>(
   kind: K,
   name: string,
   factory: ProviderFactory<K>,
 ): void {
-  const registry = getRegistry(kind);
-  registry.set(name.toLowerCase(), factory);
+  const normalized = name.toLowerCase();
+  switch (kind) {
+    case 'auth':
+      registries.auth.set(normalized, factory as ProviderFactory<'auth'>);
+      instances.auth.delete(normalized);
+      break;
+    case 'data':
+      registries.data.set(normalized, factory as ProviderFactory<'data'>);
+      instances.data.delete(normalized);
+      break;
+    case 'billing':
+      registries.billing.set(normalized, factory as ProviderFactory<'billing'>);
+      instances.billing.delete(normalized);
+      break;
+  }
 }
 
-function getEnvValue(name: string): string | undefined {
-  const publicVar = `EXPO_PUBLIC_${name}`;
-  return process.env[publicVar] ?? process.env[name];
+function getEnvProviderName(kind: ProviderKind): string {
+  let envVal: string | undefined;
+  switch (kind) {
+    case 'auth':
+      envVal = process.env.EXPO_PUBLIC_AUTH_PROVIDER;
+      break;
+    case 'data':
+      envVal = process.env.EXPO_PUBLIC_DATA_PROVIDER;
+      break;
+    case 'billing':
+      envVal = process.env.EXPO_PUBLIC_BILLING_PROVIDER;
+      break;
+  }
+
+  return envVal && envVal.trim() !== '' ? envVal.trim().toLowerCase() : 'mock';
 }
 
 function resolveProviderName(kind: ProviderKind, explicitName?: string): string {
@@ -67,20 +101,39 @@ function resolveProviderName(kind: ProviderKind, explicitName?: string): string 
     return explicitName.trim().toLowerCase();
   }
 
-  let envVal: string | undefined;
+  return getEnvProviderName(kind);
+}
+
+function getCachedInstance<K extends ProviderKind>(
+  kind: K,
+  name: string,
+): ProviderTypeMap[K] | undefined {
   switch (kind) {
     case 'auth':
-      envVal = getEnvValue('AUTH_PROVIDER');
+      return instances.auth.get(name) as ProviderTypeMap[K] | undefined;
+    case 'data':
+      return instances.data.get(name) as ProviderTypeMap[K] | undefined;
+    case 'billing':
+      return instances.billing.get(name) as ProviderTypeMap[K] | undefined;
+  }
+}
+
+function cacheInstance<K extends ProviderKind>(
+  kind: K,
+  name: string,
+  instance: ProviderTypeMap[K],
+): void {
+  switch (kind) {
+    case 'auth':
+      instances.auth.set(name, instance as AuthProvider);
       break;
     case 'data':
-      envVal = getEnvValue('DATA_PROVIDER');
+      instances.data.set(name, instance as DataRepository<Profile>);
       break;
     case 'billing':
-      envVal = getEnvValue('BILLING_PROVIDER');
+      instances.billing.set(name, instance as BillingProvider);
       break;
   }
-
-  return envVal && envVal.trim() !== '' ? envVal.trim().toLowerCase() : 'mock';
 }
 
 function getProvider<K extends ProviderKind>(
@@ -88,17 +141,22 @@ function getProvider<K extends ProviderKind>(
   explicitName?: string,
 ): ProviderTypeMap[K] {
   const name = resolveProviderName(kind, explicitName);
-  const registry = getRegistry(kind);
-  const factory = registry.get(name);
+  const cached = getCachedInstance(kind, name);
+  if (cached) {
+    return cached;
+  }
 
+  const factory = registries[kind].get(name);
   if (!factory) {
-    const validNames = Array.from(registry.keys()).join(', ');
+    const validNames = Array.from(registries[kind].keys()).join(', ');
     throw new Error(
       `Unknown ${kind} provider "${name}". Valid ${kind} providers: ${validNames || 'none'}.`,
     );
   }
 
-  return factory();
+  const created = factory() as ProviderTypeMap[K];
+  cacheInstance(kind, name, created);
+  return created;
 }
 
 export function getAuthProvider(name?: string): AuthProvider {
@@ -113,10 +171,33 @@ export function getBillingProvider(name?: string): BillingProvider {
   return getProvider('billing', name);
 }
 
+export function validateProviderConfig(): void {
+  const kinds: readonly ProviderKind[] = ['auth', 'data', 'billing'];
+  const errors: string[] = [];
+
+  for (const kind of kinds) {
+    const name = getEnvProviderName(kind);
+    if (!registries[kind].has(name)) {
+      const validNames = Array.from(registries[kind].keys()).join(', ');
+      errors.push(
+        `Invalid ${kind} provider "${name}". Valid ${kind} providers: ${validNames || 'none'}.`,
+      );
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(`Provider configuration error:\n${errors.join('\n')}`);
+  }
+}
+
 export function initDefaultProviders(): void {
-  authRegistry.clear();
-  dataRegistry.clear();
-  billingRegistry.clear();
+  registries.auth.clear();
+  registries.data.clear();
+  registries.billing.clear();
+
+  instances.auth.clear();
+  instances.data.clear();
+  instances.billing.clear();
 
   register('auth', 'mock', () => mockAuthProvider);
   register('data', 'mock', () => mockProfileRepository);
