@@ -1,24 +1,49 @@
 # Swapstack
 
-Swapstack is a free Expo boilerplate where Supabase and RevenueCat sit behind swappable adapters, so apps can change service providers without rewriting their core logic.
+Swapstack is a free Expo boilerplate with plain interfaces for auth, data, and billing, designed so apps can change service providers without rewriting their core logic. Generic mock providers are included out of the box.
 
 ## Quick start
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 20 or higher)
+- [pnpm](https://pnpm.io/) (version 10 or higher)
+
+### Setup & Run
 
 Select **Use this template** on GitHub, clone your repository, then run:
 
 ```sh
 pnpm install
 pnpm run setup
-pnpm start
+pnpm run start
 ```
 
-Setup asks for your app name and bundle ID, renames the app, and creates `.env`.
+`pnpm run setup` asks for your app name and bundle ID, renames the app, and creates `.env`.
 
-The app runs with mock Supabase and RevenueCat providers by default. No API keys or service projects are needed for local development.
+To run on a specific platform:
+
+- **iOS Simulator**: `pnpm run ios`
+- **Android Emulator**: `pnpm run android`
+- **Expo Go / Development Client**: Run `pnpm run start` and scan the QR code using your device.
+
+The app runs with mock auth, data, and billing providers by default. No API keys or service projects are needed for local development.
+
+## What's inside
+
+Swapstack structures core services behind vendor-agnostic contracts under `src/core`:
+
+- **Interfaces (`src/core/`)**:
+  - `AuthProvider`: plain authentication (`signIn`, `signUp`, `signInWithOAuth`, `signOut`, `getSession`, `onAuthChange`).
+  - `DataRepository`: data storage and subscriptions (`get`, `update`, `subscribe`) for user profiles.
+  - `BillingProvider`: entitlement-centric billing (`getOfferings`, `purchase`, `restore`, `getEntitlements`, `onEntitlementsChange`).
+  - `types.ts` & `errors.ts`: vendor-free models (`User`, `Session`, `Profile`, `Offering`, `Entitlement`) and typed error classes (`AuthError`, `BillingError`).
+- **Mocks (`src/core/mocks/`)**: in-memory mock implementations of all providers for local development and rapid testing without external API keys.
+- **Contract tests (`src/core/contracts/`)**: reusable contract test suites that verify any provider (mock or live) complies with the required behavior.
 
 ## Rename your app
 
-Run `pnpm rename-app` and enter your app name and bundle ID. The command updates the values below, `package.json`, this README's title, and your local `.env` when it exists.
+Run `pnpm run rename-app` and enter your app name and bundle ID. The command updates the values below, `package.json`, this README's title, and your local `.env` when it exists.
 
 | Field | Purpose |
 | --- | --- |
@@ -32,14 +57,20 @@ The iOS bundle ID and Android package name must be globally unique and cannot be
 
 For live builds and services, you need your own Expo/EAS project, Supabase project, and RevenueCat project. Do not reuse Swapstack's project identifiers or credentials.
 
-## Planned stack
+## Stack
 
-- Expo, React Native, and Expo Router
+- Expo (v54), React Native, and Expo Router
 - TypeScript
 - Uniwind and Tailwind CSS
 - TanStack Query and MMKV storage
 - Jest and React Native Testing Library
-- Supabase and RevenueCat behind swappable adapters
+- Plain interfaces in `src/core` with generic mock providers
+
+## Planned
+
+- Swappable provider registry configured via app config
+- Live Supabase adapter (auth & data)
+- Live RevenueCat adapter (billing & entitlements)
 
 ## Work in progress
 
