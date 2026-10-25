@@ -3,8 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@env": ["env.ts"]
+      "@/*": ["./src/*"]
     },
     "checkJs": true,
     "strict": true,
@@ -15,15 +14,12 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts",
     "env.ts"
   ],
   "exclude": [
     "node_modules",
     "babel.config.js",
     "metro.config.js",
-    "docs",
-    "cli",
     "android",
     "ios",
     "lint-staged.config.js"

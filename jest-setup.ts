@@ -52,23 +52,6 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
-// Mock expo-localization
-jest.mock('expo-localization', () => ({
-  getLocales: jest.fn(() => [
-    {
-      languageTag: 'en-US',
-      languageCode: 'en',
-      textDirection: 'ltr',
-      digitGroupingSeparator: ',',
-      decimalSeparator: '.',
-      measurementSystem: 'metric',
-      currencyCode: 'USD',
-      currencySymbol: '$',
-      regionCode: 'US',
-    },
-  ]),
-}));
-
 // Mock react-native-mmkv
 jest.mock('react-native-mmkv', () => ({
   MMKV: jest.fn(() => ({

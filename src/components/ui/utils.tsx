@@ -1,5 +1,4 @@
 /* eslint-disable react-refresh/only-export-components */
-import type { AxiosError } from 'axios';
 import { Dimensions, Platform } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
@@ -9,14 +8,10 @@ const { width, height } = Dimensions.get('screen');
 export const WIDTH = width;
 export const HEIGHT = height;
 
-// for onError react queries and mutations
-export function showError(error: AxiosError) {
-  console.log(JSON.stringify(error?.response?.data));
-  const description = extractError(error?.response?.data).trimEnd();
-
+export function showError(error: unknown) {
   showMessage({
     message: 'Error',
-    description,
+    description: extractError(error).trimEnd(),
     type: 'danger',
     duration: 4000,
     icon: 'danger',
