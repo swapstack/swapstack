@@ -1,5 +1,6 @@
 import type { BillingProvider, EntitlementsChangeCallback } from '../billing';
 import type { Entitlement, Offering, Unsubscribe } from '../types';
+import { BillingError } from '../errors';
 
 export const DEFAULT_MOCK_OFFERINGS: readonly Offering[] = [
   {
@@ -48,9 +49,13 @@ export class MockBillingProvider implements BillingProvider {
   };
 
   readonly purchase = async (offeringId: string): Promise<Entitlement[]> => {
+    if (offeringId === 'cancelled') {
+      throw new BillingError('Purchase was cancelled by the user', 'cancelled');
+    }
+
     const offering = this.offerings.find(o => o.id === offeringId);
     if (!offering) {
-      throw new Error(`Offering not found: ${offeringId}`);
+      throw new BillingError(`Offering not found: ${offeringId}`, 'offering_not_found');
     }
 
     const current = this.entitlements.get(offering.entitlementId);

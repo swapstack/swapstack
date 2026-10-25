@@ -31,8 +31,10 @@ export function describeBillingReadOnlyContract(
       expect(Array.isArray(entitlements)).toBe(true);
     });
 
-    it('rejects purchasing an invalid offering id', async () => {
-      await expect(provider.purchase('invalid_offering_id')).rejects.toThrow();
+    it('rejects purchasing an invalid offering id with offering_not_found code', async () => {
+      await expect(provider.purchase('invalid_offering_id')).rejects.toMatchObject({
+        code: 'offering_not_found',
+      });
     });
   });
 }
@@ -86,6 +88,12 @@ export function describeBillingPurchaseContract(
       const restored = await provider.restore();
       const active = restored.find(e => e.id === offerings[0].entitlementId);
       expect(active?.isActive).toBe(true);
+    });
+
+    it('handles cancellation by throwing BillingError with cancelled code', async () => {
+      await expect(provider.purchase('cancelled')).rejects.toMatchObject({
+        code: 'cancelled',
+      });
     });
 
     it('notifies listener with active entitlement and unbinds unconditionally', async () => {

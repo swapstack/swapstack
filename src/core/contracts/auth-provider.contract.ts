@@ -29,9 +29,11 @@ export function describeAuthProviderContract(
       expect(current?.user.email).toBe('newuser@swapstack.org');
     });
 
-    it('rejects signing up with an already registered email', async () => {
+    it('rejects signing up with an already registered email and sets error code', async () => {
       await provider.signUp({ email: 'duplicate@swapstack.org' });
-      await expect(provider.signUp({ email: 'duplicate@swapstack.org' })).rejects.toThrow();
+      await expect(provider.signUp({ email: 'duplicate@swapstack.org' })).rejects.toMatchObject({
+        code: 'user_already_exists',
+      });
     });
 
     it('signs in an existing user and rejects an unknown user', async () => {
@@ -44,7 +46,19 @@ export function describeAuthProviderContract(
       });
       expect(session.user.email).toBe('existing@swapstack.org');
 
-      await expect(provider.signIn({ email: 'unknown@swapstack.org' })).rejects.toThrow();
+      await expect(provider.signIn({ email: 'unknown@swapstack.org' })).rejects.toMatchObject({
+        code: 'user_not_found',
+      });
+    });
+
+    it('signs in with OAuth providers', async () => {
+      const appleSession = await provider.signInWithOAuth('apple');
+      expect(appleSession.user.email).toContain('apple');
+      expect(await provider.getSession()).toEqual(appleSession);
+
+      const googleSession = await provider.signInWithOAuth('google');
+      expect(googleSession.user.email).toContain('google');
+      expect(await provider.getSession()).toEqual(googleSession);
     });
 
     it('signs out and clears the session', async () => {
@@ -82,9 +96,13 @@ export function describeAuthProviderContract(
       expect(listener).toHaveBeenCalledTimes(2);
     });
 
-    it('throws when signing in or up with an empty email', async () => {
-      await expect(provider.signIn({ email: '' })).rejects.toThrow();
-      await expect(provider.signUp({ email: '   ' })).rejects.toThrow();
+    it('throws AuthError with invalid_email code when email is empty', async () => {
+      await expect(provider.signIn({ email: '' })).rejects.toMatchObject({
+        code: 'invalid_email',
+      });
+      await expect(provider.signUp({ email: '   ' })).rejects.toMatchObject({
+        code: 'invalid_email',
+      });
     });
   });
 }

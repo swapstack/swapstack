@@ -11,11 +11,14 @@ export type SignUpCredentials = {
   readonly metadata?: Record<string, unknown>;
 };
 
+export type OAuthProvider = 'apple' | 'google';
+
 export type AuthStateChangeCallback = (session: Session | null) => void;
 
 export type AuthProvider = {
   readonly signIn: (credentials: SignInCredentials) => Promise<Session>;
   readonly signUp: (credentials: SignUpCredentials) => Promise<Session>;
+  readonly signInWithOAuth: (provider: OAuthProvider) => Promise<Session>;
   readonly signOut: () => Promise<void>;
   readonly getSession: () => Promise<Session | null>;
   readonly onAuthChange: (callback: AuthStateChangeCallback) => Unsubscribe;

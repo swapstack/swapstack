@@ -1,10 +1,12 @@
 import type {
   AuthProvider,
   AuthStateChangeCallback,
+  OAuthProvider,
   SignInCredentials,
   SignUpCredentials,
 } from '../auth';
 import type { Session, Unsubscribe, User } from '../types';
+import { AuthError } from '../errors';
 
 export class MockAuthProvider implements AuthProvider {
   private currentSession: Session | null;
@@ -28,7 +30,7 @@ export class MockAuthProvider implements AuthProvider {
     const user = this.users.get(email.toLowerCase());
 
     if (!user) {
-      throw new Error(`User not found: ${email}`);
+      throw new AuthError(`User not found: ${email}`, 'user_not_found');
     }
 
     return this.createSession(user);
@@ -40,7 +42,7 @@ export class MockAuthProvider implements AuthProvider {
     const key = email.toLowerCase();
 
     if (this.users.has(key)) {
-      throw new Error(`User already exists: ${email}`);
+      throw new AuthError(`User already exists: ${email}`, 'user_already_exists');
     }
 
     const user: User = {
@@ -51,6 +53,24 @@ export class MockAuthProvider implements AuthProvider {
     };
 
     this.users.set(key, user);
+    return this.createSession(user);
+  };
+
+  readonly signInWithOAuth = async (provider: OAuthProvider): Promise<Session> => {
+    const email = `mock_${provider}_user@swapstack.org`;
+    const key = email.toLowerCase();
+    let user = this.users.get(key);
+
+    if (!user) {
+      user = {
+        id: `user_${provider}_${Date.now()}`,
+        email,
+        createdAt: new Date().toISOString(),
+        metadata: { provider },
+      };
+      this.users.set(key, user);
+    }
+
     return this.createSession(user);
   };
 
@@ -86,7 +106,7 @@ export class MockAuthProvider implements AuthProvider {
   private validateEmail(email: string): string {
     const trimmed = email?.trim();
     if (!trimmed) {
-      throw new Error('Email is required');
+      throw new AuthError('Email is required', 'invalid_email');
     }
     return trimmed;
   }
