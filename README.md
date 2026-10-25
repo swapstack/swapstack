@@ -4,14 +4,15 @@ Swapstack is a free Expo boilerplate where Supabase and RevenueCat sit behind sw
 
 ## Quick start
 
-1. On GitHub, select **Use this template** to create your own repository.
-2. Install dependencies, create your local configuration, and start Expo:
+Select **Use this template** on GitHub, clone your repository, then run:
 
 ```sh
 pnpm install
-cp .env.example .env
+pnpm run setup
 pnpm start
 ```
+
+Setup asks for your app name and bundle ID, renames the app, and creates `.env`.
 
 The app runs with mock Supabase and RevenueCat providers by default. No API keys or service projects are needed for local development.
 

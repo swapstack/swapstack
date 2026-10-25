@@ -33,6 +33,7 @@
     "build:production:ios": "eas build --profile production --platform ios",
     "build:production:android": "eas build --profile production --platform android",
     "prepare": "husky",
+    "setup": "tsx scripts/setup.ts",
     "rename-app": "tsx scripts/rename-app.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
