@@ -26,7 +26,7 @@ export type Profile = {
   readonly displayName?: string;
   readonly avatarUrl?: string;
   readonly updatedAt?: string;
-  readonly [key: string]: unknown;
+  readonly metadata?: Record<string, unknown>;
 };
 
 /**

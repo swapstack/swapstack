@@ -4,7 +4,7 @@ import type { Profile } from '../types';
 export function describeDataRepositoryContract(
   createRepo: () => Promise<DataRepository<Profile>> | DataRepository<Profile>,
 ) {
-  describe('DataRepository contract', () => {
+  describe('data repository contract', () => {
     let repo: DataRepository<Profile>;
 
     beforeEach(async () => {
@@ -31,11 +31,14 @@ export function describeDataRepositoryContract(
     });
 
     it('merges updates with existing data', async () => {
-      await repo.update('profile_2', { displayName: 'Initial Name', bio: 'Coder' });
+      await repo.update('profile_2', {
+        displayName: 'Initial Name',
+        metadata: { bio: 'Coder' },
+      });
       const updated = await repo.update('profile_2', { displayName: 'Updated Name' });
 
       expect(updated.displayName).toBe('Updated Name');
-      expect(updated.bio).toBe('Coder');
+      expect(updated.metadata).toEqual({ bio: 'Coder' });
     });
 
     it('notifies subscribers of targeted record updates', async () => {
