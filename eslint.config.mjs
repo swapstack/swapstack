@@ -29,6 +29,7 @@ export default antfu(
       '.vscode',
       'expo-env.d.ts',
       'migration/*',
+      'packages/*/dist/**',
     ],
   },
   {
@@ -48,6 +49,7 @@ export default antfu(
         },
       ],
       'node/prefer-global/process': 'off',
+      'test/no-import-node-test': 'off',
       'ts/no-require-imports': 'off',
       'ts/no-use-before-define': 'off',
       'no-console': 'off',

@@ -37,8 +37,9 @@
     "rename-app": "tsx scripts/rename-app.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "type-check": "tsc --noEmit",
-    "test": "jest",
+    "type-check": "tsc --noEmit && pnpm --filter create-swapstack-app build",
+    "build:cli": "pnpm --filter create-swapstack-app build",
+    "test": "jest && pnpm --filter create-swapstack-app test",
     "check-all": "pnpm run lint && pnpm run type-check && pnpm run test",
     "test:ci": "pnpm run test --coverage",
     "test:watch": "pnpm run test --watch"

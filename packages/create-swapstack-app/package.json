@@ -1,0 +1,52 @@
+{
+  "name": "create-swapstack-app",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Create a new Swapstack app from the command line",
+  "author": "Abdullah Ahsan <s.mabdullahahsan@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/swapstack/swapstack#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swapstack/swapstack.git",
+    "directory": "packages/create-swapstack-app"
+  },
+  "bugs": {
+    "url": "https://github.com/swapstack/swapstack/issues"
+  },
+  "keywords": [
+    "swapstack",
+    "react-native",
+    "expo",
+    "template",
+    "cli",
+    "boilerplate",
+    "create-swapstack-app"
+  ],
+  "bin": {
+    "create-swapstack-app": "dist/index.js"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsx --test tests/**/*.test.ts",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "dependencies": {
+    "giget": "^1.2.4",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/prompts": "^2.4.9",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0"
+  }
+}
