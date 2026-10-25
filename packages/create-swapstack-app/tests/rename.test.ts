@@ -5,23 +5,14 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import {
+  removePackagesFromWorkspaceYaml,
   renameAppFiles,
   slugify,
   validateAppName,
   validateBundleId,
 } from '../src/rename.js';
 
-describe('rename step', () => {
-  let tempDir: string;
-
-  beforeEach(() => {
-    tempDir = mkdtempSync(path.join(os.tmpdir(), 'swapstack-rename-test-'));
-  });
-
-  afterEach(() => {
-    rmSync(tempDir, { recursive: true, force: true });
-  });
-
+describe('rename helpers', () => {
   it('slugifies names correctly', () => {
     assert.equal(slugify('My Super App!'), 'my-super-app');
     assert.equal(slugify('Café & Restaurant'), 'cafe-restaurant');
@@ -41,6 +32,34 @@ describe('rename step', () => {
     assert.equal(validateBundleId('invalid'), false);
     assert.equal(validateBundleId('123.com'), false);
     assert.equal(validateBundleId(''), false);
+  });
+
+  it('removes packages from pnpm-workspace.yaml while keeping other settings', () => {
+    const input = `shellEmulator: true
+
+trustPolicy: no-downgrade
+
+packages:
+  - .
+  - 'packages/*'
+`;
+    const result = removePackagesFromWorkspaceYaml(input);
+    assert.match(result, /shellEmulator:\s*true/);
+    assert.match(result, /trustPolicy:\s*no-downgrade/);
+    assert.doesNotMatch(result, /packages:/);
+    assert.doesNotMatch(result, /packages\/\*/);
+  });
+});
+
+describe('renameAppFiles', () => {
+  let tempDir: string;
+
+  beforeEach(() => {
+    tempDir = mkdtempSync(path.join(os.tmpdir(), 'swapstack-rename-test-'));
+  });
+
+  afterEach(() => {
+    rmSync(tempDir, { recursive: true, force: true });
   });
 
   it('renames app files and creates .env from .env.example', async () => {
@@ -75,11 +94,20 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
 
 Swapstack is a developer boilerplate.
 `;
+    const workspaceContent = `shellEmulator: true
+
+trustPolicy: no-downgrade
+
+packages:
+  - .
+  - 'packages/*'
+`;
 
     writeFileSync(path.join(tempDir, 'env.ts'), envTsContent);
     writeFileSync(path.join(tempDir, '.env.example'), envExampleContent);
     writeFileSync(path.join(tempDir, 'package.json'), packageJsonContent);
     writeFileSync(path.join(tempDir, 'README.md'), readmeContent);
+    writeFileSync(path.join(tempDir, 'pnpm-workspace.yaml'), workspaceContent);
 
     await renameAppFiles(tempDir, {
       name: 'Rocket Launch',
@@ -117,5 +145,11 @@ Swapstack is a developer boilerplate.
     // Verify README.md
     const updatedReadme = readFileSync(path.join(tempDir, 'README.md'), 'utf8');
     assert.match(updatedReadme, /^# Rocket Launch/);
+
+    // Verify pnpm-workspace.yaml kept other settings and removed packages entry
+    const updatedWorkspace = readFileSync(path.join(tempDir, 'pnpm-workspace.yaml'), 'utf8');
+    assert.match(updatedWorkspace, /shellEmulator:\s*true/);
+    assert.match(updatedWorkspace, /trustPolicy:\s*no-downgrade/);
+    assert.doesNotMatch(updatedWorkspace, /packages:/);
   });
 });

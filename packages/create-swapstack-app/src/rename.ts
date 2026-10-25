@@ -33,6 +33,29 @@ const identityKeys = [
   'ANDROID_PACKAGE',
 ] as const;
 
+export function removePackagesFromWorkspaceYaml(content: string): string {
+  const lines = content.split('\n');
+  const result: string[] = [];
+  let inPackages = false;
+
+  for (const line of lines) {
+    if (/^packages:\s*$/.test(line.trim())) {
+      inPackages = true;
+      continue;
+    }
+    if (inPackages) {
+      if (/^\s*-\s+/.test(line) || /^\s*$/.test(line)) {
+        continue;
+      }
+      inPackages = false;
+    }
+    result.push(line);
+  }
+
+  const cleaned = result.join('\n').trim();
+  return cleaned ? `${cleaned}\n` : '';
+}
+
 export async function renameAppFiles(
   targetDir: string,
   options: RenameOptions,
@@ -109,7 +132,9 @@ export async function renameAppFiles(
 
   const workspaceFile = path.join(targetDir, 'pnpm-workspace.yaml');
   if (existsSync(workspaceFile)) {
-    await rm(workspaceFile, { force: true });
+    const workspaceContent = await readFile(workspaceFile, 'utf8');
+    const updatedWorkspace = removePackagesFromWorkspaceYaml(workspaceContent);
+    await writeFile(workspaceFile, updatedWorkspace, 'utf8');
   }
 
   const gitDir = path.join(targetDir, '.git');

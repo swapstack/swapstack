@@ -243,7 +243,7 @@ async function run(): Promise<void> {
       console.log('Initialized git repository.');
     }
     catch {
-      // Ignore git init errors if git is unavailable
+      console.warn('Warning: Failed to initialize git repository.');
     }
   }
 
