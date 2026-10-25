@@ -36,7 +36,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsx --test tests/**/*.test.ts",
+    "test": "tsx --test tests/*.test.ts",
     "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {
