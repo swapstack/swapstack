@@ -10,6 +10,29 @@ export type ParsedArgs = {
   version: boolean;
 };
 
+function getOptionValue(
+  args: string[],
+  index: number,
+  flag: string,
+): { value: string; nextIndex: number } {
+  const arg = args[index];
+  const eqIndex = arg.indexOf('=');
+
+  if (eqIndex !== -1) {
+    const val = arg.slice(eqIndex + 1);
+    if (!val) {
+      throw new Error(`Missing value for flag: ${arg.slice(0, eqIndex)}`);
+    }
+    return { value: val, nextIndex: index };
+  }
+
+  if (index + 1 >= args.length || args[index + 1].startsWith('-')) {
+    throw new Error(`Missing value for flag: ${flag}`);
+  }
+
+  return { value: args[index + 1], nextIndex: index + 1 };
+}
+
 export function parseArgs(args: string[]): ParsedArgs {
   const parsed: ParsedArgs = {
     install: true,
@@ -45,46 +68,46 @@ export function parseArgs(args: string[]): ParsedArgs {
     else if (arg === '--git') {
       parsed.git = true;
     }
-    else if (arg === '--name' && i + 1 < args.length) {
-      parsed.name = args[++i];
+    else if (arg === '--name' || arg.startsWith('--name=')) {
+      const res = getOptionValue(args, i, arg);
+      parsed.name = res.value;
+      i = res.nextIndex;
     }
-    else if (arg.startsWith('--name=')) {
-      parsed.name = arg.slice(7);
+    else if (
+      arg === '--bundle-id'
+      || arg === '--bundleId'
+      || arg.startsWith('--bundle-id=')
+      || arg.startsWith('--bundleId=')
+    ) {
+      const res = getOptionValue(args, i, arg);
+      parsed.iosBundleId = res.value;
+      parsed.androidPackage = res.value;
+      i = res.nextIndex;
     }
-    else if ((arg === '--bundle-id' || arg === '--bundleId') && i + 1 < args.length) {
-      const val = args[++i];
-      parsed.iosBundleId = val;
-      parsed.androidPackage = val;
+    else if (
+      arg === '--ios-bundle-id'
+      || arg === '--iosBundleId'
+      || arg.startsWith('--ios-bundle-id=')
+      || arg.startsWith('--iosBundleId=')
+    ) {
+      const res = getOptionValue(args, i, arg);
+      parsed.iosBundleId = res.value;
+      i = res.nextIndex;
     }
-    else if (arg.startsWith('--bundle-id=')) {
-      const val = arg.slice(12);
-      parsed.iosBundleId = val;
-      parsed.androidPackage = val;
+    else if (
+      arg === '--android-package'
+      || arg === '--androidPackage'
+      || arg.startsWith('--android-package=')
+      || arg.startsWith('--androidPackage=')
+    ) {
+      const res = getOptionValue(args, i, arg);
+      parsed.androidPackage = res.value;
+      i = res.nextIndex;
     }
-    else if (arg.startsWith('--bundleId=')) {
-      const val = arg.slice(11);
-      parsed.iosBundleId = val;
-      parsed.androidPackage = val;
+    else if (arg.startsWith('-')) {
+      throw new Error(`Unknown flag: ${arg}`);
     }
-    else if ((arg === '--ios-bundle-id' || arg === '--iosBundleId') && i + 1 < args.length) {
-      parsed.iosBundleId = args[++i];
-    }
-    else if (arg.startsWith('--ios-bundle-id=')) {
-      parsed.iosBundleId = arg.slice(16);
-    }
-    else if (arg.startsWith('--iosBundleId=')) {
-      parsed.iosBundleId = arg.slice(14);
-    }
-    else if ((arg === '--android-package' || arg === '--androidPackage') && i + 1 < args.length) {
-      parsed.androidPackage = args[++i];
-    }
-    else if (arg.startsWith('--android-package=')) {
-      parsed.androidPackage = arg.slice(18);
-    }
-    else if (arg.startsWith('--androidPackage=')) {
-      parsed.androidPackage = arg.slice(17);
-    }
-    else if (!arg.startsWith('-')) {
+    else {
       positional.push(arg);
     }
   }

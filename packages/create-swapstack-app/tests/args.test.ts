@@ -68,4 +68,19 @@ describe('argument parsing', () => {
     assert.equal(parsedYes.yes, true);
     assert.equal(parsedYes.targetDir, 'quick-app');
   });
+
+  it('throws an error for unknown flags', () => {
+    assert.throws(() => parseArgs(['--unknown-flag']), /Unknown flag: --unknown-flag/);
+    assert.throws(() => parseArgs(['-z']), /Unknown flag: -z/);
+  });
+
+  it('throws an error for missing option values', () => {
+    assert.throws(() => parseArgs(['--name']), /Missing value for flag: --name/);
+    assert.throws(() => parseArgs(['--name', '--bundle-id']), /Missing value for flag: --name/);
+    assert.throws(() => parseArgs(['--name=']), /Missing value for flag: --name/);
+    assert.throws(() => parseArgs(['--bundle-id']), /Missing value for flag: --bundle-id/);
+    assert.throws(() => parseArgs(['--bundle-id=']), /Missing value for flag: --bundle-id/);
+    assert.throws(() => parseArgs(['--ios-bundle-id=']), /Missing value for flag: --ios-bundle-id/);
+    assert.throws(() => parseArgs(['--android-package=']), /Missing value for flag: --android-package/);
+  });
 });

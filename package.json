@@ -9,6 +9,9 @@
     "url": "git+https://github.com/swapstack/swapstack.git"
   },
   "main": "expo-router/entry",
+  "engines": {
+    "node": ">=20.19.4"
+  },
   "scripts": {
     "start": "expo start",
     "prebuild": "pnpm expo prebuild",
@@ -41,7 +44,7 @@
     "type-check": "tsc --noEmit",
     "test": "jest",
     "check-all": "pnpm run lint && pnpm run type-check && pnpm run test",
-    "test:ci": "pnpm run test --coverage",
+    "test:ci": "pnpm run test --coverage && npx tsx scripts/test-cli.ts",
     "test:watch": "pnpm run test --watch"
   },
   "dependencies": {

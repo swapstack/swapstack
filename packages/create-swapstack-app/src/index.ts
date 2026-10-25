@@ -11,8 +11,10 @@ import { checkTargetDir } from './fs-utils.js';
 import {
   renameAppFiles,
   slugify,
+  validateAndroidPackage,
   validateAppName,
-  validateBundleId,
+  validateIosBundleId,
+  validateUrlScheme,
 } from './rename.js';
 
 function defaultNameFromDir(dir: string): string {
@@ -89,71 +91,56 @@ async function resolveAppName(args: ParsedArgs, targetDir: string): Promise<stri
 
 async function resolveBundleIds(
   args: ParsedArgs,
-  appName: string,
 ): Promise<{ iosBundleId: string; androidPackage: string }> {
-  const slug = slugify(appName);
-  const sanitizedSlug = slug.replace(/[^a-z0-9]/g, '') || 'app';
-  const defaultBundleId = `com.swapstack.${sanitizedSlug}`;
-
   let iosBundleId = args.iosBundleId;
   if (!iosBundleId) {
-    if (args.yes) {
-      iosBundleId = defaultBundleId;
-    }
-    else {
-      const res = await prompts(
-        {
-          type: 'text',
-          name: 'bundleId',
-          message: 'iOS Bundle ID (reverse-domain identifier):',
-          initial: defaultBundleId,
-          validate: (val: string) =>
-            validateBundleId(val)
-              ? true
-              : 'Bundle ID must be in reverse-domain format (e.g. com.example.app).',
+    const res = await prompts(
+      {
+        type: 'text',
+        name: 'bundleId',
+        message: 'iOS Bundle ID (e.g. com.example.app):',
+        validate: (val: string) =>
+          validateIosBundleId(val.trim())
+            ? true
+            : 'iOS bundle ID must contain only letters, digits, hyphens, and dots (e.g. com.example.app).',
+      },
+      {
+        onCancel: () => {
+          console.log('\nOperation cancelled.');
+          process.exit(1);
         },
-        {
-          onCancel: () => {
-            console.log('\nOperation cancelled.');
-            process.exit(1);
-          },
-        },
-      );
-      iosBundleId = res.bundleId ? res.bundleId.trim() : defaultBundleId;
-    }
+      },
+    );
+    iosBundleId = res.bundleId ? res.bundleId.trim() : '';
   }
 
   let androidPackage = args.androidPackage;
   if (!androidPackage) {
-    if (args.yes) {
-      androidPackage = iosBundleId;
-    }
-    else {
-      const res = await prompts(
-        {
-          type: 'text',
-          name: 'pkg',
-          message: 'Android Package Name:',
-          initial: iosBundleId,
-          validate: (val: string) =>
-            validateBundleId(val)
-              ? true
-              : 'Package name must be in reverse-domain format (e.g. com.example.app).',
+    const defaultPkg = iosBundleId && validateAndroidPackage(iosBundleId) ? iosBundleId : undefined;
+    const res = await prompts(
+      {
+        type: 'text',
+        name: 'pkg',
+        message: 'Android Package Name (e.g. com.example.app):',
+        initial: defaultPkg,
+        validate: (val: string) =>
+          validateAndroidPackage(val.trim())
+            ? true
+            : 'Android package cannot have digit-leading segments, hyphens, or Java/Kotlin reserved words.',
+      },
+      {
+        onCancel: () => {
+          console.log('\nOperation cancelled.');
+          process.exit(1);
         },
-        {
-          onCancel: () => {
-            console.log('\nOperation cancelled.');
-            process.exit(1);
-          },
-        },
-      );
-      androidPackage = res.pkg ? res.pkg.trim() : iosBundleId;
-    }
+      },
+    );
+    androidPackage = res.pkg ? res.pkg.trim() : (defaultPkg ?? '');
   }
 
   return {
-    iosBundleId: iosBundleId ?? defaultBundleId,
-    androidPackage: androidPackage ?? defaultBundleId,
+    iosBundleId: iosBundleId ?? '',
+    androidPackage: androidPackage ?? '',
   };
 }
 
@@ -175,8 +162,50 @@ Options:
 `);
 }
 
+function initGitAndInstallDeps(
+  targetPath: string,
+  targetDir: string,
+  args: ParsedArgs,
+): void {
+  if (args.git) {
+    try {
+      execSync('git init', { cwd: targetPath, stdio: 'ignore' });
+      console.log('Initialized git repository.');
+    }
+    catch {
+      console.warn('Warning: Failed to initialize git repository.');
+    }
+  }
+
+  if (args.install) {
+    console.log('\nInstalling dependencies with pnpm...\n');
+    try {
+      execSync('pnpm install', { cwd: targetPath, stdio: 'inherit' });
+    }
+    catch (error) {
+      console.error('\nError: Failed to install dependencies with pnpm.');
+      if (error instanceof Error && error.message) {
+        console.error(error.message);
+      }
+      console.log('\nNext steps:');
+      console.log(`  cd ${targetDir}`);
+      console.log('  pnpm install');
+      console.log('  pnpm run setup   # if needed to reconfigure environment variables');
+      console.log('  pnpm start       # to start the Expo development server\n');
+      process.exit(1);
+    }
+  }
+}
+
 async function run(): Promise<void> {
-  const args = parseArgs(process.argv.slice(2));
+  let args: ParsedArgs;
+  try {
+    args = parseArgs(process.argv.slice(2));
+  }
+  catch (error) {
+    console.error(`Error: ${error instanceof Error ? error.message : error}`);
+    process.exit(1);
+  }
 
   if (args.help) {
     printHelp();
@@ -196,6 +225,11 @@ async function run(): Promise<void> {
     return;
   }
 
+  if (args.yes && !args.iosBundleId && !args.androidPackage) {
+    console.error('Error: --bundle-id (or --ios-bundle-id and --android-package) is required when using --yes.');
+    process.exit(1);
+  }
+
   const targetDir = await resolveTargetDir(args);
   const targetPath = path.resolve(process.cwd(), targetDir);
   const dirCheck = checkTargetDir(targetPath);
@@ -210,9 +244,19 @@ async function run(): Promise<void> {
     process.exit(1);
   }
 
-  const { iosBundleId, androidPackage } = await resolveBundleIds(args, appName);
-  if (!validateBundleId(iosBundleId) || !validateBundleId(androidPackage)) {
-    console.error('Error: Bundle ID and package name must be in reverse-domain format (e.g. com.example.app).');
+  const slug = slugify(appName);
+  if (!validateUrlScheme(slug)) {
+    console.error('Error: App name generates an invalid URL scheme. URL scheme must start with a letter.');
+    process.exit(1);
+  }
+
+  const { iosBundleId, androidPackage } = await resolveBundleIds(args);
+  if (!validateIosBundleId(iosBundleId)) {
+    console.error('Error: iOS bundle ID must contain only letters, digits, hyphens, and dots (e.g. com.example.app).');
+    process.exit(1);
+  }
+  if (!validateAndroidPackage(androidPackage)) {
+    console.error('Error: Android package name cannot have digit-leading segments, hyphens, or Java/Kotlin reserved words.');
     process.exit(1);
   }
 
@@ -237,25 +281,7 @@ async function run(): Promise<void> {
     androidPackage,
   });
 
-  if (args.git) {
-    try {
-      execSync('git init', { cwd: targetPath, stdio: 'ignore' });
-      console.log('Initialized git repository.');
-    }
-    catch {
-      console.warn('Warning: Failed to initialize git repository.');
-    }
-  }
-
-  if (args.install) {
-    console.log('\nInstalling dependencies with pnpm...\n');
-    try {
-      execSync('pnpm install', { cwd: targetPath, stdio: 'inherit' });
-    }
-    catch {
-      console.warn('\nWarning: Dependency installation failed. You can run "pnpm install" manually.\n');
-    }
-  }
+  initGitAndInstallDeps(targetPath, targetDir, args);
 
   console.log(`\n🎉 Success! Created ${appName} at ${targetPath}\n`);
   console.log('Next steps:');
