@@ -3,8 +3,11 @@
  */
 export type User = {
   readonly id: string;
-  readonly email: string;
+  readonly email?: string;
   readonly createdAt?: string;
+  readonly displayName?: string;
+  readonly avatarUrl?: string;
+  readonly isAnonymous?: boolean;
   readonly metadata?: Record<string, unknown>;
 };
 

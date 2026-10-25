@@ -1,8 +1,10 @@
 import { describeAuthProviderContract } from '../contracts/auth-provider.contract';
+import { InMemorySessionStorage } from '../mocks/in-memory-session-storage';
 import { MockAuthProvider } from '../mocks/mock-auth-provider';
 
 describe('mockAuthProvider Contract Suite', () => {
   describeAuthProviderContract(() => new MockAuthProvider());
+  describeAuthProviderContract(() => new MockAuthProvider(null, [], { requireEmailConfirmation: true }));
 
   describe('implementation details', () => {
     it('generates unique user IDs that are not derived from the user email', async () => {
@@ -60,6 +62,30 @@ describe('mockAuthProvider Contract Suite', () => {
       const current = await provider.getSession();
       expect(current?.token).not.toBe('changed');
       expect(current?.user.metadata).toEqual({ role: 'developer' });
+    });
+
+    it('restores a persisted session in a new provider instance', async () => {
+      const storage = new InMemorySessionStorage();
+      const first = new MockAuthProvider(null, [], { storage });
+      const created = await first.signInAnonymously();
+      const second = new MockAuthProvider(null, [], { storage });
+
+      expect(await second.getSession()).toEqual(created);
+    });
+
+    it('refreshes once and retries an operation after expiration', async () => {
+      const expiredSession = {
+        token: 'expired_token',
+        user: { id: 'guest', isAnonymous: true },
+        expiresAt: Date.now() - 1000,
+      };
+      const provider = new MockAuthProvider(expiredSession);
+      const refreshSpy = jest.spyOn(provider, 'refreshSession');
+
+      const user = await provider.updateProfile({ displayName: 'Recovered' });
+      expect(user.displayName).toBe('Recovered');
+      expect(refreshSpy).toHaveBeenCalledTimes(1);
+      expect((await provider.getSession())?.token).not.toBe('expired_token');
     });
   });
 });

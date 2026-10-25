@@ -3,6 +3,9 @@ export type AuthErrorCode
     | 'user_not_found'
     | 'user_already_exists'
     | 'invalid_email'
+    | 'not_anonymous'
+    | 'not_authenticated'
+    | 'session_expired'
     | 'unknown';
 
 export class AuthError extends Error {

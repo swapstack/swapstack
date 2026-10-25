@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './auth-retry';
 export * from './billing';
 export * from './data';
 export * from './errors';
