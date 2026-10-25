@@ -44,7 +44,7 @@ function setExpoEnv(key: string, value: string | undefined): void {
   }
 }
 
-describe('provider registry', () => {
+describe('provider registry resolution', () => {
   beforeEach(() => {
     setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', undefined);
@@ -104,6 +104,22 @@ describe('provider registry', () => {
       'Unknown billing provider "unknown". Valid billing providers: mock.',
     );
   });
+});
+
+describe('provider registry caching and adapters', () => {
+  beforeEach(() => {
+    setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
+    initDefaultProviders();
+  });
+
+  afterAll(() => {
+    setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
+    initDefaultProviders();
+  });
 
   it('caches resolved provider instances and clears cache when re-registering', () => {
     const factorySpy = jest.fn(() => new MockAuthProvider());
@@ -133,20 +149,47 @@ describe('provider registry', () => {
     );
   });
 
-  describe('contract tests on registered default providers', () => {
-    describeAuthProviderContract(() => {
-      mockAuthProvider.reset();
-      return getAuthProvider();
-    });
+  it('caches BackendAdapter and BillingAdapter objects across calls', () => {
+    const backend1 = getBackendAdapter();
+    const backend2 = getBackendAdapter();
+    expect(backend1).toBe(backend2);
 
-    describeDataRepositoryContract(() => {
-      mockProfileRepository.reset();
-      return getProfileRepository();
-    });
+    const billing1 = getBillingAdapter();
+    const billing2 = getBillingAdapter();
+    expect(billing1).toBe(billing2);
+  });
 
-    describeBillingProviderContract(() => {
-      mockBillingProvider.reset();
-      return getBillingProvider();
-    });
+  it('reports mode from provider implementations instead of registered names', () => {
+    // Register custom provider with explicit mode: 'live'
+    register('billing', 'custom_live', () => ({
+      ...mockBillingProvider,
+      mode: 'live',
+    }));
+    setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', 'custom_live');
+
+    const adapter = getBillingAdapter();
+    expect(adapter.mode).toBe('live');
+    expect(adapter.name).toBe('custom_live');
+  });
+});
+
+describe('contract tests on registered default providers', () => {
+  beforeEach(() => {
+    initDefaultProviders();
+  });
+
+  describeAuthProviderContract(() => {
+    mockAuthProvider.reset();
+    return getAuthProvider();
+  });
+
+  describeDataRepositoryContract(() => {
+    mockProfileRepository.reset();
+    return getProfileRepository();
+  });
+
+  describeBillingProviderContract(() => {
+    mockBillingProvider.reset();
+    return getBillingProvider();
   });
 });

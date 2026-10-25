@@ -3,6 +3,7 @@ import type { Entitlement, Offering, Unsubscribe } from './types';
 export type EntitlementsChangeCallback = (entitlements: Entitlement[]) => void;
 
 export type BillingProvider = {
+  readonly mode?: 'mock' | 'live';
   readonly getOfferings: () => Promise<Offering[]>;
   readonly purchase: (offeringId: string) => Promise<Entitlement[]>;
   readonly restore: () => Promise<Entitlement[]>;

@@ -57,12 +57,17 @@ const instances: InstanceStore = {
   billing: new Map(),
 };
 
+let cachedBackendAdapter: BackendAdapter | null = null;
+let cachedBillingAdapter: BillingAdapter | null = null;
+
 export function register<K extends ProviderKind>(
   kind: K,
   name: string,
   factory: ProviderFactory<K>,
 ): void {
   const normalized = name.toLowerCase();
+  cachedBackendAdapter = null;
+  cachedBillingAdapter = null;
   switch (kind) {
     case 'auth':
       registries.auth.set(normalized, factory as ProviderFactory<'auth'>);
@@ -199,32 +204,50 @@ export function initDefaultProviders(): void {
   instances.data.clear();
   instances.billing.clear();
 
+  cachedBackendAdapter = null;
+  cachedBillingAdapter = null;
+
   register('auth', 'mock', () => mockAuthProvider);
   register('data', 'mock', () => mockProfileRepository);
   register('billing', 'mock', () => mockBillingProvider);
 }
 
 export function getBackendAdapter(): BackendAdapter {
+  if (cachedBackendAdapter) {
+    return cachedBackendAdapter;
+  }
+
+  const auth = getAuthProvider();
+  const profiles = getProfileRepository();
   const authName = resolveProviderName('auth');
   const dataName = resolveProviderName('data');
-  const isMock = authName === 'mock' && dataName === 'mock';
+  const authMode = auth.mode ?? 'live';
+  const profilesMode = profiles.mode ?? 'live';
+  const mode = (authMode === 'mock' && profilesMode === 'mock') ? 'mock' : 'live';
+  const isMock = mode === 'mock';
 
-  return {
+  cachedBackendAdapter = {
     name: isMock ? 'Mock' : `${authName}/${dataName}`,
-    mode: isMock ? 'mock' : 'live',
-    auth: getAuthProvider(),
-    profiles: getProfileRepository(),
+    mode,
+    auth,
+    profiles,
   };
+  return cachedBackendAdapter;
 }
 
 export function getBillingAdapter(): BillingAdapter {
-  const billingName = resolveProviderName('billing');
-  const isMock = billingName === 'mock';
-  const billing = getBillingProvider();
+  if (cachedBillingAdapter) {
+    return cachedBillingAdapter;
+  }
 
-  return {
+  const billing = getBillingProvider();
+  const billingName = resolveProviderName('billing');
+  const mode = billing.mode ?? 'live';
+  const isMock = mode === 'mock';
+
+  cachedBillingAdapter = {
     name: isMock ? 'Mock' : billingName,
-    mode: isMock ? 'mock' : 'live',
+    mode,
     getOfferings: () => billing.getOfferings(),
     purchase: (offeringId: string) => billing.purchase(offeringId),
     restore: () => billing.restore(),
@@ -232,6 +255,7 @@ export function getBillingAdapter(): BillingAdapter {
     onEntitlementsChange: (callback: EntitlementsChangeCallback) =>
       billing.onEntitlementsChange(callback),
   };
+  return cachedBillingAdapter;
 }
 
 initDefaultProviders();

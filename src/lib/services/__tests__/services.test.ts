@@ -23,6 +23,10 @@ describe('serviceProviders Backend Adapter', () => {
     expect(serviceProviders.backend.profiles).toBe(mockProfileRepository);
   });
 
+  it('caches the backend adapter object reference', () => {
+    expect(serviceProviders.backend).toBe(serviceProviders.backend);
+  });
+
   describe('implements auth provider contract', () => {
     describeAuthProviderContract(() => {
       mockAuthProvider.reset();
@@ -46,6 +50,10 @@ describe('serviceProviders Billing Adapter', () => {
   it('exposes billing adapter metadata', () => {
     expect(serviceProviders.billing.name).toBe('Mock');
     expect(serviceProviders.billing.mode).toBe('mock');
+  });
+
+  it('caches the billing adapter object reference', () => {
+    expect(serviceProviders.billing).toBe(serviceProviders.billing);
   });
 
   describe('implements billing provider contract', () => {

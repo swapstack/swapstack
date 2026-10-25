@@ -16,6 +16,7 @@ export type OAuthProvider = 'apple' | 'google';
 export type AuthStateChangeCallback = (session: Session | null) => void;
 
 export type AuthProvider = {
+  readonly mode?: 'mock' | 'live';
   readonly signIn: (credentials: SignInCredentials) => Promise<Session>;
   readonly signUp: (credentials: SignUpCredentials) => Promise<Session>;
   readonly signInWithOAuth: (provider: OAuthProvider) => Promise<Session>;

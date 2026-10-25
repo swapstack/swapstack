@@ -28,6 +28,7 @@ export const DEFAULT_MOCK_ENTITLEMENTS: readonly Entitlement[] = [
 ];
 
 export class MockBillingProvider implements BillingProvider {
+  readonly mode = 'mock' as const;
   private offerings: Offering[];
   private entitlements: Map<string, Entitlement>;
   private readonly listeners = new Set<EntitlementsChangeCallback>();
@@ -36,16 +37,16 @@ export class MockBillingProvider implements BillingProvider {
     initialOfferings: readonly Offering[] = DEFAULT_MOCK_OFFERINGS,
     initialEntitlements: readonly Entitlement[] = DEFAULT_MOCK_ENTITLEMENTS,
   ) {
-    this.offerings = initialOfferings.map(o => ({ ...o }));
-    this.entitlements = new Map(initialEntitlements.map(e => [e.id, { ...e }]));
+    this.offerings = initialOfferings.map(o => structuredClone(o));
+    this.entitlements = new Map(initialEntitlements.map(e => [e.id, structuredClone(e)]));
   }
 
   readonly getOfferings = async (): Promise<Offering[]> => {
-    return this.offerings.map(o => ({ ...o }));
+    return this.offerings.map(o => structuredClone(o));
   };
 
   readonly getEntitlements = async (): Promise<Entitlement[]> => {
-    return Array.from(this.entitlements.values()).map(e => ({ ...e }));
+    return Array.from(this.entitlements.values()).map(e => structuredClone(e));
   };
 
   readonly purchase = async (offeringId: string): Promise<Entitlement[]> => {
@@ -88,13 +89,13 @@ export class MockBillingProvider implements BillingProvider {
     offerings: readonly Offering[] = DEFAULT_MOCK_OFFERINGS,
     entitlements: readonly Entitlement[] = DEFAULT_MOCK_ENTITLEMENTS,
   ): void => {
-    this.offerings = offerings.map(o => ({ ...o }));
-    this.entitlements = new Map(entitlements.map(e => [e.id, { ...e }]));
+    this.offerings = offerings.map(o => structuredClone(o));
+    this.entitlements = new Map(entitlements.map(e => [e.id, structuredClone(e)]));
     this.listeners.clear();
   };
 
   private notifyListeners(): void {
-    const list = Array.from(this.entitlements.values()).map(e => ({ ...e }));
+    const list = Array.from(this.entitlements.values()).map(e => structuredClone(e));
     for (const listener of this.listeners) {
       try {
         listener(list);

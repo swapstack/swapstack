@@ -9,10 +9,12 @@ import type { Session, Unsubscribe, User } from '../types';
 import { AuthError } from '../errors';
 
 export class MockAuthProvider implements AuthProvider {
+  readonly mode = 'mock' as const;
   private currentSession: Session | null;
   private readonly users = new Map<string, User>();
   private readonly listeners = new Set<AuthStateChangeCallback>();
   private tokenCounter = 0;
+  private userCounter = 0;
 
   constructor(initialSession: Session | null = null, initialUsers: readonly User[] = []) {
     this.currentSession = initialSession;
@@ -45,8 +47,9 @@ export class MockAuthProvider implements AuthProvider {
       throw new AuthError(`User already exists: ${email}`, 'user_already_exists');
     }
 
+    this.userCounter += 1;
     const user: User = {
-      id: `user_${key.replace(/[^a-z0-9]/gi, '_')}`,
+      id: `user_${this.userCounter}_${Math.random().toString(36).slice(2, 9)}`,
       email,
       createdAt: new Date().toISOString(),
       metadata: credentials.metadata,
@@ -62,8 +65,9 @@ export class MockAuthProvider implements AuthProvider {
     let user = this.users.get(key);
 
     if (!user) {
+      this.userCounter += 1;
       user = {
-        id: `user_${provider}_${Date.now()}`,
+        id: `user_${provider}_${this.userCounter}_${Math.random().toString(36).slice(2, 9)}`,
         email,
         createdAt: new Date().toISOString(),
         metadata: { provider },
@@ -80,6 +84,15 @@ export class MockAuthProvider implements AuthProvider {
   };
 
   readonly getSession = async (): Promise<Session | null> => {
+    if (
+      this.currentSession
+      && this.currentSession.expiresAt !== undefined
+      && this.currentSession.expiresAt <= Date.now()
+    ) {
+      this.currentSession = null;
+      this.notifyListeners();
+      return null;
+    }
     return this.currentSession;
   };
 
@@ -98,6 +111,7 @@ export class MockAuthProvider implements AuthProvider {
     this.users.clear();
     this.listeners.clear();
     this.tokenCounter = 0;
+    this.userCounter = 0;
     if (initialSession?.user) {
       this.users.set(initialSession.user.email.toLowerCase(), initialSession.user);
     }
