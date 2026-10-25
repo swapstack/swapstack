@@ -16,7 +16,7 @@ This downloads the template, renames the app and package identifiers, configures
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (version 20 or higher)
+- [Node.js](https://nodejs.org/) (version 20.19.4 or higher)
 - [pnpm](https://pnpm.io/) (version 10 or higher)
 
 ### Setup & Run manually
@@ -35,7 +35,8 @@ To run on a specific platform:
 
 - **iOS Simulator**: `pnpm run ios`
 - **Android Emulator**: `pnpm run android`
-- **Expo Go / Development Client**: Run `pnpm run start` and scan the QR code using your device.
+- **Expo Go**: Run `expo start --go` (or `pnpm exec expo start --go`) and scan the QR code using your device.
+- **Development Client**: Run `pnpm run start` and scan the QR code using your device.
 
 The app runs with mock auth, data, and billing providers by default. No API keys or service projects are needed for local development.
 

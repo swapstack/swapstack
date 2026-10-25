@@ -23,6 +23,9 @@ jobs:
       - name: 🏃‍♂️ Run Tests
         run: pnpm run test:ci
 
+      - name: 🏃‍♂️ Run CLI Tests
+        run: npx tsx scripts/test-cli.ts
+
       - name: Jest Coverage Comment
         uses: MishaKav/jest-coverage-comment@main
         if: (success() || failure()) && github.event_name == 'pull_request'
