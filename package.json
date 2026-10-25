@@ -33,6 +33,8 @@
     "build:production:ios": "eas build --profile production --platform ios",
     "build:production:android": "eas build --profile production --platform android",
     "prepare": "husky",
+    "setup": "tsx scripts/setup.ts",
+    "rename-app": "tsx scripts/rename-app.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
@@ -74,7 +76,6 @@
     "tailwind-merge": "^3.4.0",
     "tailwind-variants": "^3.2.2",
     "uniwind": "^1.2.4",
-    "zod": "^4.3.5",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

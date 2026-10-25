@@ -1,76 +1,33 @@
-import z from 'zod';
-
 import packageJSON from './package.json';
 
-// Single unified environment schema
-const envSchema = z.object({
-  EXPO_PUBLIC_APP_ENV: z.enum(['development', 'preview', 'production']),
-  EXPO_PUBLIC_NAME: z.string(),
-  EXPO_PUBLIC_SCHEME: z.string(),
-  EXPO_PUBLIC_BUNDLE_ID: z.string(),
-  EXPO_PUBLIC_PACKAGE: z.string(),
-  EXPO_PUBLIC_VERSION: z.string(),
-});
+type AppEnvironment = 'development' | 'preview' | 'production';
 
-// Config records per environment
-const EXPO_PUBLIC_APP_ENV = (process.env.EXPO_PUBLIC_APP_ENV
-  ?? 'development') as z.infer<typeof envSchema>['EXPO_PUBLIC_APP_ENV'];
-
-const BUNDLE_IDS = {
-  development: 'com.swapstack.app',
-  preview: 'com.swapstack.app',
-  production: 'com.swapstack.app',
-} as const;
-
-const PACKAGES = {
-  development: 'com.swapstack.app',
-  preview: 'com.swapstack.app',
-  production: 'com.swapstack.app',
-} as const;
-
-const SCHEMES = {
-  development: 'swapstack',
-  preview: 'swapstack.preview',
-  production: 'swapstack',
-} as const;
-
-const NAME = 'Swapstack';
-
-// Check if strict validation is required (before prebuild)
-const STRICT_ENV_VALIDATION = process.env.STRICT_ENV_VALIDATION === '1';
-
-// Build env object
-const _env: z.infer<typeof envSchema> = {
-  EXPO_PUBLIC_APP_ENV,
-  EXPO_PUBLIC_NAME: NAME,
-  EXPO_PUBLIC_SCHEME: SCHEMES[EXPO_PUBLIC_APP_ENV],
-  EXPO_PUBLIC_BUNDLE_ID: BUNDLE_IDS[EXPO_PUBLIC_APP_ENV],
-  EXPO_PUBLIC_PACKAGE: PACKAGES[EXPO_PUBLIC_APP_ENV],
-  EXPO_PUBLIC_VERSION: packageJSON.version,
+type AppConfig = {
+  EXPO_PUBLIC_APP_ENV: AppEnvironment;
+  EXPO_PUBLIC_VERSION: string;
+  APP_NAME: string;
+  APP_SLUG: string;
+  APP_SCHEME: string;
+  IOS_BUNDLE_ID: string;
+  ANDROID_PACKAGE: string;
 };
 
-function getValidatedEnv(env: z.infer<typeof envSchema>) {
-  const parsed = envSchema.safeParse(env);
+const DEFAULT_APP_IDENTITY = {
+  APP_NAME: 'Swapstack',
+  APP_SLUG: 'swapstack',
+  APP_SCHEME: 'swapstack',
+  IOS_BUNDLE_ID: 'com.swapstack.app',
+  ANDROID_PACKAGE: 'com.swapstack.app',
+} as const;
 
-  if (parsed.success === false) {
-    const errorMessage
-      = `❌ Invalid environment variables:${
-        JSON.stringify(parsed.error.flatten().fieldErrors, null, 2)
-      }\n❌ Missing variables in .env file for APP_ENV=${EXPO_PUBLIC_APP_ENV}`
-      + `\n💡 Tip: If you recently updated the .env file, try restarting with -c flag to clear the cache.`;
-
-    if (STRICT_ENV_VALIDATION) {
-      console.error(errorMessage);
-      throw new Error('Invalid environment variables');
-    }
-  }
-  else {
-    console.log('✅ Environment variables validated successfully');
-  }
-
-  return parsed.success ? parsed.data : env;
-}
-
-const Env = STRICT_ENV_VALIDATION ? getValidatedEnv(_env) : _env;
+const Env: AppConfig = {
+  EXPO_PUBLIC_APP_ENV: (process.env.EXPO_PUBLIC_APP_ENV ?? 'development') as AppEnvironment,
+  EXPO_PUBLIC_VERSION: packageJSON.version,
+  APP_NAME: process.env.APP_NAME ?? DEFAULT_APP_IDENTITY.APP_NAME,
+  APP_SLUG: process.env.APP_SLUG ?? DEFAULT_APP_IDENTITY.APP_SLUG,
+  APP_SCHEME: process.env.APP_SCHEME ?? DEFAULT_APP_IDENTITY.APP_SCHEME,
+  IOS_BUNDLE_ID: process.env.IOS_BUNDLE_ID ?? DEFAULT_APP_IDENTITY.IOS_BUNDLE_ID,
+  ANDROID_PACKAGE: process.env.ANDROID_PACKAGE ?? DEFAULT_APP_IDENTITY.ANDROID_PACKAGE,
+};
 
 export default Env;

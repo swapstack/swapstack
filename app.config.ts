@@ -26,10 +26,10 @@ const appIconBadgeConfig: AppIconBadgeConfig = {
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: Env.EXPO_PUBLIC_NAME,
-  description: `${Env.EXPO_PUBLIC_NAME} Mobile App`,
-  scheme: Env.EXPO_PUBLIC_SCHEME,
-  slug: 'swapstack',
+  name: Env.APP_NAME,
+  description: `${Env.APP_NAME} Mobile App`,
+  scheme: Env.APP_SCHEME,
+  slug: Env.APP_SLUG,
   version: Env.EXPO_PUBLIC_VERSION.toString(),
   orientation: 'portrait',
   icon: './assets/icon.png',
@@ -41,7 +41,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
-    bundleIdentifier: Env.EXPO_PUBLIC_BUNDLE_ID,
+    bundleIdentifier: Env.IOS_BUNDLE_ID,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
@@ -54,7 +54,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#2E3C4B',
     },
-    package: Env.EXPO_PUBLIC_PACKAGE,
+    package: Env.ANDROID_PACKAGE,
   },
   web: {
     favicon: './assets/favicon.png',
