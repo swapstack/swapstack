@@ -15,6 +15,153 @@ const identityKeys = [
 type IdentityKey = typeof identityKeys[number];
 type Identity = Record<IdentityKey, string>;
 
+const JAVA_KOTLIN_RESERVED_WORDS: ReadonlySet<string> = new Set([
+  'abstract',
+  'assert',
+  'boolean',
+  'break',
+  'byte',
+  'case',
+  'catch',
+  'char',
+  'class',
+  'const',
+  'continue',
+  'default',
+  'do',
+  'double',
+  'else',
+  'enum',
+  'extends',
+  'final',
+  'finally',
+  'float',
+  'for',
+  'goto',
+  'if',
+  'implements',
+  'import',
+  'instanceof',
+  'int',
+  'interface',
+  'long',
+  'native',
+  'new',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'return',
+  'short',
+  'static',
+  'strictfp',
+  'super',
+  'switch',
+  'synchronized',
+  'this',
+  'throw',
+  'throws',
+  'transient',
+  'try',
+  'void',
+  'volatile',
+  'while',
+  'true',
+  'false',
+  'null',
+  'as',
+  'fun',
+  'in',
+  'is',
+  'object',
+  'typealias',
+  'val',
+  'var',
+  'when',
+  'by',
+  'constructor',
+  'delegate',
+  'dynamic',
+  'field',
+  'file',
+  'init',
+  'param',
+  'property',
+  'receiver',
+  'setparam',
+  'where',
+  'actual',
+  'expect',
+  'sealed',
+  'annotation',
+  'data',
+  'inner',
+  'value',
+  'override',
+  'open',
+  'operator',
+  'inline',
+  'infix',
+  'external',
+  'tailrec',
+  'suspend',
+]);
+
+function validateIosBundleId(bundleId?: string): bundleId is string {
+  if (!bundleId) {
+    return false;
+  }
+  const segments = bundleId.split('.');
+  if (segments.length < 2) {
+    return false;
+  }
+  return segments.every(segment => segment.length > 0 && /^[a-z0-9-]+$/i.test(segment));
+}
+
+function validateAndroidPackage(packageName?: string): packageName is string {
+  if (!packageName) {
+    return false;
+  }
+  const segments = packageName.split('.');
+  if (segments.length < 2) {
+    return false;
+  }
+  return segments.every((segment) => {
+    if (!/^[a-z_]\w*$/i.test(segment)) {
+      return false;
+    }
+    return !JAVA_KOTLIN_RESERVED_WORDS.has(segment.toLowerCase());
+  });
+}
+
+function validateUrlScheme(scheme?: string): scheme is string {
+  if (!scheme) {
+    return false;
+  }
+  return /^[a-z][\w+.-]*$/i.test(scheme);
+}
+
+function escapeDotenvValue(value: string): string {
+  if (/[ \t\n\r"'#\\$]/.test(value)) {
+    const escaped = value
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\$/g, '\\$');
+    return `"${escaped}"`;
+  }
+  return value;
+}
+
+function escapeTsStringLiteral(value: string): string {
+  return value
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, '\\\'')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r');
+}
+
 function slugify(value: string) {
   return value
     .normalize('NFKD')
@@ -36,21 +183,7 @@ function parseEnv(source: string) {
   ) as Partial<Identity>;
 }
 
-function exampleFile(identity: Identity) {
-  return `# Display name shown on a user's device.
-APP_NAME=${identity.APP_NAME}
-# Expo project slug.
-APP_SLUG=${identity.APP_SLUG}
-# Deep-link URL scheme.
-APP_SCHEME=${identity.APP_SCHEME}
-# Unique Apple bundle identifier.
-IOS_BUNDLE_ID=${identity.IOS_BUNDLE_ID}
-# Unique Android application ID.
-ANDROID_PACKAGE=${identity.ANDROID_PACKAGE}
-`;
-}
-
-function updateLocalEnv(source: string, identity: Identity) {
+function updateEnvInPlace(source: string, identity: Identity) {
   const values: Partial<Identity> = { ...identity };
   const lines = source.split('\n').map((line) => {
     const key = identityKeys.find(candidate => line.startsWith(`${candidate}=`));
@@ -59,12 +192,12 @@ function updateLocalEnv(source: string, identity: Identity) {
     }
     const value = values[key];
     delete values[key];
-    return `${key}=${value}`;
+    return `${key}=${escapeDotenvValue(value ?? '')}`;
   });
 
   for (const key of identityKeys) {
     if (values[key] !== undefined) {
-      lines.push(`${key}=${values[key]}`);
+      lines.push(`${key}=${escapeDotenvValue(values[key]!)}`);
     }
   }
   return lines.join('\n');
@@ -72,7 +205,8 @@ function updateLocalEnv(source: string, identity: Identity) {
 
 async function renameApp() {
   const examplePath = path.join(root, '.env.example');
-  const current = parseEnv(await readFile(examplePath, 'utf8'));
+  const exampleSource = await readFile(examplePath, 'utf8');
+  const current = parseEnv(exampleSource);
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const lines = rl[Symbol.asyncIterator]();
   const ask = async (question: string, fallback?: string) => {
@@ -86,16 +220,32 @@ async function renameApp() {
 
   try {
     const name = await ask(`App name (${current.APP_NAME ?? 'Swapstack'}): `, current.APP_NAME);
-    const bundleId = await ask(`Bundle ID (${current.IOS_BUNDLE_ID ?? 'com.swapstack.app'}): `, current.IOS_BUNDLE_ID);
+    const existingBundleId = current.IOS_BUNDLE_ID && !current.IOS_BUNDLE_ID.startsWith('com.swapstack.')
+      ? current.IOS_BUNDLE_ID
+      : undefined;
+    const bundlePrompt = existingBundleId
+      ? `Bundle ID (${existingBundleId}): `
+      : 'Bundle ID (e.g. com.example.app): ';
+    const bundleId = await ask(bundlePrompt, existingBundleId);
 
     if (!name || !slugify(name)) {
       throw new Error('App name must contain at least one letter or number.');
     }
-    if (!bundleId || !/^[a-z]\w*(\.\w+)+$/i.test(bundleId)) {
-      throw new Error('Bundle ID must be a reverse-domain identifier, such as com.example.app.');
+    if (!bundleId) {
+      throw new Error('Bundle ID is required.');
+    }
+    if (!validateIosBundleId(bundleId)) {
+      throw new Error('iOS bundle ID must contain only letters, digits, hyphens, and dots (e.g. com.example.app).');
+    }
+    if (!validateAndroidPackage(bundleId)) {
+      throw new Error('Android package cannot have digit-leading segments, hyphens, or Java/Kotlin reserved words.');
     }
 
     const slug = slugify(name);
+    if (!validateUrlScheme(slug)) {
+      throw new Error('URL scheme must start with a letter.');
+    }
+
     const identity: Identity = {
       APP_NAME: name,
       APP_SLUG: slug,
@@ -106,7 +256,7 @@ async function renameApp() {
     const envPath = path.join(root, 'env.ts');
     const envSource = await readFile(envPath, 'utf8');
     const defaults = `const DEFAULT_APP_IDENTITY = {\n${identityKeys
-      .map(key => `  ${key}: '${identity[key].replaceAll(/'/g, String.raw`\'`)}',`)
+      .map(key => `  ${key}: '${escapeTsStringLiteral(identity[key])}',`)
       .join('\n')}\n} as const;`;
 
     if (!/const DEFAULT_APP_IDENTITY = \{[\s\S]*?\} as const;/.test(envSource)) {
@@ -119,14 +269,17 @@ async function renameApp() {
 
     const readmePath = path.join(root, 'README.md');
     const readme = await readFile(readmePath, 'utf8');
-    const updatedReadme = readme.replace(/^# .*$/m, `# ${name}`);
+    const updatedReadme = readme.replace(/^# .*$/m, () => `# ${name}`);
     if (updatedReadme === readme) {
       throw new Error('Could not find the README title.');
     }
 
     await Promise.all([
-      writeFile(envPath, envSource.replace(/const DEFAULT_APP_IDENTITY = \{[\s\S]*?\} as const;/, defaults)),
-      writeFile(examplePath, exampleFile(identity)),
+      writeFile(
+        envPath,
+        envSource.replace(/const DEFAULT_APP_IDENTITY = \{[\s\S]*?\} as const;/, () => defaults),
+      ),
+      writeFile(examplePath, updateEnvInPlace(exampleSource, identity)),
       writeFile(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`),
       writeFile(readmePath, updatedReadme),
     ]);
@@ -134,7 +287,7 @@ async function renameApp() {
     const localEnvPath = path.join(root, '.env');
     if (existsSync(localEnvPath)) {
       const localEnv = await readFile(localEnvPath, 'utf8');
-      await writeFile(localEnvPath, updateLocalEnv(localEnv, identity));
+      await writeFile(localEnvPath, updateEnvInPlace(localEnv, identity));
     }
 
     console.log(`Renamed app to ${name} (${bundleId}).`);

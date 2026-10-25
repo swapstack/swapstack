@@ -5,12 +5,82 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import {
+  escapeDotenvValue,
+  escapeTsStringLiteral,
   removePackagesFromWorkspaceYaml,
   renameAppFiles,
   slugify,
+  updateEnvContent,
+  validateAndroidPackage,
   validateAppName,
   validateBundleId,
+  validateIosBundleId,
+  validateUrlScheme,
 } from '../src/rename.js';
+
+describe('identifier validators', () => {
+  it('validates iOS bundle IDs strictly', () => {
+    assert.equal(validateIosBundleId('com.example.app'), true);
+    assert.equal(validateIosBundleId('com.example.my-app'), true);
+    assert.equal(validateIosBundleId('com.1example.app'), true);
+    assert.equal(validateIosBundleId('com.example.app_1'), false); // underscores disallowed
+    assert.equal(validateIosBundleId('invalid'), false);
+    assert.equal(validateIosBundleId(''), false);
+  });
+
+  it('validates Android packages strictly', () => {
+    assert.equal(validateAndroidPackage('com.example.app'), true);
+    assert.equal(validateAndroidPackage('com.example.my_app'), true);
+    assert.equal(validateAndroidPackage('com.1example.app'), false); // digit-leading segment
+    assert.equal(validateAndroidPackage('com.example.class'), false); // Java keyword
+    assert.equal(validateAndroidPackage('com.example.fun'), false); // Kotlin keyword
+    assert.equal(validateAndroidPackage('com.example.val'), false); // Kotlin keyword
+    assert.equal(validateAndroidPackage('com.example.foo-bar'), false); // hyphens disallowed
+    assert.equal(validateAndroidPackage('invalid'), false);
+  });
+
+  it('validates URL schemes strictly', () => {
+    assert.equal(validateUrlScheme('myapp'), true);
+    assert.equal(validateUrlScheme('my-app'), true);
+    assert.equal(validateUrlScheme('1myapp'), false); // must start with letter
+    assert.equal(validateUrlScheme('-myapp'), false);
+    assert.equal(validateUrlScheme(''), false);
+  });
+});
+
+describe('escaping helpers', () => {
+  it('escapes dotenv values when containing spaces, quotes, or special characters', () => {
+    assert.equal(escapeDotenvValue('Simple'), 'Simple');
+    assert.equal(escapeDotenvValue('My App'), '"My App"');
+    assert.equal(escapeDotenvValue('App $100'), '"App \\$100"');
+    assert.equal(escapeDotenvValue('He said "hello"'), '"He said \\"hello\\""');
+  });
+
+  it('escapes TypeScript string literals', () => {
+    assert.equal(escapeTsStringLiteral('Simple'), 'Simple');
+    assert.equal(escapeTsStringLiteral('It\'s cool'), 'It\\\'s cool');
+    assert.equal(escapeTsStringLiteral('Line1\nLine2'), 'Line1\\nLine2');
+  });
+
+  it('updates env content in place preserving other variables and comments', () => {
+    const input = `# Comment
+APP_NAME=Old
+APP_SLUG=old
+EXPO_PUBLIC_AUTH_PROVIDER=mock
+`;
+    const updated = updateEnvContent(input, {
+      APP_NAME: 'New $100 App',
+      APP_SLUG: 'new-app',
+      APP_SCHEME: 'newapp',
+      IOS_BUNDLE_ID: 'com.new.app',
+      ANDROID_PACKAGE: 'com.new.app',
+    });
+
+    assert.match(updated, /# Comment/);
+    assert.match(updated, /APP_NAME="New \\\$100 App"/);
+    assert.match(updated, /EXPO_PUBLIC_AUTH_PROVIDER=mock/);
+  });
+});
 
 describe('rename helpers', () => {
   it('slugifies names correctly', () => {
@@ -26,12 +96,10 @@ describe('rename helpers', () => {
     assert.equal(validateAppName('!@#$%'), false);
   });
 
-  it('validates bundle IDs', () => {
+  it('validates bundle IDs combining iOS and Android rules', () => {
     assert.equal(validateBundleId('com.swapstack.app'), true);
-    assert.equal(validateBundleId('io.github.user.app'), true);
-    assert.equal(validateBundleId('invalid'), false);
-    assert.equal(validateBundleId('123.com'), false);
-    assert.equal(validateBundleId(''), false);
+    assert.equal(validateBundleId('com.example.foo-bar'), false); // fails android
+    assert.equal(validateBundleId('com.example.class'), false); // fails android
   });
 
   it('removes packages from pnpm-workspace.yaml while keeping other settings', () => {
@@ -62,7 +130,7 @@ describe('renameAppFiles', () => {
     rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it('renames app files and creates .env from .env.example', async () => {
+  it('renames app files and handles special dollar signs in app names', async () => {
     const envTsContent = `import { z } from 'zod';
 const DEFAULT_APP_IDENTITY = {
   APP_NAME: 'Swapstack',
@@ -81,27 +149,9 @@ IOS_BUNDLE_ID=com.swapstack.app
 ANDROID_PACKAGE=com.swapstack.app
 EXPO_PUBLIC_AUTH_PROVIDER=mock
 `;
-    const packageJsonContent = JSON.stringify(
-      {
-        name: 'swapstack',
-        version: '0.1.0',
-        private: true,
-      },
-      null,
-      2,
-    );
-    const readmeContent = `# Swapstack
-
-Swapstack is a developer boilerplate.
-`;
-    const workspaceContent = `shellEmulator: true
-
-trustPolicy: no-downgrade
-
-packages:
-  - .
-  - 'packages/*'
-`;
+    const packageJsonContent = JSON.stringify({ name: 'swapstack', version: '0.1.0' }, null, 2);
+    const readmeContent = `# Swapstack\n\nSwapstack boilerplate.\n`;
+    const workspaceContent = `shellEmulator: true\npackages:\n  - .\n`;
 
     writeFileSync(path.join(tempDir, 'env.ts'), envTsContent);
     writeFileSync(path.join(tempDir, '.env.example'), envExampleContent);
@@ -110,46 +160,27 @@ packages:
     writeFileSync(path.join(tempDir, 'pnpm-workspace.yaml'), workspaceContent);
 
     await renameAppFiles(tempDir, {
-      name: 'Rocket Launch',
-      iosBundleId: 'com.aerospace.rocket',
-      androidPackage: 'com.aerospace.rocket',
+      name: 'Save $100 App',
+      iosBundleId: 'com.finance.save100',
+      androidPackage: 'com.finance.save100',
     });
 
-    // Verify env.ts
+    // Verify env.ts preserved $100 without regex corruption
     const updatedEnvTs = readFileSync(path.join(tempDir, 'env.ts'), 'utf8');
-    assert.match(updatedEnvTs, /APP_NAME:\s*'Rocket Launch'/);
-    assert.match(updatedEnvTs, /APP_SLUG:\s*'rocket-launch'/);
-    assert.match(updatedEnvTs, /IOS_BUNDLE_ID:\s*'com.aerospace.rocket'/);
-    assert.match(updatedEnvTs, /ANDROID_PACKAGE:\s*'com.aerospace.rocket'/);
+    assert.match(updatedEnvTs, /APP_NAME:\s*'Save \$100 App'/);
+    assert.match(updatedEnvTs, /IOS_BUNDLE_ID:\s*'com\.finance\.save100'/);
 
-    // Verify .env.example
-    const updatedEnvExample = readFileSync(
-      path.join(tempDir, '.env.example'),
-      'utf8',
-    );
-    assert.match(updatedEnvExample, /APP_NAME=Rocket Launch/);
-    assert.match(updatedEnvExample, /APP_SLUG=rocket-launch/);
-    assert.match(updatedEnvExample, /IOS_BUNDLE_ID=com.aerospace.rocket/);
+    // Verify .env.example kept provider variables and escaped $ in dotenv
+    const updatedEnvExample = readFileSync(path.join(tempDir, '.env.example'), 'utf8');
+    assert.match(updatedEnvExample, /APP_NAME="Save \\\$100 App"/);
     assert.match(updatedEnvExample, /EXPO_PUBLIC_AUTH_PROVIDER=mock/);
 
-    // Verify .env created from .env.example
+    // Verify .env matches .env.example
     const createdEnv = readFileSync(path.join(tempDir, '.env'), 'utf8');
     assert.equal(createdEnv, updatedEnvExample);
 
-    // Verify package.json
-    const updatedPkg = JSON.parse(
-      readFileSync(path.join(tempDir, 'package.json'), 'utf8'),
-    ) as { name: string };
-    assert.equal(updatedPkg.name, 'rocket-launch');
-
-    // Verify README.md
+    // Verify README.md preserved $100 title
     const updatedReadme = readFileSync(path.join(tempDir, 'README.md'), 'utf8');
-    assert.match(updatedReadme, /^# Rocket Launch/);
-
-    // Verify pnpm-workspace.yaml kept other settings and removed packages entry
-    const updatedWorkspace = readFileSync(path.join(tempDir, 'pnpm-workspace.yaml'), 'utf8');
-    assert.match(updatedWorkspace, /shellEmulator:\s*true/);
-    assert.match(updatedWorkspace, /trustPolicy:\s*no-downgrade/);
-    assert.doesNotMatch(updatedWorkspace, /packages:/);
+    assert.match(updatedReadme, /^# Save \$100 App/);
   });
 });

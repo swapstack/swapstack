@@ -17,12 +17,159 @@ export function slugify(value: string): string {
     .replace(/^-|-$/g, '');
 }
 
+export const JAVA_KOTLIN_RESERVED_WORDS: ReadonlySet<string> = new Set([
+  'abstract',
+  'assert',
+  'boolean',
+  'break',
+  'byte',
+  'case',
+  'catch',
+  'char',
+  'class',
+  'const',
+  'continue',
+  'default',
+  'do',
+  'double',
+  'else',
+  'enum',
+  'extends',
+  'final',
+  'finally',
+  'float',
+  'for',
+  'goto',
+  'if',
+  'implements',
+  'import',
+  'instanceof',
+  'int',
+  'interface',
+  'long',
+  'native',
+  'new',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'return',
+  'short',
+  'static',
+  'strictfp',
+  'super',
+  'switch',
+  'synchronized',
+  'this',
+  'throw',
+  'throws',
+  'transient',
+  'try',
+  'void',
+  'volatile',
+  'while',
+  'true',
+  'false',
+  'null',
+  'as',
+  'fun',
+  'in',
+  'is',
+  'object',
+  'typealias',
+  'val',
+  'var',
+  'when',
+  'by',
+  'constructor',
+  'delegate',
+  'dynamic',
+  'field',
+  'file',
+  'init',
+  'param',
+  'property',
+  'receiver',
+  'setparam',
+  'where',
+  'actual',
+  'expect',
+  'sealed',
+  'annotation',
+  'data',
+  'inner',
+  'value',
+  'override',
+  'open',
+  'operator',
+  'inline',
+  'infix',
+  'external',
+  'tailrec',
+  'suspend',
+]);
+
+export function validateIosBundleId(bundleId?: string): bundleId is string {
+  if (!bundleId) {
+    return false;
+  }
+  const segments = bundleId.split('.');
+  if (segments.length < 2) {
+    return false;
+  }
+  return segments.every(segment => segment.length > 0 && /^[a-z0-9-]+$/i.test(segment));
+}
+
+export function validateAndroidPackage(packageName?: string): packageName is string {
+  if (!packageName) {
+    return false;
+  }
+  const segments = packageName.split('.');
+  if (segments.length < 2) {
+    return false;
+  }
+  return segments.every((segment) => {
+    if (!/^[a-z_]\w*$/i.test(segment)) {
+      return false;
+    }
+    return !JAVA_KOTLIN_RESERVED_WORDS.has(segment.toLowerCase());
+  });
+}
+
+export function validateUrlScheme(scheme?: string): scheme is string {
+  if (!scheme) {
+    return false;
+  }
+  return /^[a-z][\w+.-]*$/i.test(scheme);
+}
+
 export function validateAppName(name?: string): name is string {
   return Boolean(name && slugify(name).length > 0);
 }
 
 export function validateBundleId(bundleId?: string): bundleId is string {
-  return Boolean(bundleId && /^[a-z]\w*(\.\w+)+$/i.test(bundleId));
+  return validateIosBundleId(bundleId) && validateAndroidPackage(bundleId);
+}
+
+export function escapeDotenvValue(value: string): string {
+  if (/[ \t\n\r"'#\\$]/.test(value)) {
+    const escaped = value
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\$/g, '\\$');
+    return `"${escaped}"`;
+  }
+  return value;
+}
+
+export function escapeTsStringLiteral(value: string): string {
+  return value
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, '\\\'')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r');
 }
 
 const identityKeys = [
@@ -32,6 +179,32 @@ const identityKeys = [
   'IOS_BUNDLE_ID',
   'ANDROID_PACKAGE',
 ] as const;
+
+export type IdentityKey = typeof identityKeys[number];
+
+export function updateEnvContent(
+  source: string,
+  identity: Record<IdentityKey, string>,
+): string {
+  const values: Partial<Record<IdentityKey, string>> = { ...identity };
+  const lines = source.split('\n').map((line) => {
+    const key = identityKeys.find(candidate => line.startsWith(`${candidate}=`));
+    if (!key) {
+      return line;
+    }
+    const val = values[key];
+    delete values[key];
+    return `${key}=${escapeDotenvValue(val ?? '')}`;
+  });
+
+  for (const key of identityKeys) {
+    if (values[key] !== undefined) {
+      lines.push(`${key}=${escapeDotenvValue(values[key]!)}`);
+    }
+  }
+
+  return lines.join('\n');
+}
 
 export function removePackagesFromWorkspaceYaml(content: string): string {
   const lines = content.split('\n');
@@ -76,13 +249,13 @@ export async function renameAppFiles(
   if (existsSync(envPath)) {
     const envSource = await readFile(envPath, 'utf8');
     const defaults = `const DEFAULT_APP_IDENTITY = {\n${identityKeys
-      .map(key => `  ${key}: '${identity[key].replaceAll(/'/g, String.raw`\'`)}',`)
+      .map(key => `  ${key}: '${escapeTsStringLiteral(identity[key])}',`)
       .join('\n')}\n} as const;`;
 
     if (/const DEFAULT_APP_IDENTITY = \{[\s\S]*?\} as const;/.test(envSource)) {
       await writeFile(
         envPath,
-        envSource.replace(/const DEFAULT_APP_IDENTITY = \{[\s\S]*?\} as const;/, defaults),
+        envSource.replace(/const DEFAULT_APP_IDENTITY = \{[\s\S]*?\} as const;/, () => defaults),
         'utf8',
       );
     }
@@ -93,12 +266,7 @@ export async function renameAppFiles(
   let exampleContent = '';
   if (existsSync(examplePath)) {
     exampleContent = await readFile(examplePath, 'utf8');
-    for (const key of identityKeys) {
-      const regex = new RegExp(`^${key}=.*$`, 'm');
-      if (regex.test(exampleContent)) {
-        exampleContent = exampleContent.replace(regex, `${key}=${identity[key]}`);
-      }
-    }
+    exampleContent = updateEnvContent(exampleContent, identity);
     await writeFile(examplePath, exampleContent, 'utf8');
   }
 
@@ -120,7 +288,7 @@ export async function renameAppFiles(
   const readmePath = path.join(targetDir, 'README.md');
   if (existsSync(readmePath)) {
     const readme = await readFile(readmePath, 'utf8');
-    const updated = readme.replace(/^# .*$/m, `# ${name}`);
+    const updated = readme.replace(/^# .*$/m, () => `# ${name}`);
     await writeFile(readmePath, updated, 'utf8');
   }
 
