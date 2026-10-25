@@ -76,6 +76,9 @@ export class MockBillingProvider implements BillingProvider {
     };
   };
 
+  /**
+   * Test-only helper to reset billing state, offerings, entitlements, and listeners.
+   */
   readonly reset = (
     offerings: readonly Offering[] = DEFAULT_MOCK_OFFERINGS,
     entitlements: readonly Entitlement[] = DEFAULT_MOCK_ENTITLEMENTS,
@@ -88,7 +91,12 @@ export class MockBillingProvider implements BillingProvider {
   private notifyListeners(): void {
     const list = Array.from(this.entitlements.values()).map(e => ({ ...e }));
     for (const listener of this.listeners) {
-      listener(list);
+      try {
+        listener(list);
+      }
+      catch {
+        // Silently ignore listener errors to prevent breaking other listeners
+      }
     }
   }
 }

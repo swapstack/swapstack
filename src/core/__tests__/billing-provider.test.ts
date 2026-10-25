@@ -1,6 +1,10 @@
-import { describeBillingProviderContract } from '../contracts/billing-provider.contract';
+import {
+  describeBillingPurchaseContract,
+  describeBillingReadOnlyContract,
+} from '../contracts/billing-provider.contract';
 import { MockBillingProvider } from '../mocks/mock-billing-provider';
 
-describe('mockBillingProvider Contract Suite', () => {
-  describeBillingProviderContract(() => new MockBillingProvider());
+describe('mock billing provider contracts', () => {
+  describeBillingReadOnlyContract(() => new MockBillingProvider());
+  describeBillingPurchaseContract(() => new MockBillingProvider());
 });
