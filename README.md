@@ -29,6 +29,19 @@ To run on a specific platform:
 
 The app runs with mock auth, data, and billing providers by default. No API keys or service projects are needed for local development.
 
+## Switching providers
+
+Providers are selected using environment variables in `.env`:
+
+```sh
+# Provider configuration (currently accepts only "mock").
+EXPO_PUBLIC_AUTH_PROVIDER=mock
+EXPO_PUBLIC_DATA_PROVIDER=mock
+EXPO_PUBLIC_BILLING_PROVIDER=mock
+```
+
+To switch a provider, set the variable to any registered provider name (currently `"mock"` is bundled). An unknown provider name throws an error at startup listing valid choices.
+
 ## What's inside
 
 Swapstack structures core services behind vendor-agnostic contracts under `src/core`:
@@ -40,6 +53,7 @@ Swapstack structures core services behind vendor-agnostic contracts under `src/c
   - `types.ts` & `errors.ts`: vendor-free models (`User`, `Session`, `Profile`, `Offering`, `Entitlement`) and typed error classes (`AuthError`, `BillingError`).
 - **Mocks (`src/core/mocks/`)**: in-memory mock implementations of all providers for local development and rapid testing without external API keys.
 - **Contract tests (`src/core/contracts/`)**: reusable contract test suites that verify any provider (mock or live) complies with the required behavior.
+- **Provider Registry (`src/lib/providers/`)**: dynamic registry to register and resolve service providers from configuration without touching application UI code.
 
 ## Rename your app
 
@@ -65,10 +79,10 @@ For live builds and services, you need your own Expo/EAS project, Supabase proje
 - TanStack Query and MMKV storage
 - Jest and React Native Testing Library
 - Plain interfaces in `src/core` with generic mock providers
+- Swappable provider registry in `src/lib/providers`
 
 ## Planned
 
-- Swappable provider registry configured via app config
 - Live Supabase adapter (auth & data)
 - Live RevenueCat adapter (billing & entitlements)
 
