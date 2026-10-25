@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.1.0",
   "description": "Create a new Swapstack app from the command line",
-  "author": "Abdullah Ahsan <s.mabdullahahsan@gmail.com>",
+  "author": "Abdullah Ahsan",
   "license": "MIT",
   "homepage": "https://github.com/swapstack/swapstack#readme",
   "repository": {
