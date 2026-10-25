@@ -65,7 +65,7 @@ export function register<K extends ProviderKind>(
   name: string,
   factory: ProviderFactory<K>,
 ): void {
-  const normalized = name.toLowerCase();
+  const normalized = name.trim().toLowerCase();
   cachedBackendAdapter = null;
   cachedBillingAdapter = null;
   switch (kind) {

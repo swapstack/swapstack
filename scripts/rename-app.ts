@@ -171,6 +171,25 @@ function slugify(value: string) {
     .replace(/^-|-$/g, '');
 }
 
+function parseEnvValue(source: string) {
+  const value = source.trim();
+  if (value.length >= 2 && value.startsWith('"') && value.endsWith('"')) {
+    return value.slice(1, -1).replace(/\\(.)/gs, (_match, escaped: string) => {
+      if (escaped === 'n') {
+        return '\n';
+      }
+      if (escaped === 'r') {
+        return '\r';
+      }
+      return escaped;
+    });
+  }
+  if (value.length >= 2 && value.startsWith('\'') && value.endsWith('\'')) {
+    return value.slice(1, -1);
+  }
+  return value;
+}
+
 function parseEnv(source: string) {
   return Object.fromEntries(
     source
@@ -178,7 +197,7 @@ function parseEnv(source: string) {
       .filter(line => /^[A-Z][A-Z0-9_]*=/.test(line))
       .map((line) => {
         const separator = line.indexOf('=');
-        return [line.slice(0, separator), line.slice(separator + 1)];
+        return [line.slice(0, separator), parseEnvValue(line.slice(separator + 1))];
       }),
   ) as Partial<Identity>;
 }
@@ -269,10 +288,10 @@ async function renameApp() {
 
     const readmePath = path.join(root, 'README.md');
     const readme = await readFile(readmePath, 'utf8');
-    const updatedReadme = readme.replace(/^# .*$/m, () => `# ${name}`);
-    if (updatedReadme === readme) {
+    if (!/^# .*$/m.test(readme)) {
       throw new Error('Could not find the README title.');
     }
+    const updatedReadme = readme.replace(/^# .*$/m, () => `# ${name}`);
 
     await Promise.all([
       writeFile(

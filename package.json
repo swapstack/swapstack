@@ -43,8 +43,8 @@
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
     "test": "jest",
-    "check-all": "pnpm run lint && pnpm run type-check && pnpm run test",
-    "test:ci": "pnpm run test --coverage && npx tsx scripts/test-cli.ts",
+    "check-all": "pnpm run lint && pnpm run type-check && pnpm run test && npx tsx scripts/test-cli.ts",
+    "test:ci": "pnpm run test --coverage",
     "test:watch": "pnpm run test --watch"
   },
   "dependencies": {

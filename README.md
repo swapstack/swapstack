@@ -4,22 +4,12 @@ Swapstack is a free Expo boilerplate with plain interfaces for auth, data, and b
 
 ## Quick start
 
-### Quick start with npx
-
-Create a new Swapstack project with a single command:
-
-```sh
-npx create-swapstack-app my-app
-```
-
-This downloads the template, renames the app and package identifiers, configures `.env`, and installs dependencies.
-
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (version 20.19.4 or higher)
 - [pnpm](https://pnpm.io/) (version 10 or higher)
 
-### Setup & Run manually
+### Setup & Run
 
 Select **Use this template** on GitHub, clone your repository, then run:
 

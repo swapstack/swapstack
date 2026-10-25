@@ -4,6 +4,8 @@ Quickly scaffold a new [Swapstack](https://github.com/swapstack/swapstack) mobil
 
 ## Quick Start
 
+Once this package is published to npm, create an app with:
+
 ```sh
 npx create-swapstack-app my-app
 ```

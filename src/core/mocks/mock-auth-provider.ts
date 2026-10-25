@@ -17,16 +17,15 @@ export class MockAuthProvider implements AuthProvider {
   private userCounter = 0;
 
   constructor(initialSession: Session | null = null, initialUsers: readonly User[] = []) {
-    this.currentSession = initialSession;
+    this.currentSession = initialSession ? structuredClone(initialSession) : null;
     for (const user of initialUsers) {
-      this.users.set(user.email.toLowerCase(), user);
+      this.users.set(user.email.toLowerCase(), structuredClone(user));
     }
     if (initialSession?.user) {
-      this.users.set(initialSession.user.email.toLowerCase(), initialSession.user);
+      this.users.set(initialSession.user.email.toLowerCase(), structuredClone(initialSession.user));
     }
   }
 
-  // Note: Passwords are not verified in MockAuthProvider to simplify testing
   readonly signIn = async (credentials: SignInCredentials): Promise<Session> => {
     const email = this.validateEmail(credentials.email);
     const user = this.users.get(email.toLowerCase());
@@ -38,7 +37,6 @@ export class MockAuthProvider implements AuthProvider {
     return this.createSession(user);
   };
 
-  // Note: Passwords are not verified in MockAuthProvider to simplify testing
   readonly signUp = async (credentials: SignUpCredentials): Promise<Session> => {
     const email = this.validateEmail(credentials.email);
     const key = email.toLowerCase();
@@ -52,10 +50,10 @@ export class MockAuthProvider implements AuthProvider {
       id: `user_${this.userCounter}_${Math.random().toString(36).slice(2, 9)}`,
       email,
       createdAt: new Date().toISOString(),
-      metadata: credentials.metadata,
+      metadata: structuredClone(credentials.metadata),
     };
 
-    this.users.set(key, user);
+    this.users.set(key, structuredClone(user));
     return this.createSession(user);
   };
 
@@ -72,7 +70,7 @@ export class MockAuthProvider implements AuthProvider {
         createdAt: new Date().toISOString(),
         metadata: { provider },
       };
-      this.users.set(key, user);
+      this.users.set(key, structuredClone(user));
     }
 
     return this.createSession(user);
@@ -93,7 +91,7 @@ export class MockAuthProvider implements AuthProvider {
       this.notifyListeners();
       return null;
     }
-    return this.currentSession;
+    return this.currentSession ? structuredClone(this.currentSession) : null;
   };
 
   readonly onAuthChange = (callback: AuthStateChangeCallback): Unsubscribe => {
@@ -103,17 +101,14 @@ export class MockAuthProvider implements AuthProvider {
     };
   };
 
-  /**
-   * Test-only helper to reset authentication state, registered users, and listeners.
-   */
   readonly reset = (initialSession: Session | null = null): void => {
-    this.currentSession = initialSession;
+    this.currentSession = initialSession ? structuredClone(initialSession) : null;
     this.users.clear();
     this.listeners.clear();
     this.tokenCounter = 0;
     this.userCounter = 0;
     if (initialSession?.user) {
-      this.users.set(initialSession.user.email.toLowerCase(), initialSession.user);
+      this.users.set(initialSession.user.email.toLowerCase(), structuredClone(initialSession.user));
     }
   };
 
@@ -129,20 +124,20 @@ export class MockAuthProvider implements AuthProvider {
     this.tokenCounter += 1;
     const session: Session = {
       token: `mock_token_${Date.now()}_${this.tokenCounter}`,
-      user,
+      user: structuredClone(user),
       expiresAt: Date.now() + 3600 * 1000,
     };
 
     this.currentSession = session;
     this.notifyListeners();
-    return session;
+    return structuredClone(session);
   }
 
   private notifyListeners(): void {
     const session = this.currentSession;
     for (const listener of this.listeners) {
       try {
-        listener(session);
+        listener(session ? structuredClone(session) : null);
       }
       catch (error) {
         console.warn('MockAuthProvider listener threw an error:', error);

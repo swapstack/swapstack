@@ -93,6 +93,13 @@ describe('provider registry resolution', () => {
     expect(getAuthProvider()).toBe(customAuth);
   });
 
+  it('normalizes whitespace when registering provider names', () => {
+    const customAuth = new MockAuthProvider();
+    register('auth', ' custom ', () => customAuth);
+
+    expect(getAuthProvider('custom')).toBe(customAuth);
+  });
+
   it('throws an error listing valid provider names when unknown provider is requested', () => {
     expect(() => getAuthProvider('unknown')).toThrow(
       'Unknown auth provider "unknown". Valid auth providers: mock.',

@@ -2,6 +2,7 @@
 
 import type { ParsedArgs } from './args.js';
 import { execSync } from 'node:child_process';
+import { rm } from 'node:fs/promises';
 import path from 'node:path';
 import { downloadTemplate } from 'giget';
 import prompts from 'prompts';
@@ -188,7 +189,7 @@ function initGitAndInstallDeps(
         console.error(error.message);
       }
       console.log('\nNext steps:');
-      console.log(`  cd ${targetDir}`);
+      console.log(`  cd ${JSON.stringify(targetDir)}`);
       console.log('  pnpm install');
       console.log('  pnpm run setup   # if needed to reconfigure environment variables');
       console.log('  pnpm start       # to start the Expo development server\n');
@@ -225,7 +226,7 @@ async function run(): Promise<void> {
     return;
   }
 
-  if (args.yes && !args.iosBundleId && !args.androidPackage) {
+  if (args.yes && (!args.iosBundleId || !args.androidPackage)) {
     console.error('Error: --bundle-id (or --ios-bundle-id and --android-package) is required when using --yes.');
     process.exit(1);
   }
@@ -262,6 +263,9 @@ async function run(): Promise<void> {
 
   console.log(`\nCreating a new Swapstack app in ${targetPath}...\n`);
   console.log('Downloading template from github:swapstack/swapstack (main)...');
+  await Promise.all(
+    ['.DS_Store', 'Thumbs.db'].map(file => rm(path.join(targetPath, file), { force: true })),
+  );
 
   try {
     await downloadTemplate('github:swapstack/swapstack#main', {
@@ -285,7 +289,7 @@ async function run(): Promise<void> {
 
   console.log(`\n🎉 Success! Created ${appName} at ${targetPath}\n`);
   console.log('Next steps:');
-  console.log(`  cd ${targetDir}`);
+  console.log(`  cd ${JSON.stringify(targetDir)}`);
   if (!args.install) {
     console.log('  pnpm install');
   }
