@@ -75,4 +75,16 @@ module.exports = {
     800: '#991B1B',
     900: '#7F1D1D',
   },
+  border: {
+    light: '#E5E5E5',
+    dark: '#2E2E2E',
+  },
+  card: {
+    light: '#FFFFFF',
+    dark: '#141414',
+  },
+  muted: {
+    light: '#F5F5F5',
+    dark: '#262626',
+  },
 };
