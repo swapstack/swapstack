@@ -81,6 +81,12 @@ For live builds and services, you need your own Expo/EAS project, Supabase proje
 - Plain interfaces in `src/core` with generic mock providers
 - Swappable provider registry in `src/lib/providers`
 
+## Design system
+
+Design rules live in `DESIGN.md`. Change the tokens to rebrand.
+
+The design system and token definitions were generated and structured with help from the [Impeccable](https://github.com/google-labs-code/impeccable) design skill (licensed under Apache-2.0). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for details.
+
 ## Planned
 
 - Live Supabase adapter (auth & data)
