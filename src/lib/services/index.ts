@@ -1,47 +1,13 @@
-import type {
-  AuthProvider,
-  BillingProvider,
-  DataRepository,
-  EntitlementsChangeCallback,
-  Profile,
-} from '@/core';
-import {
-  mockAuthProvider,
-  mockBillingProvider,
-  mockProfileRepository,
-} from '@/core';
+import type { BackendAdapter, BillingAdapter } from '@/lib/providers/registry';
+import { getBackendAdapter, getBillingAdapter } from '@/lib/providers/registry';
 
-export type BackendAdapter = {
-  readonly name: string;
-  readonly mode: 'live' | 'mock';
-  readonly auth: AuthProvider;
-  readonly profiles: DataRepository<Profile>;
-};
-
-export type BillingAdapter = BillingProvider & {
-  readonly name: string;
-  readonly mode: 'live' | 'mock';
-};
-
-const mockBackend: BackendAdapter = {
-  name: 'Mock',
-  mode: 'mock',
-  auth: mockAuthProvider,
-  profiles: mockProfileRepository,
-};
-
-const mockBilling: BillingAdapter = {
-  name: 'Mock',
-  mode: 'mock',
-  getOfferings: () => mockBillingProvider.getOfferings(),
-  purchase: (offeringId: string) => mockBillingProvider.purchase(offeringId),
-  restore: () => mockBillingProvider.restore(),
-  getEntitlements: () => mockBillingProvider.getEntitlements(),
-  onEntitlementsChange: (callback: EntitlementsChangeCallback) =>
-    mockBillingProvider.onEntitlementsChange(callback),
-};
+export type { BackendAdapter, BillingAdapter };
 
 export const serviceProviders = {
-  backend: mockBackend,
-  billing: mockBilling,
+  get backend(): BackendAdapter {
+    return getBackendAdapter();
+  },
+  get billing(): BillingAdapter {
+    return getBillingAdapter();
+  },
 };
