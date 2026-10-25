@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.12.3",
+  "author": "Abdullah Ahsan",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/swapstack/swapstack.git"
