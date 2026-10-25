@@ -1,4 +1,5 @@
 import type { Profile } from '../types';
+import { InMemorySessionStorage } from './in-memory-session-storage';
 import { MockAuthProvider } from './mock-auth-provider';
 import {
   DEFAULT_MOCK_ENTITLEMENTS,
@@ -10,6 +11,7 @@ import { MockDataRepository } from './mock-data-repository';
 export {
   DEFAULT_MOCK_ENTITLEMENTS,
   DEFAULT_MOCK_OFFERINGS,
+  InMemorySessionStorage,
   MockAuthProvider,
   MockBillingProvider,
   MockDataRepository,

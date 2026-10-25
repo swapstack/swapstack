@@ -4,12 +4,14 @@ import type {
   DataRepository,
   EntitlementsChangeCallback,
   Profile,
+  SessionStorage,
 } from '@/core';
 import {
   mockAuthProvider,
   mockBillingProvider,
   mockProfileRepository,
 } from '@/core';
+import { SecureSessionStorage } from '@/lib/auth/secure-session-storage';
 
 export type ProviderKind = 'auth' | 'data' | 'billing';
 
@@ -59,6 +61,17 @@ const instances: InstanceStore = {
 
 let cachedBackendAdapter: BackendAdapter | null = null;
 let cachedBillingAdapter: BillingAdapter | null = null;
+let authSessionStorage: SessionStorage = new SecureSessionStorage();
+
+export function getAuthSessionStorage(): SessionStorage {
+  return authSessionStorage;
+}
+
+export function setAuthSessionStorage(storage: SessionStorage): void {
+  authSessionStorage = storage;
+  instances.auth.clear();
+  cachedBackendAdapter = null;
+}
 
 export function register<K extends ProviderKind>(
   kind: K,
