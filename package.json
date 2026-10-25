@@ -1,11 +1,11 @@
 {
-  "name": "obytesapp",
-  "version": "9.0.0",
+  "name": "swapstack",
+  "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.12.3",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/obytes/react-native-template-obytes.git"
+    "url": "git+https://github.com/swapstack/swapstack.git"
   },
   "main": "expo-router/entry",
   "scripts": {
