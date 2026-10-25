@@ -107,3 +107,21 @@ describe('input component ', () => {
     expect(input.props.disabled).toBe(true);
   });
 });
+
+describe('input password visibility', () => {
+  it('should toggle password visibility when toggle button is pressed', async () => {
+    const { user } = setup(<Input testID="password-input" secureTextEntry={true} />);
+
+    const input = screen.getByTestId('password-input');
+    const toggle = screen.getByTestId('password-input-toggle-password');
+
+    expect(toggle).toBeOnTheScreen();
+    expect(input.props.secureTextEntry).toBe(true);
+
+    await user.press(toggle);
+    expect(input.props.secureTextEntry).toBe(false);
+
+    await user.press(toggle);
+    expect(input.props.secureTextEntry).toBe(true);
+  });
+});

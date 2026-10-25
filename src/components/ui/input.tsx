@@ -1,10 +1,11 @@
 /* eslint-disable better-tailwindcss/no-unknown-classes */
 import type { TextInputProps } from 'react-native';
 import * as React from 'react';
-import { I18nManager, TextInput as NTextInput, StyleSheet, View } from 'react-native';
+import { I18nManager, TextInput as NTextInput, Pressable, StyleSheet, View } from 'react-native';
 import { tv } from 'tailwind-variants';
 
 import colors from './colors';
+import { Eye, EyeOff } from './icons';
 import { Text } from './text';
 
 const inputTv = tv({
@@ -44,11 +45,18 @@ export type NInputProps = {
   label?: string;
   disabled?: boolean;
   error?: string;
+  passwordReveal?: boolean;
 } & TextInputProps;
 
 export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextInput | null> }) {
-  const { label, error, testID, onBlur: onBlurProp, onFocus: onFocusProp, ...inputProps } = props;
+  const { label, error, testID, passwordReveal, secureTextEntry, onBlur: onBlurProp, onFocus: onFocusProp, ...inputProps } = props;
   const [isFocussed, setIsFocussed] = React.useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
+
+  const hasPasswordToggle = passwordReveal ?? Boolean(secureTextEntry);
+  const effectiveSecureTextEntry = hasPasswordToggle
+    ? Boolean(secureTextEntry) && !isPasswordVisible
+    : secureTextEntry;
 
   const onBlur = React.useCallback(
     (e: any) => {
@@ -66,6 +74,10 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
     [onFocusProp],
   );
 
+  const togglePasswordVisibility = React.useCallback(() => {
+    setIsPasswordVisible(prev => !prev);
+  }, []);
+
   const styles = inputTv({
     error: Boolean(error),
     focused: isFocussed,
@@ -82,20 +94,34 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
           {label}
         </Text>
       )}
-      <NTextInput
-        testID={testID}
-        ref={ref}
-        placeholderTextColor={colors.neutral[400]}
-        className={styles.input()}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        {...inputProps}
-        style={StyleSheet.flatten([
-          { writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' },
-          { textAlign: I18nManager.isRTL ? 'right' : 'left' },
-          inputProps.style,
-        ])}
-      />
+      <View className="relative justify-center">
+        <NTextInput
+          testID={testID}
+          ref={ref}
+          placeholderTextColor={colors.neutral[400]}
+          className={hasPasswordToggle ? `${styles.input()} pr-11` : styles.input()}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          secureTextEntry={effectiveSecureTextEntry}
+          {...inputProps}
+          style={StyleSheet.flatten([
+            { writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' },
+            { textAlign: I18nManager.isRTL ? 'right' : 'left' },
+            inputProps.style,
+          ])}
+        />
+        {hasPasswordToggle && (
+          <Pressable
+            testID={testID ? `${testID}-toggle-password` : 'toggle-password'}
+            accessibilityRole="button"
+            accessibilityLabel={isPasswordVisible ? 'Hide password' : 'Show password'}
+            onPress={togglePasswordVisibility}
+            className="absolute right-3 p-1"
+          >
+            {isPasswordVisible ? <EyeOff /> : <Eye />}
+          </Pressable>
+        )}
+      </View>
       {error && (
         <Text
           testID={testID ? `${testID}-error` : undefined}

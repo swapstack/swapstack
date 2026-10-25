@@ -81,6 +81,20 @@ For live builds and services, you need your own Expo/EAS project, Supabase proje
 - Plain interfaces in `src/core` with generic mock providers
 - Swappable provider registry in `src/lib/providers`
 
+## Design system
+
+Design rules live in `DESIGN.md`. Change the tokens to rebrand.
+
+The design system and token definitions were generated and structured with help from the [Impeccable](https://github.com/pbakaus/impeccable) design skill (licensed under Apache-2.0). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for details.
+
+### Customizing the design
+
+Swapstack's design system is structured across three levels of customization:
+
+1. **Tokens (`DESIGN.md`, `src/global.css`, `colors.js`)**: Change theme colors (light and dark mode), typography scales, border radii, and spacing. Changes propagate throughout the entire app via Tailwind and Uniwind.
+2. **Components (`src/components/ui/`)**: Modify or extend core UI primitives (`Button`, `Input`, `Card`, `Screen`, `Avatar`, `Toast`, `Divider`) and their variant definitions (`tailwind-variants`).
+3. **Screens & Flows (`src/app/`)**: Assemble full application screens and interaction flows by composing UI components against plain, vendor-agnostic core interfaces.
+
 ## Planned
 
 - Live Supabase adapter (auth & data)
