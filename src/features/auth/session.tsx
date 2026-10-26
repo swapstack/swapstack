@@ -18,9 +18,11 @@ const AuthSessionContext = React.createContext<AuthSessionValue | null>(null);
 export function AuthSessionProvider({
   children,
   provider = getAuthProvider(),
+  onReady,
 }: {
   readonly children: React.ReactNode;
   readonly provider?: AuthProvider;
+  readonly onReady?: () => void;
 }) {
   const [session, setSession] = React.useState<Session | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -61,6 +63,12 @@ export function AuthSessionProvider({
       unsubscribe();
     };
   }, [provider, attempt]);
+
+  React.useEffect(() => {
+    if (!isLoading) {
+      onReady?.();
+    }
+  }, [isLoading, onReady]);
 
   const retry = React.useCallback(() => {
     setError(null);

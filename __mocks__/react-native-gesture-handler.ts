@@ -1,1 +1,5 @@
-module.exports = require('react-native-gesture-handler/src/mocks.ts');
+const { View } = require('react-native');
+
+module.exports = {
+  GestureHandlerRootView: View,
+};

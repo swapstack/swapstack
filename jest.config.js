@@ -35,5 +35,6 @@ module.exports = {
   coverageDirectory: '<rootDir>/coverage/',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '\\.(css)$': '<rootDir>/__mocks__/style-mock.js',
   },
 };
