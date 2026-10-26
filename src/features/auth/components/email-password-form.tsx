@@ -8,10 +8,14 @@ export function EmailPasswordForm({
   submitLabel,
   onSubmit,
   initialEmail = '',
+  disabled = false,
+  onLoadingChange,
 }: {
   readonly submitLabel: string;
   readonly onSubmit: (credentials: SignInCredentials) => Promise<void>;
   readonly initialEmail?: string;
+  readonly disabled?: boolean;
+  readonly onLoadingChange?: (loading: boolean) => void;
 }) {
   const [email, setEmail] = React.useState(initialEmail);
   const [password, setPassword] = React.useState('');
@@ -20,7 +24,15 @@ export function EmailPasswordForm({
   const [error, setError] = React.useState<string>();
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const setLoading = React.useCallback((loading: boolean) => {
+    setIsLoading(loading);
+    onLoadingChange?.(loading);
+  }, [onLoadingChange]);
+
   const submit = React.useCallback(async () => {
+    if (disabled || isLoading) {
+      return;
+    }
     const nextEmailError = getEmailError(email);
     const nextPasswordError = getPasswordError(password);
     setEmailError(nextEmailError);
@@ -30,7 +42,7 @@ export function EmailPasswordForm({
       return;
     }
 
-    setIsLoading(true);
+    setLoading(true);
     try {
       await onSubmit({ email: email.trim(), password });
     }
@@ -38,9 +50,9 @@ export function EmailPasswordForm({
       setError(getErrorMessage(cause));
     }
     finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, [email, password, onSubmit]);
+  }, [disabled, isLoading, email, password, onSubmit, setLoading]);
 
   return (
     <>
@@ -50,7 +62,7 @@ export function EmailPasswordForm({
         value={email}
         onChangeText={setEmail}
         error={emailError}
-        disabled={isLoading}
+        disabled={disabled || isLoading}
         autoCapitalize="none"
         autoComplete="email"
         keyboardType="email-address"
@@ -62,7 +74,7 @@ export function EmailPasswordForm({
         value={password}
         onChangeText={setPassword}
         error={passwordError}
-        disabled={isLoading}
+        disabled={disabled || isLoading}
         autoCapitalize="none"
         autoComplete="password"
         textContentType="password"
@@ -74,6 +86,7 @@ export function EmailPasswordForm({
         className="mt-4"
         label={submitLabel}
         loading={isLoading}
+        disabled={disabled}
         onPress={submit}
       />
     </>

@@ -1,12 +1,17 @@
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Button, Text } from '@/components/ui';
 import { MockAuthProvider } from '@/core';
-import { act, render, screen, waitFor } from '@/lib/test-utils';
+import { act, render, screen, setup, waitFor } from '@/lib/test-utils';
 import { AuthSessionProvider, useAuthSession } from '../session';
 
 function SessionView() {
-  const { session, isLoading, error } = useAuthSession();
-  return <Text>{error ?? (isLoading ? 'loading' : session?.user.id ?? 'signed-out')}</Text>;
+  const { session, isLoading, error, retry } = useAuthSession();
+  return (
+    <>
+      <Text>{error ?? (isLoading ? 'loading' : session?.user.id ?? 'signed-out')}</Text>
+      <Button testID="retry-button" label="Try again" onPress={retry} />
+    </>
+  );
 }
 
 describe('auth session provider', () => {
@@ -35,5 +40,18 @@ describe('auth session provider', () => {
     render(<AuthSessionProvider provider={provider}><SessionView /></AuthSessionProvider>);
 
     expect(await screen.findByText('Storage unavailable')).toBeOnTheScreen();
+  });
+
+  it('retries session restoration', async () => {
+    const provider = new MockAuthProvider();
+    const getSession = jest.spyOn(provider, 'getSession')
+      .mockRejectedValueOnce(new Error('Storage unavailable'))
+      .mockResolvedValue(null);
+    const { user } = setup(<AuthSessionProvider provider={provider}><SessionView /></AuthSessionProvider>);
+    expect(await screen.findByText('Storage unavailable')).toBeOnTheScreen();
+
+    await user.press(screen.getByTestId('retry-button'));
+    expect(await screen.findByText('signed-out')).toBeOnTheScreen();
+    expect(getSession).toHaveBeenCalledTimes(2);
   });
 });

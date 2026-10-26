@@ -16,6 +16,10 @@ export default function EmailVerificationPendingScreen() {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const resend = React.useCallback(async () => {
+    if (!email) {
+      setError('No email address was provided. Return to sign in and try again.');
+      return;
+    }
     setIsLoading(true);
     setError(undefined);
     setSuccess(undefined);
@@ -32,11 +36,16 @@ export default function EmailVerificationPendingScreen() {
   }, [auth, email]);
 
   return (
-    <AuthScreen title="Check your email" description={`Follow the verification link sent to ${email} to activate your account.`}>
+    <AuthScreen
+      title="Check your email"
+      description={email
+        ? `Follow the verification link sent to ${email} to activate your account.`
+        : 'We need your account email to resend verification.'}
+    >
       <Text className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">You can close this screen while you wait.</Text>
-      {error && <FormMessage kind="error">{error}</FormMessage>}
+      {(error || !email) && <FormMessage kind="error">{error ?? 'No email address was provided. Return to sign in and try again.'}</FormMessage>}
       {success && <FormMessage kind="success">{success}</FormMessage>}
-      <Button testID="resend-button" variant="outline" label="Resend verification email" loading={isLoading} onPress={resend} />
+      <Button testID="resend-button" variant="outline" label="Resend verification email" loading={isLoading} disabled={!email} onPress={resend} />
       <Link href="/login" className="mt-4 py-3 text-center text-sm text-neutral-600 dark:text-neutral-300">Back to sign in</Link>
     </AuthScreen>
   );

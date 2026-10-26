@@ -9,6 +9,7 @@ type AuthSessionValue = {
   readonly session: Session | null;
   readonly isLoading: boolean;
   readonly error: string | null;
+  readonly retry: () => void;
 };
 
 const AuthSessionContext = React.createContext<AuthSessionValue | null>(null);
@@ -23,6 +24,7 @@ export function AuthSessionProvider({
   const [session, setSession] = React.useState<Session | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [attempt, setAttempt] = React.useState(0);
 
   React.useEffect(() => {
     let active = true;
@@ -56,9 +58,17 @@ export function AuthSessionProvider({
       active = false;
       unsubscribe();
     };
-  }, [provider]);
+  }, [provider, attempt]);
 
-  const value = React.useMemo(() => ({ auth: provider, session, isLoading, error }), [provider, session, isLoading, error]);
+  const retry = React.useCallback(() => {
+    setError(null);
+    setIsLoading(true);
+    setAttempt(value => value + 1);
+  }, []);
+  const value = React.useMemo(
+    () => ({ auth: provider, session, isLoading, error, retry }),
+    [provider, session, isLoading, error, retry],
+  );
   return <AuthSessionContext value={value}>{children}</AuthSessionContext>;
 }
 

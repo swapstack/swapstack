@@ -17,6 +17,7 @@ export default function ProfileScreen() {
   const [isSigningOut, setIsSigningOut] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [confirmDelete, setConfirmDelete] = React.useState(false);
+  const isBusy = isSaving || isSigningOut || isDeleting;
 
   const runAction = React.useCallback(async (action: () => Promise<void>) => {
     setError(undefined);
@@ -49,20 +50,24 @@ export default function ProfileScreen() {
           <CardDescription>Add email and password to keep your data and sign in on other devices.</CardDescription>
           <CardContent>
             <Link href="/link-account" asChild>
-              <Button testID="upgrade-button" className="mt-3" label="Link email and password" />
+              <Button testID="upgrade-button" className="mt-3" label="Link email and password" disabled={isBusy} />
             </Link>
           </CardContent>
         </Card>
       )}
 
-      <Input testID="name-input" label="Display name" value={displayName} onChangeText={setDisplayName} disabled={isSaving} />
+      <Input testID="name-input" label="Display name" value={displayName} onChangeText={setDisplayName} disabled={isBusy} />
       {error && <FormMessage kind="error">{error}</FormMessage>}
       {success && <FormMessage kind="success">{success}</FormMessage>}
       <Button
         testID="save-profile-button"
         label="Save profile"
         loading={isSaving}
+        disabled={isSigningOut || isDeleting}
         onPress={() => {
+          if (isBusy) {
+            return;
+          }
           setIsSaving(true);
           void runAction(async () => {
             await auth.updateProfile({ displayName: displayName.trim() });
@@ -77,7 +82,11 @@ export default function ProfileScreen() {
           variant="outline"
           label="Sign out"
           loading={isSigningOut}
+          disabled={isSaving || isDeleting}
           onPress={() => {
+            if (isBusy) {
+              return;
+            }
             setIsSigningOut(true);
             void runAction(() => auth.signOut()).finally(() => setIsSigningOut(false));
           }}
@@ -85,21 +94,25 @@ export default function ProfileScreen() {
         {confirmDelete
           ? (
               <View className="mt-4">
-                <Text className="mb-2 text-sm text-danger-600">This permanently deletes your account and cannot be undone.</Text>
+                <Text className="mb-2 text-sm text-danger-600 dark:text-danger-300">This permanently deletes your account and cannot be undone.</Text>
                 <Button
                   testID="confirm-delete-button"
                   variant="destructive"
                   label="Confirm account deletion"
                   loading={isDeleting}
+                  disabled={isSaving || isSigningOut}
                   onPress={() => {
+                    if (isBusy) {
+                      return;
+                    }
                     setIsDeleting(true);
                     void runAction(() => auth.deleteAccount()).finally(() => setIsDeleting(false));
                   }}
                 />
-                <Button label="Cancel" variant="ghost" onPress={() => setConfirmDelete(false)} />
+                <Button label="Cancel" variant="ghost" disabled={isBusy} onPress={() => setConfirmDelete(false)} />
               </View>
             )
-          : <Button testID="delete-button" variant="ghost" label="Delete account" onPress={() => setConfirmDelete(true)} />}
+          : <Button testID="delete-button" variant="ghost" label="Delete account" disabled={isBusy} onPress={() => setConfirmDelete(true)} />}
       </View>
     </AuthScreen>
   );

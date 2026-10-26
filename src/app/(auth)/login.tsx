@@ -10,10 +10,14 @@ import { getErrorMessage } from '@/features/auth/validation';
 
 export default function LoginScreen() {
   const { auth } = useAuthSession();
+  const [isEmailLoading, setIsEmailLoading] = React.useState(false);
   const [isGuestLoading, setIsGuestLoading] = React.useState(false);
   const [guestError, setGuestError] = React.useState<string>();
 
   const continueAsGuest = React.useCallback(async () => {
+    if (isEmailLoading || isGuestLoading) {
+      return;
+    }
     setIsGuestLoading(true);
     setGuestError(undefined);
     try {
@@ -25,12 +29,14 @@ export default function LoginScreen() {
     finally {
       setIsGuestLoading(false);
     }
-  }, [auth]);
+  }, [auth, isEmailLoading, isGuestLoading]);
 
   return (
     <AuthScreen title="Welcome back" description="Sign in to continue to your account.">
       <EmailPasswordForm
         submitLabel="Sign in"
+        disabled={isGuestLoading}
+        onLoadingChange={setIsEmailLoading}
         onSubmit={async (credentials) => {
           await auth.signIn(credentials);
         }}
@@ -48,6 +54,7 @@ export default function LoginScreen() {
         variant="outline"
         label="Continue without account"
         loading={isGuestLoading}
+        disabled={isEmailLoading}
         onPress={continueAsGuest}
       />
     </AuthScreen>

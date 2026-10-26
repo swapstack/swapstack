@@ -47,7 +47,7 @@ const button = tv({
     },
     size: {
       default: {
-        container: 'h-10 px-4',
+        container: 'h-12 px-4',
         label: 'text-base',
       },
       lg: {
@@ -93,7 +93,7 @@ type Props = {
   textClassName?: string;
 } & ButtonVariants & Omit<PressableProps, 'disabled'>;
 
-export function Button({ ref, label: text, loading = false, variant = 'default', disabled = false, size = 'default', className = '', testID, textClassName = '', ...props }: Props & { ref?: React.RefObject<View | null> }) {
+export function Button({ ref, label: text, loading = false, variant = 'default', disabled = false, size = 'default', className = '', testID, textClassName = '', accessibilityLabel, accessibilityState, ...props }: Props & { ref?: React.RefObject<View | null> }) {
   const styles = React.useMemo(
     () => button({ variant, disabled, size }),
     [variant, disabled, size],
@@ -102,6 +102,9 @@ export function Button({ ref, label: text, loading = false, variant = 'default',
   return (
     <Pressable
       disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? text}
+      accessibilityState={{ disabled: disabled || loading, busy: loading, ...accessibilityState }}
       className={styles.container({ className })}
       {...props}
       ref={ref}
