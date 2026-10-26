@@ -30,7 +30,7 @@ export function Screen({
   ...props
 }: ScreenProps) {
   const containerClasses = twMerge(
-    'flex-1 bg-background dark:bg-black',
+    'flex-1 bg-background',
     className,
   );
 

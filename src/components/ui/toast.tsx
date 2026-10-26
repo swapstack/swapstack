@@ -1,4 +1,3 @@
-/* eslint-disable better-tailwindcss/no-unknown-classes */
 /* eslint-disable react-refresh/only-export-components */
 import type { ViewProps } from 'react-native';
 import * as React from 'react';
@@ -73,14 +72,14 @@ export function Toast({
       <View className="flex-1 pr-2">
         <Text
           testID={testID ? `${testID}-message` : undefined}
-          className={twMerge('font-inter text-sm font-semibold', styles.message)}
+          className={twMerge('font-sans text-sm font-semibold', styles.message)}
         >
           {message}
         </Text>
         {description && (
           <Text
             testID={testID ? `${testID}-description` : undefined}
-            className={twMerge('font-inter mt-0.5 text-xs', styles.description)}
+            className={twMerge('mt-0.5 font-sans text-xs', styles.description)}
           >
             {description}
           </Text>

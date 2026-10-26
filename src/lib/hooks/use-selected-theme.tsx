@@ -32,7 +32,6 @@ export function useSelectedTheme() {
 export function loadSelectedTheme() {
   const theme = storage.getString(SELECTED_THEME);
   if (theme !== undefined) {
-    console.log('theme', theme);
     Uniwind.setTheme(theme as ColorSchemeType);
   }
 }
