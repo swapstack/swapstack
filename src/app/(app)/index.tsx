@@ -1,4 +1,6 @@
-import { FocusAwareStatusBar, SafeAreaView, Text, View } from '@/components/ui';
+import { Link } from 'expo-router';
+
+import { Button, FocusAwareStatusBar, SafeAreaView, Text, View } from '@/components/ui';
 import { serviceProviders } from '@/lib/services';
 
 export default function HomeScreen() {
@@ -19,6 +21,9 @@ export default function HomeScreen() {
             ? `${serviceProviders.backend.name} and ${serviceProviders.billing.name}: mock providers, no keys required.`
             : `${serviceProviders.backend.name} and ${serviceProviders.billing.name}: active in ${backendMode} / ${billingMode} mode.`}
         </Text>
+        <Link href="/profile" asChild>
+          <Button className="mt-6" variant="outline" label="Manage profile" />
+        </Link>
       </View>
     </SafeAreaView>
   );
