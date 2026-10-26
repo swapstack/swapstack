@@ -48,13 +48,21 @@ To switch a provider, set the variable to any registered provider name (currentl
 Swapstack structures core services behind vendor-agnostic contracts under `src/core`:
 
 - **Interfaces (`src/core/`)**:
-  - `AuthProvider`: plain authentication (`signIn`, `signUp`, `signInWithOAuth`, `signOut`, `getSession`, `onAuthChange`).
+  - `AuthProvider`: email/password, OAuth and guest authentication, account linking, recovery, verification, profiles, deletion, session refresh, and auth-state subscriptions.
   - `DataRepository`: data storage and subscriptions (`get`, `update`, `subscribe`) for user profiles.
   - `BillingProvider`: entitlement-centric billing (`getOfferings`, `purchase`, `restore`, `getEntitlements`, `onEntitlementsChange`).
   - `types.ts` & `errors.ts`: vendor-free models (`User`, `Session`, `Profile`, `Offering`, `Entitlement`) and typed error classes (`AuthError`, `BillingError`).
 - **Mocks (`src/core/mocks/`)**: in-memory mock implementations of all providers for local development and rapid testing without external API keys.
 - **Contract tests (`src/core/contracts/`)**: reusable contract test suites that verify any provider (mock or live) complies with the required behavior.
 - **Provider Registry (`src/lib/providers/`)**: dynamic registry to register and resolve service providers from configuration without touching application UI code.
+
+## Reusing the auth kit
+
+The `(auth)` route group contains login, sign-up, password recovery, verification-pending, and guest-upgrade screens. The `(app)` group requires a session and includes profile editing, sign-out, and account deletion. Guests can continue without an account and upgrade later from their profile.
+
+`AuthSessionProvider` in `src/features/auth/session.tsx` restores the persisted session and subscribes to auth changes. Screens call only the `AuthProvider` exposed by `useAuthSession`, so changing registry providers does not require screen changes. Route-group layouts handle loading, restoration errors, and redirects.
+
+To customize the kit, change the shared components in `src/features/auth/components` or compose the same provider methods in your own screens. Component and flow tests in `src/features/auth/__tests__` show how to test against `MockAuthProvider`, including confirmation-pending sign-up.
 
 ## Rename your app
 

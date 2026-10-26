@@ -47,7 +47,7 @@ export default antfu(
         'error',
         {
           case: 'kebabCase',
-          ignore: ['/android', '/ios', 'README.md', 'DESIGN.md', 'THIRD_PARTY_NOTICES.md'],
+          ignore: ['/android', '/ios', 'README.md', 'DESIGN.md', 'PRODUCT.md', 'THIRD_PARTY_NOTICES.md'],
         },
       ],
       'node/prefer-global/process': 'off',
