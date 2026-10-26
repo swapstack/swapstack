@@ -14,7 +14,7 @@ export function FormMessage({
       accessibilityLiveRegion="polite"
       className={kind === 'error'
         ? 'my-2 text-sm text-danger-600 dark:text-danger-300'
-        : 'my-2 text-sm text-green-600 dark:text-green-400'}
+        : 'my-2 text-sm text-success-600 dark:text-success-400'}
     >
       {children}
     </Text>

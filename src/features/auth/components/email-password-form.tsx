@@ -1,3 +1,4 @@
+import type { PasswordMode } from '../validation';
 import type { SignInCredentials } from '@/core';
 import * as React from 'react';
 import { Button, Input } from '@/components/ui';
@@ -10,12 +11,14 @@ export function EmailPasswordForm({
   initialEmail = '',
   disabled = false,
   onLoadingChange,
+  mode = 'sign-in',
 }: {
   readonly submitLabel: string;
   readonly onSubmit: (credentials: SignInCredentials) => Promise<void>;
   readonly initialEmail?: string;
   readonly disabled?: boolean;
   readonly onLoadingChange?: (loading: boolean) => void;
+  readonly mode?: PasswordMode;
 }) {
   const [email, setEmail] = React.useState(initialEmail);
   const [password, setPassword] = React.useState('');
@@ -23,6 +26,7 @@ export function EmailPasswordForm({
   const [passwordError, setPasswordError] = React.useState<string>();
   const [error, setError] = React.useState<string>();
   const [isLoading, setIsLoading] = React.useState(false);
+  const isNewPassword = mode !== 'sign-in';
 
   const setLoading = React.useCallback((loading: boolean) => {
     setIsLoading(loading);
@@ -34,7 +38,7 @@ export function EmailPasswordForm({
       return;
     }
     const nextEmailError = getEmailError(email);
-    const nextPasswordError = getPasswordError(password);
+    const nextPasswordError = getPasswordError(password, mode);
     setEmailError(nextEmailError);
     setPasswordError(nextPasswordError);
     setError(undefined);
@@ -52,7 +56,7 @@ export function EmailPasswordForm({
     finally {
       setLoading(false);
     }
-  }, [disabled, isLoading, email, password, onSubmit, setLoading]);
+  }, [disabled, isLoading, email, password, mode, onSubmit, setLoading]);
 
   return (
     <>
@@ -76,8 +80,8 @@ export function EmailPasswordForm({
         error={passwordError}
         disabled={disabled || isLoading}
         autoCapitalize="none"
-        autoComplete="password"
-        textContentType="password"
+        autoComplete={isNewPassword ? 'new-password' : 'password'}
+        textContentType={isNewPassword ? 'newPassword' : 'password'}
         secureTextEntry
       />
       {error && <FormMessage kind="error">{error}</FormMessage>}

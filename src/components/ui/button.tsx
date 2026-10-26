@@ -104,7 +104,7 @@ export function Button({ ref, label: text, loading = false, variant = 'default',
       disabled={disabled || loading}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? text}
-      accessibilityState={{ disabled: disabled || loading, busy: loading, ...accessibilityState }}
+      accessibilityState={{ ...accessibilityState, disabled: disabled || loading, busy: loading }}
       className={styles.container({ className })}
       {...props}
       ref={ref}

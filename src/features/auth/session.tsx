@@ -3,6 +3,7 @@ import type { AuthProvider } from '@/core';
 import type { Session } from '@/core/types';
 import * as React from 'react';
 import { getAuthProvider } from '@/lib/providers';
+import { getErrorMessage } from './validation';
 
 type AuthSessionValue = {
   readonly auth: AuthProvider;
@@ -32,6 +33,7 @@ export function AuthSessionProvider({
     const unsubscribe = provider.onAuthChange((next) => {
       if (active) {
         changedBeforeRestore = true;
+        setError(null);
         setSession(next);
         setIsLoading(false);
       }
@@ -45,7 +47,7 @@ export function AuthSessionProvider({
       })
       .catch((cause: unknown) => {
         if (active) {
-          setError(cause instanceof Error ? cause.message : 'Unable to restore your session.');
+          setError(getErrorMessage(cause));
         }
       })
       .finally(() => {

@@ -87,5 +87,18 @@ describe('mockAuthProvider Contract Suite', () => {
       expect(refreshSpy).toHaveBeenCalledTimes(1);
       expect((await provider.getSession())?.token).not.toBe('expired_token');
     });
+
+    it('rejects a wrong password for email accounts', async () => {
+      const provider = new MockAuthProvider();
+      await provider.signUp({ email: 'password@example.com', password: 'correctpassword' });
+      await provider.signOut();
+
+      await expect(provider.signIn({ email: 'password@example.com', password: 'wrongpassword' })).rejects.toMatchObject({
+        code: 'invalid_credentials',
+      });
+      await expect(provider.signIn({ email: 'password@example.com', password: 'correctpassword' })).resolves.toMatchObject({
+        user: { email: 'password@example.com' },
+      });
+    });
   });
 });

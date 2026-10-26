@@ -22,6 +22,7 @@ export class MockAuthProvider implements AuthProvider {
   readonly mode = 'mock' as const;
   private currentSession: Session | null;
   private readonly users = new Map<string, User>();
+  private readonly passwords = new Map<string, string>();
   private readonly listeners = new Set<AuthStateChangeCallback>();
   private readonly storage: SessionStorage;
   private readonly requireEmailConfirmation: boolean;
@@ -49,7 +50,10 @@ export class MockAuthProvider implements AuthProvider {
     const user = this.users.get(email.toLowerCase());
 
     if (!user) {
-      throw new AuthError(`User not found: ${email}`, 'user_not_found');
+      throw new AuthError('Invalid email or password', 'user_not_found');
+    }
+    if (this.passwords.get(email.toLowerCase()) !== credentials.password) {
+      throw new AuthError('Invalid email or password', 'invalid_credentials');
     }
 
     return this.createSession(user);
@@ -69,6 +73,7 @@ export class MockAuthProvider implements AuthProvider {
       isAnonymous: false,
     });
     this.users.set(key, structuredClone(user));
+    this.passwords.set(key, credentials.password);
     return this.requireEmailConfirmation ? null : this.createSession(user);
   };
 
@@ -111,6 +116,7 @@ export class MockAuthProvider implements AuthProvider {
         metadata: structuredClone(credentials.metadata ?? session.user.metadata),
       };
       this.replaceUser(session.user, user);
+      this.passwords.set(key, credentials.password);
 
       if (this.requireEmailConfirmation) {
         await this.clearSessionState();
@@ -145,7 +151,9 @@ export class MockAuthProvider implements AuthProvider {
   readonly deleteAccount = async (): Promise<void> => {
     return withAuthRetry(async () => {
       const session = await this.requireSession();
-      this.users.delete(this.userKey(session.user));
+      const key = this.userKey(session.user);
+      this.users.delete(key);
+      this.passwords.delete(key);
       await this.clearSessionState();
     }, () => this.refreshSession());
   };
@@ -180,6 +188,7 @@ export class MockAuthProvider implements AuthProvider {
   readonly reset = (initialSession: Session | null = null): void => {
     this.currentSession = initialSession ? structuredClone(initialSession) : null;
     this.users.clear();
+    this.passwords.clear();
     this.listeners.clear();
     this.tokenCounter = 0;
     this.userCounter = 0;

@@ -49,4 +49,12 @@ describe('auth route gates', () => {
     render(<AuthSessionProvider provider={provider}><AuthLayout /></AuthSessionProvider>);
     expect(await screen.findByText('stack')).toBeOnTheScreen();
   });
+
+  it('allows verification pending without redirecting to login', async () => {
+    mockSegments.splice(0, mockSegments.length, '(auth)', 'email-verification-pending');
+    render(<AuthSessionProvider><AuthLayout /></AuthSessionProvider>);
+
+    expect(await screen.findByText('stack')).toBeOnTheScreen();
+    expect(screen.queryByTestId('redirect')).not.toBeOnTheScreen();
+  });
 });

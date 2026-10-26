@@ -11,11 +11,12 @@ export default function SignUpScreen() {
   return (
     <AuthScreen title="Create your account" description="Use at least 8 characters for your password.">
       <EmailPasswordForm
+        mode="sign-up"
         submitLabel="Create account"
         onSubmit={async (credentials) => {
           const session = await auth.signUp(credentials);
           if (!session) {
-            router.push({ pathname: '/email-verification-pending', params: { email: credentials.email } });
+            router.replace({ pathname: '/email-verification-pending', params: { email: credentials.email } });
           }
         }}
       />

@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unnecessary-use-prefix */
+/* eslint-disable max-lines-per-function, react/no-unnecessary-use-prefix */
 import type { ReactElement } from 'react';
 import * as React from 'react';
 import EmailVerificationPendingScreen from '@/app/(auth)/email-verification-pending';
@@ -11,9 +11,10 @@ import { screen, setup, waitFor } from '@/lib/test-utils';
 import { AuthSessionProvider } from '../session';
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   useLocalSearchParams: () => ({ email: 'pending@example.com' }),
   Link: ({ children }: { children: React.ReactNode }) => children,
 }));
@@ -25,6 +26,7 @@ function withProvider(ui: ReactElement, provider: MockAuthProvider) {
 describe('auth screens', () => {
   beforeEach(() => {
     mockPush.mockClear();
+    mockReplace.mockClear();
   });
 
   it('validates credentials before submitting', async () => {
@@ -48,6 +50,30 @@ describe('auth screens', () => {
     await waitFor(async () => expect((await provider.getSession())?.user.email).toBe('user@example.com'));
   });
 
+  it('allows an existing short password at sign-in', async () => {
+    const provider = new MockAuthProvider();
+    await provider.signUp({ email: 'short@example.com', password: 'short' });
+    const { user } = setup(withProvider(<LoginScreen />, provider));
+
+    await user.type(screen.getByTestId('email-input'), 'short@example.com');
+    await user.type(screen.getByTestId('password-input'), 'short');
+    await user.press(screen.getByTestId('submit-button'));
+
+    await waitFor(async () => expect((await provider.getSession())?.user.email).toBe('short@example.com'));
+  });
+
+  it('shows a neutral error without revealing account existence', async () => {
+    const provider = new MockAuthProvider();
+    const { user } = setup(withProvider(<LoginScreen />, provider));
+
+    await user.type(screen.getByTestId('email-input'), 'unknown@example.com');
+    await user.type(screen.getByTestId('password-input'), 'secretpassword');
+    await user.press(screen.getByTestId('submit-button'));
+
+    expect(await screen.findByText('Invalid email or password.')).toBeOnTheScreen();
+    expect(screen.queryByText(/User not found/)).not.toBeOnTheScreen();
+  });
+
   it('continues as a guest', async () => {
     const provider = new MockAuthProvider();
     const { user } = setup(withProvider(<LoginScreen />, provider));
@@ -64,10 +90,23 @@ describe('auth screens', () => {
     await user.type(screen.getByTestId('password-input'), 'secretpassword');
     await user.press(screen.getByTestId('submit-button'));
 
-    await waitFor(() => expect(mockPush).toHaveBeenCalledWith({
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith({
       pathname: '/email-verification-pending',
       params: { email: 'new@example.com' },
     }));
+  });
+
+  it('uses new-password hints and enforces the minimum at sign-up', async () => {
+    const provider = new MockAuthProvider();
+    const { user } = setup(withProvider(<SignUpScreen />, provider));
+    const passwordInput = screen.getByTestId('password-input');
+    expect(passwordInput.props.autoComplete).toBe('new-password');
+    expect(passwordInput.props.textContentType).toBe('newPassword');
+
+    await user.type(screen.getByTestId('email-input'), 'new@example.com');
+    await user.type(passwordInput, 'short');
+    await user.press(screen.getByTestId('submit-button'));
+    expect(await screen.findByText('Password must be at least 8 characters.')).toBeOnTheScreen();
   });
 
   it('requests password reset instructions', async () => {
@@ -101,5 +140,24 @@ describe('auth screens', () => {
     await user.press(screen.getByTestId('submit-button'));
 
     await waitFor(async () => expect((await provider.getSession())?.user.email).toBe('linked@example.com'));
+    expect(mockReplace).toHaveBeenCalledWith('/profile');
+    expect(screen.getByTestId('password-input').props.autoComplete).toBe('new-password');
+  });
+
+  it('routes confirmation-required upgrade to verification without login', async () => {
+    const provider = new MockAuthProvider(null, [], { requireEmailConfirmation: true });
+    await provider.signInAnonymously();
+    const { user } = setup(withProvider(<LinkAccountScreen />, provider));
+
+    await user.type(screen.getByTestId('email-input'), 'pending@example.com');
+    await user.type(screen.getByTestId('password-input'), 'secretpassword');
+    await user.press(screen.getByTestId('submit-button'));
+
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith({
+      pathname: '/email-verification-pending',
+      params: { email: 'pending@example.com' },
+    }));
+    expect(mockReplace).not.toHaveBeenCalledWith('/login');
+    expect(mockPush).not.toHaveBeenCalledWith('/login');
   });
 });

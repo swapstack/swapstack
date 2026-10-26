@@ -11,11 +11,15 @@ export default function LinkAccountScreen() {
   return (
     <AuthScreen title="Upgrade your account" description="Keep your data and sign in on other devices.">
       <EmailPasswordForm
+        mode="link-account"
         submitLabel="Link email and password"
         onSubmit={async (credentials) => {
           const session = await auth.linkAccount(credentials);
-          if (!session) {
-            router.push({ pathname: '/email-verification-pending', params: { email: credentials.email } });
+          if (session) {
+            router.replace('/profile');
+          }
+          else {
+            router.replace({ pathname: '/email-verification-pending', params: { email: credentials.email } });
           }
         }}
       />

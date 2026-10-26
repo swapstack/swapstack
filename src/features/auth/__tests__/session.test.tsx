@@ -39,7 +39,7 @@ describe('auth session provider', () => {
     jest.spyOn(provider, 'getSession').mockRejectedValue(new Error('Storage unavailable'));
     render(<AuthSessionProvider provider={provider}><SessionView /></AuthSessionProvider>);
 
-    expect(await screen.findByText('Storage unavailable')).toBeOnTheScreen();
+    expect(await screen.findByText('Something went wrong. Please try again.')).toBeOnTheScreen();
   });
 
   it('retries session restoration', async () => {
@@ -48,10 +48,22 @@ describe('auth session provider', () => {
       .mockRejectedValueOnce(new Error('Storage unavailable'))
       .mockResolvedValue(null);
     const { user } = setup(<AuthSessionProvider provider={provider}><SessionView /></AuthSessionProvider>);
-    expect(await screen.findByText('Storage unavailable')).toBeOnTheScreen();
+    expect(await screen.findByText('Something went wrong. Please try again.')).toBeOnTheScreen();
 
     await user.press(screen.getByTestId('retry-button'));
     expect(await screen.findByText('signed-out')).toBeOnTheScreen();
     expect(getSession).toHaveBeenCalledTimes(2);
+  });
+
+  it('clears stale errors when auth changes', async () => {
+    const provider = new MockAuthProvider();
+    jest.spyOn(provider, 'getSession').mockRejectedValueOnce(new Error('Storage unavailable'));
+    render(<AuthSessionProvider provider={provider}><SessionView /></AuthSessionProvider>);
+    expect(await screen.findByText('Something went wrong. Please try again.')).toBeOnTheScreen();
+
+    await act(async () => {
+      await provider.signInAnonymously();
+    });
+    await waitFor(() => expect(screen.queryByText('Something went wrong. Please try again.')).not.toBeOnTheScreen());
   });
 });

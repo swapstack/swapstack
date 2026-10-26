@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import { Link } from 'expo-router';
 import * as React from 'react';
 
@@ -10,13 +11,14 @@ import { getErrorMessage } from '@/features/auth/validation';
 export default function ProfileScreen() {
   const { auth, session } = useAuthSession();
   const user = session?.user;
-  const [displayName, setDisplayName] = React.useState(user?.displayName ?? '');
+  const [editedName, setEditedName] = React.useState<string>();
   const [error, setError] = React.useState<string>();
   const [success, setSuccess] = React.useState<string>();
   const [isSaving, setIsSaving] = React.useState(false);
   const [isSigningOut, setIsSigningOut] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [confirmDelete, setConfirmDelete] = React.useState(false);
+  const [confirmGuestSignOut, setConfirmGuestSignOut] = React.useState(false);
   const isBusy = isSaving || isSigningOut || isDeleting;
 
   const runAction = React.useCallback(async (action: () => Promise<void>) => {
@@ -30,10 +32,19 @@ export default function ProfileScreen() {
     }
   }, []);
 
+  const signOut = React.useCallback(() => {
+    if (isBusy) {
+      return;
+    }
+    setIsSigningOut(true);
+    void runAction(() => auth.signOut()).finally(() => setIsSigningOut(false));
+  }, [auth, isBusy, runAction]);
+
   if (!user) {
     return null;
   }
 
+  const displayName = editedName ?? user.displayName ?? '';
   const initials = (user.displayName?.trim() || user.email || 'Guest').slice(0, 1).toUpperCase();
 
   return (
@@ -56,7 +67,7 @@ export default function ProfileScreen() {
         </Card>
       )}
 
-      <Input testID="name-input" label="Display name" value={displayName} onChangeText={setDisplayName} disabled={isBusy} />
+      <Input testID="name-input" label="Display name" value={displayName} onChangeText={setEditedName} disabled={isBusy} />
       {error && <FormMessage kind="error">{error}</FormMessage>}
       {success && <FormMessage kind="success">{success}</FormMessage>}
       <Button
@@ -71,6 +82,7 @@ export default function ProfileScreen() {
           setIsSaving(true);
           void runAction(async () => {
             await auth.updateProfile({ displayName: displayName.trim() });
+            setEditedName(undefined);
             setSuccess('Profile updated.');
           }).finally(() => setIsSaving(false));
         }}
@@ -84,13 +96,31 @@ export default function ProfileScreen() {
           loading={isSigningOut}
           disabled={isSaving || isDeleting}
           onPress={() => {
-            if (isBusy) {
-              return;
+            if (user.isAnonymous) {
+              setConfirmGuestSignOut(true);
             }
-            setIsSigningOut(true);
-            void runAction(() => auth.signOut()).finally(() => setIsSigningOut(false));
+            else {
+              signOut();
+            }
           }}
         />
+        {confirmGuestSignOut && (
+          <View className="mt-4">
+            <Text className="mb-3 text-sm text-danger-600 dark:text-danger-300">Signing out now will permanently lose this guest account and its data. Create an account first to keep it.</Text>
+            <Link href="/link-account" asChild>
+              <Button label="Create account" disabled={isBusy} />
+            </Link>
+            <Button
+              testID="confirm-guest-sign-out-button"
+              variant="destructive"
+              label="Sign out and lose guest data"
+              loading={isSigningOut}
+              disabled={isSaving || isDeleting}
+              onPress={signOut}
+            />
+            <Button label="Cancel" variant="ghost" disabled={isBusy} onPress={() => setConfirmGuestSignOut(false)} />
+          </View>
+        )}
         {confirmDelete
           ? (
               <View className="mt-4">

@@ -6,16 +6,15 @@ import { useAuthSession } from '@/features/auth/session';
 export default function AuthLayout() {
   const { session, isLoading, error, retry } = useAuthSession();
   const segments = useSegments();
-  const isAccountUpgrade = segments.at(-1) === 'link-account';
+  const currentRoute = segments.at(-1);
+  const isAccountUpgrade = currentRoute === 'link-account';
+  const isVerificationPending = currentRoute === 'email-verification-pending';
 
   if (isLoading || error) {
     return <AuthStatus error={error} onRetry={retry} />;
   }
-  if (session && !isAccountUpgrade) {
+  if (session && !isAccountUpgrade && !isVerificationPending) {
     return <Redirect href="/" />;
-  }
-  if (!session && isAccountUpgrade) {
-    return <Redirect href="/login" />;
   }
 
   return <Stack screenOptions={{ headerShown: false }} />;
