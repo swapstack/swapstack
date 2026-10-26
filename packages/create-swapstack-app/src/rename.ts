@@ -298,6 +298,10 @@ export async function renameAppFiles(
     await rm(packagesDir, { recursive: true, force: true });
   }
 
+  for (const artifact of ['PRODUCT.md', '.impeccable']) {
+    await rm(path.join(targetDir, artifact), { recursive: true, force: true });
+  }
+
   const workspaceFile = path.join(targetDir, 'pnpm-workspace.yaml');
   if (existsSync(workspaceFile)) {
     const workspaceContent = await readFile(workspaceFile, 'utf8');

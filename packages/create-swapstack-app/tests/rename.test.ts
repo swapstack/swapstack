@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
@@ -158,6 +158,9 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     writeFileSync(path.join(tempDir, 'package.json'), packageJsonContent);
     writeFileSync(path.join(tempDir, 'README.md'), readmeContent);
     writeFileSync(path.join(tempDir, 'pnpm-workspace.yaml'), workspaceContent);
+    writeFileSync(path.join(tempDir, 'PRODUCT.md'), 'Swapstack product context');
+    mkdirSync(path.join(tempDir, '.impeccable'));
+    writeFileSync(path.join(tempDir, '.impeccable', 'direction.md'), 'Swapstack direction');
 
     await renameAppFiles(tempDir, {
       name: 'Save $100 App',
@@ -182,5 +185,7 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     // Verify README.md preserved $100 title
     const updatedReadme = readFileSync(path.join(tempDir, 'README.md'), 'utf8');
     assert.match(updatedReadme, /^# Save \$100 App/);
+    assert.equal(existsSync(path.join(tempDir, 'PRODUCT.md')), false);
+    assert.equal(existsSync(path.join(tempDir, '.impeccable')), false);
   });
 });
