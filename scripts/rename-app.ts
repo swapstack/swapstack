@@ -291,7 +291,7 @@ async function renameApp() {
     if (!/^# .*$/m.test(readme)) {
       throw new Error('Could not find the README title.');
     }
-    const updatedReadme = readme.replace(/^# .*$/m, () => `# ${name}`);
+    const updatedReadme = readme.replace(/^# .*$/m, () => `# ${name}`).replaceAll(/\bSwapstack\b/g, () => name);
 
     await Promise.all([
       writeFile(
@@ -302,6 +302,12 @@ async function renameApp() {
       writeFile(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`),
       writeFile(readmePath, updatedReadme),
     ]);
+
+    const designPath = path.join(root, 'DESIGN.md');
+    if (existsSync(designPath)) {
+      const design = await readFile(designPath, 'utf8');
+      await writeFile(designPath, design.replaceAll(/\bSwapstack\b/g, () => name));
+    }
 
     const localEnvPath = path.join(root, '.env');
     if (existsSync(localEnvPath)) {

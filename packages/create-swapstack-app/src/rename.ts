@@ -284,12 +284,14 @@ export async function renameAppFiles(
     await writeFile(packagePath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf8');
   }
 
-  // 5. Update README.md title
-  const readmePath = path.join(targetDir, 'README.md');
-  if (existsSync(readmePath)) {
-    const readme = await readFile(readmePath, 'utf8');
-    const updated = readme.replace(/^# .*$/m, () => `# ${name}`);
-    await writeFile(readmePath, updated, 'utf8');
+  // 5. Replace template branding in user-facing documentation
+  for (const file of ['README.md', 'DESIGN.md']) {
+    const filePath = path.join(targetDir, file);
+    if (existsSync(filePath)) {
+      const content = await readFile(filePath, 'utf8');
+      const renamed = content.replace(/^# .*$/m, () => `# ${name}`).replaceAll(/\bSwapstack\b/g, () => name);
+      await writeFile(filePath, renamed, 'utf8');
+    }
   }
 
   // 6. Clean up internal template artifacts if present in downloaded template

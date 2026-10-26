@@ -157,6 +157,7 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     writeFileSync(path.join(tempDir, '.env.example'), envExampleContent);
     writeFileSync(path.join(tempDir, 'package.json'), packageJsonContent);
     writeFileSync(path.join(tempDir, 'README.md'), readmeContent);
+    writeFileSync(path.join(tempDir, 'DESIGN.md'), '# Swapstack\n\nSwapstack design tokens.');
     writeFileSync(path.join(tempDir, 'pnpm-workspace.yaml'), workspaceContent);
     writeFileSync(path.join(tempDir, 'PRODUCT.md'), 'Swapstack product context');
     mkdirSync(path.join(tempDir, '.impeccable'));
@@ -185,6 +186,8 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     // Verify README.md preserved $100 title
     const updatedReadme = readFileSync(path.join(tempDir, 'README.md'), 'utf8');
     assert.match(updatedReadme, /^# Save \$100 App/);
+    assert.doesNotMatch(updatedReadme, /Swapstack/);
+    assert.doesNotMatch(readFileSync(path.join(tempDir, 'DESIGN.md'), 'utf8'), /Swapstack/);
     assert.equal(existsSync(path.join(tempDir, 'PRODUCT.md')), false);
     assert.equal(existsSync(path.join(tempDir, '.impeccable')), false);
   });
