@@ -4,13 +4,22 @@ export const storage = createMMKV();
 
 export function getItem<T>(key: string): T | null {
   const value = storage.getString(key);
-  return value ? JSON.parse(value) || null : null;
+  if (value === undefined || value === null) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as T;
+  }
+  catch {
+    return null;
+  }
 }
 
-export async function setItem<T>(key: string, value: T) {
+export function setItem<T>(key: string, value: T): void {
   storage.set(key, JSON.stringify(value));
 }
 
-export async function removeItem(key: string) {
+export function removeItem(key: string): void {
   storage.remove(key);
 }

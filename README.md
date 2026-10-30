@@ -28,6 +28,14 @@ To run on a specific platform:
 - **Expo Go**: Run `expo start --go` (or `pnpm exec expo start --go`) and scan the QR code using your device.
 - **Development Client**: Run `pnpm run start` and scan the QR code using your device.
 
+For Android native builds, use JDK 21 or a compatible Android Studio JDK. On macOS with Homebrew:
+
+```sh
+brew install openjdk@21
+export JAVA_HOME="/opt/homebrew/opt/openjdk@21"
+pnpm run android
+```
+
 The app runs with mock auth, data, and billing providers by default. No API keys or service projects are needed for local development.
 
 ## Switching providers

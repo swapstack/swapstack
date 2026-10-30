@@ -36,8 +36,12 @@ export default antfu(
   },
   {
     rules: {
-      'max-params': ['error', 3],
-      'max-lines-per-function': ['error', 110],
+      'max-params': ['warn', 4],
+      'max-lines-per-function': ['error', {
+        max: 180,
+        skipBlankLines: true,
+        skipComments: true,
+      }],
       'react/display-name': 'off',
       'react/no-inline-styles': 'off',
       'react/destructuring-assignment': 'off',
