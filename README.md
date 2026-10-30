@@ -43,7 +43,7 @@ The app runs with mock auth, data, and billing providers by default. No API keys
 Providers are selected using environment variables in `.env`:
 
 ```sh
-# Provider configuration ("mock" or "supabase" for auth/data).
+# Provider configuration ("mock" or "supabase" for auth/data, "mock" or "revenuecat" for billing).
 EXPO_PUBLIC_AUTH_PROVIDER=mock
 EXPO_PUBLIC_DATA_PROVIDER=mock
 EXPO_PUBLIC_BILLING_PROVIDER=mock
@@ -51,9 +51,12 @@ EXPO_PUBLIC_BILLING_PROVIDER=mock
 # Required for Supabase. Never put a service-role key in the app.
 EXPO_PUBLIC_SUPABASE_URL=
 EXPO_PUBLIC_SUPABASE_ANON_KEY=
+
+# Required for RevenueCat. Purchases require a development build.
+EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY=
 ```
 
-To switch a provider, set the variable to any registered provider name. An unknown provider name throws an error at startup listing valid choices. See [Supabase setup](docs/supabase.md) before selecting `supabase`.
+To switch a provider, set the variable to any registered provider name. An unknown provider name throws an error at startup listing valid choices. See [Supabase setup](docs/supabase.md) before selecting `supabase`, and [RevenueCat setup](docs/revenuecat.md) before selecting `revenuecat`.
 
 ## What's inside
 
