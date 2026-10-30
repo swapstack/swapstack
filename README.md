@@ -9,17 +9,17 @@ Swapstack is a free Expo boilerplate with plain interfaces for auth, data, and b
 - [Node.js](https://nodejs.org/) (version 20.19.4 or higher)
 - [pnpm](https://pnpm.io/) (version 10 or higher)
 
-### Setup & Run
-
-Select **Use this template** on GitHub, clone your repository, then run:
+### Create & Run
 
 ```sh
-pnpm install
-pnpm run setup
-pnpm run start
+npx create-swapstack-app my-app
+cd my-app
+pnpm start
 ```
 
-`pnpm run setup` asks for your app name and bundle ID, renames the app, and creates `.env`.
+The CLI asks for your app name and identifiers, downloads the template, configures the app, and installs dependencies.
+
+To use the GitHub template manually instead, clone your repository, run `pnpm install`, then run `pnpm run setup`.
 
 To run on a specific platform:
 
