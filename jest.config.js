@@ -36,5 +36,6 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css)$': '<rootDir>/__mocks__/style-mock.js',
+    '\\.(ttf)$': '<rootDir>/__mocks__/style-mock.js',
   },
 };

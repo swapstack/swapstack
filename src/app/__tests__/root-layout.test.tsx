@@ -1,10 +1,13 @@
 /* eslint-disable react/no-unnecessary-use-prefix */
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
+import { mockAuthProvider } from '@/core';
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme';
-import { render, screen, waitFor } from '@/lib/test-utils';
+import { act, render, screen, waitFor } from '@/lib/test-utils';
 
 import RootLayout from '../_layout';
+
+const hideSplash = SplashScreen.hideAsync as jest.Mock;
 
 jest.mock('expo-router', () => {
   const React = require('react');
@@ -43,12 +46,10 @@ jest.mock('expo-splash-screen', () => ({
   hideAsync: jest.fn(() => Promise.resolve()),
 }));
 
-jest.mock('@expo-google-fonts/inter', () => ({
-  Inter_400Regular: null,
-  Inter_500Medium: null,
-  Inter_600SemiBold: null,
-  Inter_700Bold: null,
-  useFonts: () => [true, null],
+const mockUseFonts = jest.fn(() => [true, null] as [boolean, Error | null]);
+
+jest.mock('expo-font', () => ({
+  useFonts: () => mockUseFonts(),
 }));
 
 jest.mock('@/lib/hooks/use-selected-theme', () => ({
@@ -62,11 +63,36 @@ jest.mock('react-native-flash-message', () => ({
 }));
 
 describe('root layout', () => {
+  afterEach(() => {
+    mockUseFonts.mockReturnValue([true, null]);
+    hideSplash.mockClear();
+    jest.restoreAllMocks();
+    jest.useRealTimers();
+  });
+
   it('renders providers and hides the splash screen when ready', async () => {
     render(<RootLayout />);
 
     expect(await screen.findByText('root-stack')).toBeOnTheScreen();
     expect(loadSelectedTheme).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(SplashScreen.hideAsync).toHaveBeenCalled());
+    await waitFor(() => expect(hideSplash).toHaveBeenCalled());
+  });
+
+  it('hides the splash screen when font loading fails', async () => {
+    mockUseFonts.mockReturnValue([false, new Error('Font failed')]);
+    render(<RootLayout />);
+
+    await waitFor(() => expect(hideSplash).toHaveBeenCalled());
+  });
+
+  it('hides the splash screen when session restoration hangs', () => {
+    jest.useFakeTimers();
+    jest.spyOn(mockAuthProvider, 'getSession').mockImplementation(() => new Promise(() => {}));
+    render(<RootLayout />);
+
+    act(() => {
+      jest.advanceTimersByTime(5000);
+    });
+    expect(hideSplash).toHaveBeenCalled();
   });
 });

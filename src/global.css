@@ -4,8 +4,11 @@
 
 /* Define your theme in CSS (replaces tailwind.config.js) */
 @theme {
-  /* Font families - native platform system font */
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Native font family names registered in the root layout */
+  --font-sans: 'Inter';
+  --font-medium: 'Inter_500Medium';
+  --font-semibold: 'Inter_600SemiBold';
+  --font-bold: 'Inter_700Bold';
 
   /* Base colors */
   --color-white: #ffffff;
@@ -101,6 +104,13 @@
 
 @layer theme {
   :root {
+    @variant web {
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-medium: 'Inter_500Medium', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-semibold: 'Inter_600SemiBold', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-bold: 'Inter_700Bold', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
     @variant light {
       --color-background: #ffffff;
       --color-foreground: #0a0a0a;
@@ -133,6 +143,21 @@
 
 /* Custom utilities (if needed) */
 @layer utilities {
+  .font-medium {
+    font-family: var(--font-medium);
+    font-weight: 500;
+  }
+
+  .font-semibold {
+    font-family: var(--font-semibold);
+    font-weight: 600;
+  }
+
+  .font-bold {
+    font-family: var(--font-bold);
+    font-weight: 700;
+  }
+
   .text-balance {
     text-wrap: balance;
   }

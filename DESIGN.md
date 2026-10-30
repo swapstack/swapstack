@@ -129,7 +129,7 @@ The palette is anchored by a neutral grayscale, supported by semantic accents fo
 
 ## Typography
 
-Typography uses the single `--font-sans` token in `src/global.css`, with Inter bundled for native platforms and system fallbacks. Change that token to change the app's font family; text, buttons, inputs, and toasts all consume it through `font-sans`.
+Typography is native-first: `--font-sans` is exactly `Inter` on iOS and Android so it matches the font registered by the root layout. Medium, semibold, and bold text use the matching registered weight families through `font-medium`, `font-semibold`, and `font-bold`. On web only, the same tokens include the full system fallback stack. To change the app font, replace the four registered font assets and update the four `--font-*` tokens in `src/global.css`.
 
 | Scale | Size | Line Height | Weight | Usage |
 | --- | --- | --- | --- | --- |
