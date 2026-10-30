@@ -12,6 +12,8 @@ import {
   mockProfileRepository,
 } from '@/core';
 import { SecureSessionStorage } from '@/lib/auth/secure-session-storage';
+import { createSupabaseAuthProvider, createSupabaseClient } from './supabase/auth-provider';
+import { createSupabaseProfileRepository } from './supabase/profile-repository';
 
 export type ProviderKind = 'auth' | 'data' | 'billing';
 
@@ -62,6 +64,12 @@ const instances: InstanceStore = {
 let cachedBackendAdapter: BackendAdapter | null = null;
 let cachedBillingAdapter: BillingAdapter | null = null;
 let authSessionStorage: SessionStorage = new SecureSessionStorage();
+let sharedSupabaseClient: ReturnType<typeof createSupabaseClient> | null = null;
+
+function getSharedSupabaseClient(): ReturnType<typeof createSupabaseClient> {
+  sharedSupabaseClient ??= createSupabaseClient();
+  return sharedSupabaseClient;
+}
 
 export function getAuthSessionStorage(): SessionStorage {
   return authSessionStorage;
@@ -203,6 +211,16 @@ export function validateProviderConfig(): void {
     }
   }
 
+  const authName = getEnvProviderName('auth');
+  const dataName = getEnvProviderName('data');
+  if (authName === 'supabase' || dataName === 'supabase') {
+    const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim();
+    const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim();
+    if (!supabaseUrl || !supabaseAnonKey) {
+      errors.push('Missing EXPO_PUBLIC_SUPABASE_URL or EXPO_PUBLIC_SUPABASE_ANON_KEY.');
+    }
+  }
+
   if (errors.length > 0) {
     throw new Error(`Provider configuration error:\n${errors.join('\n')}`);
   }
@@ -219,10 +237,13 @@ export function initDefaultProviders(): void {
 
   cachedBackendAdapter = null;
   cachedBillingAdapter = null;
+  sharedSupabaseClient = null;
 
   register('auth', 'mock', () => mockAuthProvider);
   register('data', 'mock', () => mockProfileRepository);
   register('billing', 'mock', () => mockBillingProvider);
+  register('auth', 'supabase', () => createSupabaseAuthProvider({ client: getSharedSupabaseClient() }));
+  register('data', 'supabase', () => createSupabaseProfileRepository(getSharedSupabaseClient()));
 }
 
 export function getBackendAdapter(): BackendAdapter {

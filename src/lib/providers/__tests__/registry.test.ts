@@ -49,6 +49,8 @@ describe('provider registry resolution', () => {
     setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
     initDefaultProviders();
   });
 
@@ -56,6 +58,8 @@ describe('provider registry resolution', () => {
     setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
     initDefaultProviders();
   });
 
@@ -100,12 +104,25 @@ describe('provider registry resolution', () => {
     expect(getAuthProvider('custom')).toBe(customAuth);
   });
 
+  it('validates required Supabase environment variables', () => {
+    setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', 'supabase');
+    setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', 'supabase');
+
+    expect(() => validateProviderConfig()).toThrow(
+      'Missing EXPO_PUBLIC_SUPABASE_URL or EXPO_PUBLIC_SUPABASE_ANON_KEY.',
+    );
+
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', 'https://example.supabase.co');
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', 'anon-key');
+    expect(() => validateProviderConfig()).not.toThrow();
+  });
+
   it('throws an error listing valid provider names when unknown provider is requested', () => {
     expect(() => getAuthProvider('unknown')).toThrow(
-      'Unknown auth provider "unknown". Valid auth providers: mock.',
+      'Unknown auth provider "unknown". Valid auth providers: mock, supabase.',
     );
     expect(() => getProfileRepository('unknown')).toThrow(
-      'Unknown data provider "unknown". Valid data providers: mock.',
+      'Unknown data provider "unknown". Valid data providers: mock, supabase.',
     );
     expect(() => getBillingProvider('unknown')).toThrow(
       'Unknown billing provider "unknown". Valid billing providers: mock.',
@@ -118,6 +135,8 @@ describe('provider registry caching and adapters', () => {
     setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
     initDefaultProviders();
   });
 
@@ -125,6 +144,8 @@ describe('provider registry caching and adapters', () => {
     setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
+    setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
     initDefaultProviders();
   });
 
