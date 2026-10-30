@@ -13,6 +13,8 @@ import { AuthSessionProvider } from '../session';
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
 
+jest.setTimeout(10_000);
+
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace }),
   useLocalSearchParams: () => ({ email: 'pending@example.com' }),

@@ -28,6 +28,7 @@ export default antfu(
       'ios',
       '.vscode',
       'expo-env.d.ts',
+      'uniwind-types.d.ts',
       'migration/*',
       '.agents/**',
       '.github/**',
