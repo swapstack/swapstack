@@ -154,6 +154,9 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
       version: '0.1.0',
       author: 'Template Author',
       repository: { url: 'https://github.com/swapstack/swapstack' },
+      scripts: {
+        'check-all': 'pnpm run lint && pnpm run type-check && pnpm run test && npx tsx scripts/test-cli.ts',
+      },
     }, null, 2);
     const readmeContent = `# Swapstack\n\nSwapstack boilerplate.\n`;
     const workspaceContent = `shellEmulator: true\npackages:\n  - .\n`;
@@ -167,6 +170,8 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     writeFileSync(path.join(tempDir, 'PRODUCT.md'), 'Swapstack product context');
     mkdirSync(path.join(tempDir, '.impeccable'));
     writeFileSync(path.join(tempDir, '.impeccable', 'direction.md'), 'Swapstack direction');
+    mkdirSync(path.join(tempDir, 'scripts'), { recursive: true });
+    writeFileSync(path.join(tempDir, 'scripts/test-cli.ts'), 'export {};\n');
     mkdirSync(path.join(tempDir, 'src/lib/auth'), { recursive: true });
     mkdirSync(path.join(tempDir, 'src/core/mocks'), { recursive: true });
     writeFileSync(path.join(tempDir, 'src/lib/auth/storage.ts'), 'export const key = \u0027swapstack.auth.session\u0027;');
@@ -200,6 +205,8 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     const updatedPackage = JSON.parse(readFileSync(path.join(tempDir, 'package.json'), 'utf8'));
     assert.equal(updatedPackage.author, undefined);
     assert.equal(updatedPackage.repository, undefined);
+    assert.equal(updatedPackage.scripts['check-all'], 'pnpm run lint && pnpm run type-check && pnpm run test');
+    assert.equal(existsSync(path.join(tempDir, 'scripts/test-cli.ts')), false);
     assert.match(readFileSync(path.join(tempDir, 'src/lib/auth/storage.ts'), 'utf8'), /save-100-app\.auth\.session/);
     assert.match(readFileSync(path.join(tempDir, 'src/core/mocks/auth.ts'), 'utf8'), /mock_google_user@save-100-app\.example/);
     assert.equal(existsSync(path.join(tempDir, 'PRODUCT.md')), false);

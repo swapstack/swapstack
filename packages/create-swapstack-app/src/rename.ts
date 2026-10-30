@@ -302,10 +302,15 @@ export async function renameAppFiles(
   // 4. Reset package metadata for the new app
   const packagePath = path.join(targetDir, 'package.json');
   if (existsSync(packagePath)) {
-    const pkg = JSON.parse(await readFile(packagePath, 'utf8')) as Record<string, unknown>;
+    const pkg = JSON.parse(await readFile(packagePath, 'utf8')) as {
+      scripts?: Record<string, unknown>;
+    } & Record<string, unknown>;
     pkg.name = slug;
     delete pkg.author;
     delete pkg.repository;
+    if (pkg.scripts && typeof pkg.scripts['check-all'] === 'string') {
+      pkg.scripts['check-all'] = 'pnpm run lint && pnpm run type-check && pnpm run test';
+    }
     await writeFile(packagePath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf8');
   }
 
@@ -327,7 +332,7 @@ export async function renameAppFiles(
     await rm(packagesDir, { recursive: true, force: true });
   }
 
-  for (const artifact of ['PRODUCT.md', '.impeccable']) {
+  for (const artifact of ['PRODUCT.md', '.impeccable', 'scripts/test-cli.ts']) {
     await rm(path.join(targetDir, artifact), { recursive: true, force: true });
   }
 
