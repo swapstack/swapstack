@@ -1,7 +1,7 @@
 {
   "name": "create-swapstack-app",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Create a new Swapstack app from the command line",
   "author": "Abdullah Ahsan",
   "license": "MIT",
