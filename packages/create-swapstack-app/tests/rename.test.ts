@@ -149,7 +149,12 @@ IOS_BUNDLE_ID=com.swapstack.app
 ANDROID_PACKAGE=com.swapstack.app
 EXPO_PUBLIC_AUTH_PROVIDER=mock
 `;
-    const packageJsonContent = JSON.stringify({ name: 'swapstack', version: '0.1.0' }, null, 2);
+    const packageJsonContent = JSON.stringify({
+      name: 'swapstack',
+      version: '0.1.0',
+      author: 'Template Author',
+      repository: { url: 'https://github.com/swapstack/swapstack' },
+    }, null, 2);
     const readmeContent = `# Swapstack\n\nSwapstack boilerplate.\n`;
     const workspaceContent = `shellEmulator: true\npackages:\n  - .\n`;
 
@@ -162,6 +167,10 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     writeFileSync(path.join(tempDir, 'PRODUCT.md'), 'Swapstack product context');
     mkdirSync(path.join(tempDir, '.impeccable'));
     writeFileSync(path.join(tempDir, '.impeccable', 'direction.md'), 'Swapstack direction');
+    mkdirSync(path.join(tempDir, 'src/lib/auth'), { recursive: true });
+    mkdirSync(path.join(tempDir, 'src/core/mocks'), { recursive: true });
+    writeFileSync(path.join(tempDir, 'src/lib/auth/storage.ts'), 'export const key = \u0027swapstack.auth.session\u0027;');
+    writeFileSync(path.join(tempDir, 'src/core/mocks/auth.ts'), 'export const email = \u0027mock_google_user@swapstack.org\u0027;');
 
     await renameAppFiles(tempDir, {
       name: 'Save $100 App',
@@ -186,8 +195,13 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     // Verify README.md preserved $100 title
     const updatedReadme = readFileSync(path.join(tempDir, 'README.md'), 'utf8');
     assert.match(updatedReadme, /^# Save \$100 App/);
-    assert.doesNotMatch(updatedReadme, /Swapstack/);
+    assert.doesNotMatch(updatedReadme, /Swapstack|Do not reuse/);
     assert.doesNotMatch(readFileSync(path.join(tempDir, 'DESIGN.md'), 'utf8'), /Swapstack/);
+    const updatedPackage = JSON.parse(readFileSync(path.join(tempDir, 'package.json'), 'utf8'));
+    assert.equal(updatedPackage.author, undefined);
+    assert.equal(updatedPackage.repository, undefined);
+    assert.match(readFileSync(path.join(tempDir, 'src/lib/auth/storage.ts'), 'utf8'), /save-100-app\.auth\.session/);
+    assert.match(readFileSync(path.join(tempDir, 'src/core/mocks/auth.ts'), 'utf8'), /mock_google_user@save-100-app\.example/);
     assert.equal(existsSync(path.join(tempDir, 'PRODUCT.md')), false);
     assert.equal(existsSync(path.join(tempDir, '.impeccable')), false);
   });

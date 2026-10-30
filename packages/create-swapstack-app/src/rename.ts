@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 export type RenameOptions = {
@@ -229,6 +229,29 @@ export function removePackagesFromWorkspaceYaml(content: string): string {
   return cleaned ? `${cleaned}\n` : '';
 }
 
+async function replaceTemplateNamespaces(directory: string, slug: string): Promise<void> {
+  if (!existsSync(directory)) {
+    return;
+  }
+
+  const entries = await readdir(directory, { withFileTypes: true });
+  for (const entry of entries) {
+    const filePath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      await replaceTemplateNamespaces(filePath, slug);
+    }
+    else if (/\.[jt]sx?$/.test(entry.name)) {
+      const source = await readFile(filePath, 'utf8');
+      const renamed = source
+        .replaceAll('swapstack.auth.session', `${slug}.auth.session`)
+        .replaceAll('swapstack.org', `${slug}.example`);
+      if (renamed !== source) {
+        await writeFile(filePath, renamed, 'utf8');
+      }
+    }
+  }
+}
+
 export async function renameAppFiles(
   targetDir: string,
   options: RenameOptions,
@@ -276,23 +299,27 @@ export async function renameAppFiles(
     await writeFile(localEnvPath, exampleContent, 'utf8');
   }
 
-  // 4. Update package.json name
+  // 4. Reset package metadata for the new app
   const packagePath = path.join(targetDir, 'package.json');
   if (existsSync(packagePath)) {
     const pkg = JSON.parse(await readFile(packagePath, 'utf8')) as Record<string, unknown>;
     pkg.name = slug;
+    delete pkg.author;
+    delete pkg.repository;
     await writeFile(packagePath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf8');
   }
 
-  // 5. Replace template branding in user-facing documentation
-  for (const file of ['README.md', 'DESIGN.md']) {
-    const filePath = path.join(targetDir, file);
-    if (existsSync(filePath)) {
-      const content = await readFile(filePath, 'utf8');
-      const renamed = content.replace(/^# .*$/m, () => `# ${name}`).replaceAll(/\bSwapstack\b/g, () => name);
-      await writeFile(filePath, renamed, 'utf8');
-    }
+  // 5. Write app-specific documentation and namespaces
+  const readmePath = path.join(targetDir, 'README.md');
+  const readme = `# ${name}\n\nAn Expo application.\n\n## Quick start\n\n\`\`\`sh\npnpm install\npnpm start\n\`\`\`\n\nApp identity is configured in \`.env\` and \`env.ts\`.\n`;
+  await writeFile(readmePath, readme, 'utf8');
+
+  const designPath = path.join(targetDir, 'DESIGN.md');
+  if (existsSync(designPath)) {
+    const design = await readFile(designPath, 'utf8');
+    await writeFile(designPath, design.replaceAll(/\bSwapstack\b/g, () => name));
   }
+  await replaceTemplateNamespaces(path.join(targetDir, 'src'), slug);
 
   // 6. Clean up internal template artifacts if present in downloaded template
   const packagesDir = path.join(targetDir, 'packages');
