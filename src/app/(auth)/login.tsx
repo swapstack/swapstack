@@ -43,7 +43,7 @@ export default function LoginScreen() {
       />
       <View className="mt-4 flex-row justify-between">
         <Link href="/forgot-password" className="py-3 text-sm text-neutral-600 dark:text-neutral-300">Forgot password?</Link>
-        <Link href="/sign-up" className="py-3 text-sm font-semibold">Create account</Link>
+        <Link href="/sign-up" className="py-3 font-semibold text-sm">Create account</Link>
       </View>
       <View className="my-4 items-center">
         <Text className="text-sm text-neutral-500">or</Text>

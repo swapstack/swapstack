@@ -1,4 +1,4 @@
-/* eslint-disable max-lines-per-function, react/no-unnecessary-use-prefix */
+/* eslint-disable react/no-unnecessary-use-prefix */
 import type { ReactElement } from 'react';
 import * as React from 'react';
 import EmailVerificationPendingScreen from '@/app/(auth)/email-verification-pending';

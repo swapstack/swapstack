@@ -13,7 +13,7 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <FocusAwareStatusBar />
       <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-4xl font-bold">{Env.APP_NAME}</Text>
+        <Text className="font-bold text-4xl">{Env.APP_NAME}</Text>
         <Text className="mt-3 text-center text-lg text-muted-foreground">
           A flexible Expo foundation for your next app.
         </Text>

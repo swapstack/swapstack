@@ -12,7 +12,7 @@ const DarkTheme: Theme = {
   colors: {
     ..._DarkTheme.colors,
     primary: colors.primary[200],
-    background: colors.charcoal[950],
+    background: '#0a0a0a',
     text: colors.charcoal[100],
     border: colors.charcoal[500],
     card: colors.charcoal[850],

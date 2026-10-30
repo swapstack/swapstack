@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import { Link } from 'expo-router';
 import * as React from 'react';
 
@@ -51,7 +50,7 @@ export default function ProfileScreen() {
     <AuthScreen title="Your profile" description="Manage your account details and session.">
       <View className="mb-6 items-center">
         <Avatar size="xl" src={user.avatarUrl} initials={initials} />
-        <Text className="mt-3 text-lg font-semibold">{user.displayName || (user.isAnonymous ? 'Guest account' : 'Your account')}</Text>
+        <Text className="mt-3 font-semibold text-lg">{user.displayName || (user.isAnonymous ? 'Guest account' : 'Your account')}</Text>
         {user.email && <Text className="text-sm text-neutral-500">{user.email}</Text>}
       </View>
 

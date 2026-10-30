@@ -46,7 +46,7 @@ export function CardTitle({ className = '', children, testID, ...props }: CardTe
   return (
     <Text
       testID={testID}
-      className={twMerge('text-lg font-semibold text-neutral-900 dark:text-neutral-50', className)}
+      className={twMerge('font-semibold text-lg text-neutral-900 dark:text-neutral-50', className)}
       {...props}
     >
       {children}

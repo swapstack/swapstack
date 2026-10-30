@@ -44,7 +44,7 @@ export function Divider({
         <Text
           testID={testID ? `${testID}-label` : undefined}
           className={twMerge(
-            'px-3 text-xs font-medium text-neutral-400 uppercase dark:text-neutral-500',
+            'px-3 font-medium text-xs text-neutral-400 uppercase dark:text-neutral-500',
             labelClassName,
           )}
         >

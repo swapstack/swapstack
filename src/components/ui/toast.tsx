@@ -72,7 +72,7 @@ export function Toast({
       <View className="flex-1 pr-2">
         <Text
           testID={testID ? `${testID}-message` : undefined}
-          className={twMerge('font-sans text-sm font-semibold', styles.message)}
+          className={twMerge('font-semibold text-sm', styles.message)}
         >
           {message}
         </Text>
@@ -93,7 +93,7 @@ export function Toast({
           accessibilityLabel="Close notification"
           className="p-1"
         >
-          <Text className={twMerge('text-xs font-bold', styles.message)}>✕</Text>
+          <Text className={twMerge('font-bold text-xs', styles.message)}>✕</Text>
         </Pressable>
       )}
     </View>
