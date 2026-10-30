@@ -175,6 +175,7 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     mkdirSync(path.join(tempDir, 'src/lib/auth'), { recursive: true });
     mkdirSync(path.join(tempDir, 'src/core/mocks'), { recursive: true });
     writeFileSync(path.join(tempDir, 'src/lib/auth/storage.ts'), 'export const key = \u0027swapstack.auth.session\u0027;');
+    writeFileSync(path.join(tempDir, 'src/lib/auth/supabase-storage.ts'), 'export const prefix = \u0027swapstack.supabase\u0027;');
     writeFileSync(path.join(tempDir, 'src/core/mocks/auth.ts'), 'export const email = \u0027mock_google_user@swapstack.org\u0027;');
 
     await renameAppFiles(tempDir, {
@@ -208,6 +209,7 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     assert.equal(updatedPackage.scripts['check-all'], 'pnpm run lint && pnpm run type-check && pnpm run test');
     assert.equal(existsSync(path.join(tempDir, 'scripts/test-cli.ts')), false);
     assert.match(readFileSync(path.join(tempDir, 'src/lib/auth/storage.ts'), 'utf8'), /save-100-app\.auth\.session/);
+    assert.match(readFileSync(path.join(tempDir, 'src/lib/auth/supabase-storage.ts'), 'utf8'), /save-100-app\.supabase/);
     assert.match(readFileSync(path.join(tempDir, 'src/core/mocks/auth.ts'), 'utf8'), /mock_google_user@save-100-app\.example/);
     assert.equal(existsSync(path.join(tempDir, 'PRODUCT.md')), false);
     assert.equal(existsSync(path.join(tempDir, '.impeccable')), false);
