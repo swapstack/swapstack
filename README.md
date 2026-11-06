@@ -118,11 +118,10 @@ Swapstack's design system is structured across three levels of customization:
 
 ## Planned
 
-- Live Supabase adapter (auth & data)
 - Live RevenueCat adapter (billing & entitlements)
 
 ## Work in progress
 
-Swapstack is an early work in progress. Only mock service providers are included; live Supabase and RevenueCat adapters are not implemented yet, and APIs may change.
+Swapstack is an early work in progress. Mock providers and a live Supabase adapter (auth & data) are included; the live RevenueCat billing adapter is not implemented yet, and APIs may change.
 
 Licensed under the [MIT License](LICENSE).
