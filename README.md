@@ -55,6 +55,8 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=
 
 To switch a provider, set the variable to any registered provider name. An unknown provider name throws an error at startup listing valid choices. See [Supabase setup](docs/supabase.md) before selecting `supabase`.
 
+The `prebuild:*` scripts set `STRICT_ENV_VALIDATION=1`, which additionally fails the native prebuild early if a live provider is selected without its required credentials. Want to add a provider? See the adapter guide in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## What's inside
 
 Swapstack structures core services behind vendor-agnostic contracts under `src/core`:
@@ -116,12 +118,42 @@ Swapstack's design system is structured across three levels of customization:
 2. **Components (`src/components/ui/`)**: Modify or extend core UI primitives (`Button`, `Input`, `Card`, `Screen`, `Avatar`, `Toast`, `Divider`) and their variant definitions (`tailwind-variants`).
 3. **Screens & Flows (`src/app/`)**: Assemble full application screens and interaction flows by composing UI components against plain, vendor-agnostic core interfaces.
 
-## Planned
+## Roadmap
 
-- Live RevenueCat adapter (billing & entitlements)
+Swapstack is an early work in progress. Mock providers and a live Supabase adapter (auth & data) are included; the live RevenueCat billing adapter is not implemented yet, and APIs may change. The items below are open for contribution. Adapters are the highest-leverage additions because they plug into the existing contracts without touching any screen.
 
-## Work in progress
+### Adapters
 
-Swapstack is an early work in progress. Mock providers and a live Supabase adapter (auth & data) are included; the live RevenueCat billing adapter is not implemented yet, and APIs may change.
+- **RevenueCat billing** (in progress) — the first live `BillingProvider`, with a paywall and entitlement-gated screens.
+- **Firebase** — auth and Firestore-backed `DataRepository`, as the most common alternative to Supabase.
+- **Clerk / Auth0** — hosted auth adapters for teams already using them.
+- **More OAuth providers** — the `OAuthProvider` type currently allows `apple` and `google`; GitHub, Facebook, and others are natural extensions.
+- **Passwordless sign-in** — magic links and one-time codes across adapters that support them.
+- **Multi-factor authentication** — TOTP enrolment and challenge flows behind the `AuthProvider` contract.
+
+### App features
+
+- **Paywall and subscription screens** built on `BillingProvider`, matching the existing auth kit.
+- **Onboarding flow** — a reusable first-run walkthrough with a persisted "seen" flag.
+- **Settings screen** — theme toggle (light / dark / system), notification preferences, and account management in one place.
+- **Push notifications** — an `expo-notifications` integration with a vendor-agnostic `NotificationProvider` contract.
+- **Analytics and crash reporting** — a small `AnalyticsProvider` contract with mock, PostHog, and Sentry adapters.
+- **Offline support** — connectivity awareness, TanStack Query persistence, and optimistic updates for profile edits.
+- **Internationalisation** — `i18n` scaffolding with a sample second locale and RTL-aware layouts.
+- **Generic data entities** — `DataRepository` is currently typed to `Profile`; a list/query API would make it useful for arbitrary collections.
+
+### Developer experience
+
+- **Storybook** for the `src/components/ui` primitives.
+- **GitHub issue and PR templates** and a `SECURITY.md` policy.
+- **EAS Update** wiring for over-the-air releases.
+- **More CLI options** — `--template` and `--provider` flags for `create-swapstack-app` so generated apps start with the right adapter.
+- **E2E tests** with Maestro covering the auth kit flows on a simulator.
+
+Have an idea that is not listed? Open an issue to discuss it.
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, the commit and branch conventions enforced by the Git hooks, and a step-by-step guide to adding a provider adapter.
 
 Licensed under the [MIT License](LICENSE).
