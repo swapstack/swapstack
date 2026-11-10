@@ -130,7 +130,7 @@ The design system and token definitions were generated and structured with help 
 
 Swapstack's design system is structured across three levels of customization:
 
-1. **Tokens (`DESIGN.md`, `src/global.css`, `colors.js`)**: Change theme colors (light and dark mode), typography scales, border radii, and spacing. Changes propagate throughout the entire app via Tailwind and Uniwind. Edit `--font-sans` in `src/global.css` to change the font everywhere.
+1. **Tokens (`DESIGN.md`, `src/global.css`, `colors.js`)**: Change theme colors (light and dark mode), typography scales, border radii, and spacing. Changes propagate throughout the entire app via Tailwind and Uniwind. Edit `--font-sans` in `src/global.css` to change the font everywhere. See [Light Color Theme Presets](docs/themes.md) for 5 ready-to-paste tinted light palettes (**Matcha & Sage**, **Warm Paper & Terracotta**, **Nordic Sky & Cobalt**, **Sakura & Rose Ink**, and **Solar & Espresso**) with CSS variables and AI rebrand prompts.
 2. **Components (`src/components/ui/`)**: Modify or extend core UI primitives (`Button`, `Input`, `Card`, `Screen`, `Avatar`, `Toast`, `Divider`) and their variant definitions (`tailwind-variants`).
 3. **Screens & Flows (`src/app/`)**: Assemble full application screens and interaction flows by composing UI components against plain, vendor-agnostic core interfaces.
 
