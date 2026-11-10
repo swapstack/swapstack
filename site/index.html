@@ -47,23 +47,20 @@
 
       <nav aria-label="Primary">
         <ul class="nav-links">
-          <li><a href="#provider-swap">Provider Swap</a></li>
           <li><a href="#architecture">Architecture</a></li>
-          <li><a href="#guides">Setup &amp; Adapters</a></li>
-          <li><a href="#ai-prompts">AI Prompts</a></li>
-          <li><a href="#examples">Example Apps</a></li>
+          <li><a href="#guides">Guides</a></li>
+          <li><a href="#examples">Examples</a></li>
           <li><a href="#themes">Themes</a></li>
-          <li><a href="https://github.com/swapstack/swapstack/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
         </ul>
       </nav>
 
       <div class="header-actions">
-        <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle color theme">
+        <button type="button" class="icon-btn" id="theme-toggle" aria-label="Cycle color theme">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="4" />
             <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
           </svg>
-          <span id="theme-label">Light</span>
+          <span id="theme-label">Obsidian</span>
         </button>
 
         <a
@@ -1159,7 +1156,7 @@ export type WorkoutRepository = {
     function applyThemePreset(themeKey) {
       const t = themePresets[themeKey] || themePresets.dark;
       htmlEl.setAttribute('data-theme', themeKey);
-      themeLabel.textContent = `Theme: ${t.short}`;
+      themeLabel.textContent = t.short;
 
       // Update both interactive phone screens
       phoneScreen.setAttribute('data-phone-theme', themeKey);

@@ -225,6 +225,8 @@ a:hover {
   font-size: 18px;
   letter-spacing: -0.02em;
   text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-mark {
@@ -254,6 +256,7 @@ a:hover {
   align-items: center;
   gap: 28px;
   list-style: none;
+  white-space: nowrap;
 }
 
 .nav-links a {
@@ -261,6 +264,7 @@ a:hover {
   font-size: 14px;
   font-weight: 500;
   color: var(--muted-fg);
+  white-space: nowrap;
 }
 
 .nav-links a:hover {
@@ -271,6 +275,7 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .icon-btn {
@@ -288,6 +293,7 @@ a:hover {
   font-weight: 500;
   cursor: pointer;
   text-decoration: none;
+  white-space: nowrap;
   transition: background-color 150ms ease, border-color 150ms ease;
 }
 
