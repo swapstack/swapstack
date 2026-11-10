@@ -1,11 +1,11 @@
 {
   "name": "create-swapstack-app",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Create a new Swapstack app from the command line",
   "author": "Abdullah Ahsan",
   "license": "MIT",
-  "homepage": "https://github.com/swapstack/swapstack#readme",
+  "homepage": "https://swapstack.github.io/swapstack/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/swapstack/swapstack.git",

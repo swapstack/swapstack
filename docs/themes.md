@@ -237,4 +237,3 @@ Beyond color tokens, you can transform the visual personality of every screen by
   - `Card`: `rounded-none border border-dashed border-foreground/70 bg-card p-3.5 font-mono`
   - `Button`: `rounded-none h-10 px-4 font-mono uppercase tracking-wider text-xs font-bold`
   - `Input`: `rounded-none h-10 px-3 border border-foreground/60 bg-muted font-mono text-xs`
-

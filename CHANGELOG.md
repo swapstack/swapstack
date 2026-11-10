@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.1 — 2026-11-11
+
+### Added
+
+- Root `AGENTS.md` AI coding agent instructions, prompt library (`docs/ai-prompts.md`), example app blueprints (`docs/examples.md`), and curated light color theme + UI design style presets (`docs/themes.md`).
+- Interactive documentation & theme/design preview site at `https://swapstack.github.io/swapstack/` and refreshed app icons.
+
+### Fixed
+
+- `create-swapstack-app` now strips template website files (`site/`, `.github/workflows/pages.yml`) and renames `AGENTS.md` with the generated app's display name.
+
 ## 0.2.0 — 2026-11-10
 
 ### Added

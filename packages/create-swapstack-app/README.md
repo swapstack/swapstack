@@ -1,10 +1,10 @@
 # create-swapstack-app
 
-Quickly scaffold a new [Swapstack](https://github.com/swapstack/swapstack) mobile application from your terminal.
+Quickly scaffold a new [Swapstack](https://swapstack.github.io/swapstack/) Expo + React Native mobile application from your terminal.
 
 ## Quick Start
 
-Once this package is published to npm, create an app with:
+Create a new app with:
 
 ```sh
 npx create-swapstack-app my-app
@@ -13,8 +13,8 @@ npx create-swapstack-app my-app
 This command will:
 1. Download the latest Swapstack boilerplate from the `main` branch.
 2. Prompt for your app's display name and bundle identifiers (or accept CLI flags).
-3. Configure `env.ts`, `.env.example`, `.env`, and `package.json` with your chosen app identity.
-4. Clean up template-internal metadata and initialize a fresh git repository.
+3. Configure `env.ts`, `.env.example`, `.env`, `AGENTS.md`, and `package.json` with your chosen app identity.
+4. Clean up template-internal metadata (including website assets and internal scripts) and initialize a fresh git repository.
 5. Install dependencies via `pnpm` (optional).
 
 ## Usage & Options
