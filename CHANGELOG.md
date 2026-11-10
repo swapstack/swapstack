@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 — 2026-11-10
+
+### Added
+
+- Supabase auth and profile data providers (`EXPO_PUBLIC_AUTH_PROVIDER=supabase`, `EXPO_PUBLIC_DATA_PROVIDER=supabase`).
+- RevenueCat billing provider (`EXPO_PUBLIC_BILLING_PROVIDER=revenuecat`) with customer info and package offering fetching.
+- Reusable subscription paywall screen (`/paywall`) with package selection, purchase flows, and restore purchases.
+- Native build environment validation (`STRICT_ENV_VALIDATION=1`) with adapter configuration guides.
+
 ## 0.1.1 — 2026-10-30
 
 ### Added
