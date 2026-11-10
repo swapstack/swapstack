@@ -31,6 +31,8 @@ npx create-swapstack-app <project-directory> [options]
 | `--bundle-id <id>` | Reverse-domain bundle ID for both iOS & Android (e.g. `com.example.myapp`) |
 | `--ios-bundle-id <id>` | Specific Apple bundle identifier |
 | `--android-package <id>` | Specific Android application ID |
+| `--theme <preset>` | Color theme preset (`matcha`, `terracotta`, `cobalt`, `sakura`, `espresso`, `light`, `dark`) |
+| `--style <preset>` | UI design style (`minimal`, `soft`, `editorial`, `brutalist`, `terminal`) |
 | `--no-install` | Skip running `pnpm install` |
 | `--no-git` | Skip running `git init` |
 | `--yes`, `-y` | Accept all defaults without interactive prompts |

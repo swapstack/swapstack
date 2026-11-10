@@ -1,8 +1,13 @@
+import type { StylePreset, ThemePreset } from './themes.js';
+import { STYLE_PRESETS, THEME_PRESETS, validateStylePreset, validateThemePreset } from './themes.js';
+
 export type ParsedArgs = {
   targetDir?: string;
   name?: string;
   iosBundleId?: string;
   androidPackage?: string;
+  theme?: ThemePreset;
+  style?: StylePreset;
   install: boolean;
   git: boolean;
   yes: boolean;
@@ -102,6 +107,28 @@ export function parseArgs(args: string[]): ParsedArgs {
     ) {
       const res = getOptionValue(args, i, arg);
       parsed.androidPackage = res.value;
+      i = res.nextIndex;
+    }
+    else if (arg === '--theme' || arg.startsWith('--theme=')) {
+      const res = getOptionValue(args, i, arg);
+      const val = res.value.toLowerCase();
+      if (!validateThemePreset(val)) {
+        throw new Error(
+          `Invalid --theme "${res.value}". Valid options: ${THEME_PRESETS.join(', ')}`,
+        );
+      }
+      parsed.theme = val;
+      i = res.nextIndex;
+    }
+    else if (arg === '--style' || arg.startsWith('--style=')) {
+      const res = getOptionValue(args, i, arg);
+      const val = res.value.toLowerCase();
+      if (!validateStylePreset(val)) {
+        throw new Error(
+          `Invalid --style "${res.value}". Valid options: ${STYLE_PRESETS.join(', ')}`,
+        );
+      }
+      parsed.style = val;
       i = res.nextIndex;
     }
     else if (arg.startsWith('-')) {
