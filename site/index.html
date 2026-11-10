@@ -613,14 +613,211 @@ describeAuthProviderContract('AcmeAuthProvider', () => createAcmeAuthProvider())
           </button>
         </div>
 
-        <div class="workbench-grid">
-          <div class="code-window">
-            <div class="window-header">
-              <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-              <span class="mono" id="example-contract-path">src/core/workouts.ts</span>
-              <span class="window-badge">Vendor-Free Contract</span>
+        <div class="examples-workbench">
+          <!-- Interactive Example App Phone Preview -->
+          <div class="device-stage" aria-label="Example App Screen Preview">
+            <div class="device-toolbar">
+              <span class="mono" style="font-size: 12px; padding-left: 8px; color: var(--muted-fg);" id="ex-phone-label">App: Pulse</span>
+              <div class="seg-group">
+                <button type="button" class="seg-btn" id="ex-pro-toggle" aria-pressed="false" title="Simulate unlocking the Pro entitlement">
+                  Pro: Locked
+                </button>
+                <button type="button" class="seg-btn" id="ex-theme-toggle" aria-pressed="false" title="Toggle example phone light/dark mode">
+                  Theme: Dark
+                </button>
+              </div>
             </div>
-            <pre class="window-body" id="example-contract-code"><code>export type WorkoutEntry = {
+
+            <div class="phone-shell">
+              <div class="phone-screen" id="ex-phone-screen" data-phone-theme="dark">
+                <div class="phone-island" aria-hidden="true"></div>
+
+                <!-- Example 1: Pulse (Workout Tracker) -->
+                <div class="phone-view active" id="ex-view-pulse" role="tabpanel">
+                  <div class="p-row" style="margin-bottom: 10px;">
+                    <span class="phone-route-badge" style="margin-bottom: 0;">(app)/index · Pulse</span>
+                    <span class="p-badge-inline">Guest</span>
+                  </div>
+                  <div class="p-h1">Pulse Workouts</div>
+                  <div class="p-desc">Track daily training and build consistency.</div>
+
+                  <div class="p-stat-row">
+                    <div class="p-stat-box">
+                      <span class="p-stat-val" id="pulse-count">12</span>
+                      <span class="p-stat-lbl">Workouts</span>
+                    </div>
+                    <div class="p-stat-box">
+                      <span class="p-stat-val" id="pulse-streak">5d</span>
+                      <span class="p-stat-lbl">Streak</span>
+                    </div>
+                    <div class="p-stat-box">
+                      <span class="p-stat-val" id="pulse-mins">380m</span>
+                      <span class="p-stat-lbl">Total Time</span>
+                    </div>
+                  </div>
+
+                  <div class="p-card">
+                    <div class="p-row">
+                      <span class="p-card-title">Upper Body Strength</span>
+                      <span class="p-badge-inline">45m</span>
+                    </div>
+                    <div class="p-card-desc">Completed today · Logged via WorkoutRepository</div>
+                  </div>
+
+                  <div class="p-card">
+                    <div class="p-row">
+                      <span class="p-card-title">Zone 2 Morning Run</span>
+                      <span class="p-badge-inline">30m</span>
+                    </div>
+                    <div class="p-card-desc">Completed yesterday · 5.2 km</div>
+                  </div>
+
+                  <div class="p-card" id="pulse-pro-card">
+                    <div class="p-row">
+                      <span class="p-card-title">Pro Streak Analytics</span>
+                      <span class="p-badge-inline" id="pulse-pro-badge">Locked</span>
+                    </div>
+                    <div class="p-card-desc" id="pulse-pro-desc">Unlock 90-day volume charts and recovery scores via BillingProvider.</div>
+                  </div>
+
+                  <button type="button" class="p-btn-primary" id="pulse-log-btn" style="margin-top: auto;">+ Log 30m Workout</button>
+                </div>
+
+                <!-- Example 2: MemoStack (Flashcards) -->
+                <div class="phone-view" id="ex-view-memostack" role="tabpanel">
+                  <div class="p-row" style="margin-bottom: 10px;">
+                    <span class="phone-route-badge" style="margin-bottom: 0;">(app)/index · MemoStack</span>
+                    <span class="p-badge-inline" id="memo-quota-badge">2 / 3 Free Decks</span>
+                  </div>
+                  <div class="p-h1">Study Decks</div>
+                  <div class="p-desc">Offline-first spaced repetition flashcards.</div>
+
+                  <div class="p-card" id="memo-flip-card" style="cursor: pointer;">
+                    <div class="p-row">
+                      <span class="p-badge-inline" id="memo-card-side">Active Card · Front</span>
+                      <span style="font-size: 11px; color: var(--p-muted-fg);">Tap below to flip</span>
+                    </div>
+                    <div class="p-card-title" id="memo-card-text" style="margin-top: 8px; font-size: 14px; line-height: 1.4;">
+                      Where are live vendor SDKs (Supabase, RevenueCat) allowed to be imported?
+                    </div>
+                  </div>
+
+                  <button type="button" class="p-btn-outline" id="memo-flip-btn" style="margin-top: 10px;">Flip Flashcard</button>
+
+                  <div class="p-card">
+                    <div class="p-row">
+                      <span class="p-card-title">1. Architecture Contracts</span>
+                      <span class="p-badge-inline">24 cards</span>
+                    </div>
+                    <div class="p-card-desc">18 mastered · Syncs on account upgrade</div>
+                  </div>
+
+                  <div class="p-card">
+                    <div class="p-row">
+                      <span class="p-card-title">2. Expo Router Patterns</span>
+                      <span class="p-badge-inline">16 cards</span>
+                    </div>
+                    <div class="p-card-desc">11 mastered · Session-protected routes</div>
+                  </div>
+
+                  <div class="p-card" id="memo-pro-card" style="margin-top: auto;">
+                    <div class="p-row">
+                      <span class="p-card-title">Unlimited Study Decks</span>
+                      <span class="p-badge-inline" id="memo-pro-badge">Pro Gate</span>
+                    </div>
+                    <div class="p-card-desc" id="memo-pro-desc">Free tier includes 3 decks. Upgrade on /paywall for unlimited decks.</div>
+                  </div>
+                </div>
+
+                <!-- Example 3: PromptBox (AI Assistant) -->
+                <div class="phone-view" id="ex-view-promptbox" role="tabpanel">
+                  <div class="p-row" style="margin-bottom: 10px;">
+                    <span class="phone-route-badge" style="margin-bottom: 0;">(app)/index · PromptBox</span>
+                    <span class="p-badge-inline" id="prompt-quota-badge">4 / 5 Free Today</span>
+                  </div>
+                  <div class="p-h1">PromptBox AI</div>
+                  <div class="p-desc">Saved threads &amp; contract-tested replies.</div>
+
+                  <div class="p-chat-bubble p-chat-user">
+                    Write a Supabase RLS policy so users can only update their own profile row.
+                  </div>
+
+                  <div class="p-chat-bubble p-chat-ai">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Assistant</div>
+                    Use <span class="mono">auth.uid() = id</span> in your policy:<br />
+                    <span class="mono" style="font-size: 11px;">create policy "Users update own profile" on profiles for update using (auth.uid() = id);</span>
+                  </div>
+
+                  <div class="p-card" id="prompt-pro-card" style="margin-top: 12px;">
+                    <div class="p-row">
+                      <span class="p-card-title" id="prompt-pro-title">Daily Message Quota</span>
+                      <span class="p-badge-inline" id="prompt-pro-badge">1 left</span>
+                    </div>
+                    <div class="p-card-desc" id="prompt-pro-desc">Upgrade to Pro on /paywall for unlimited daily prompts &amp; thread export.</div>
+                  </div>
+
+                  <button type="button" class="p-btn-primary" id="prompt-send-btn" style="margin-top: auto;">Send Test Prompt</button>
+                </div>
+
+                <!-- Example 4: SplitLedger (Expense Splitter) -->
+                <div class="phone-view" id="ex-view-splitledger" role="tabpanel">
+                  <div class="p-row" style="margin-bottom: 10px;">
+                    <span class="phone-route-badge" style="margin-bottom: 0;">(app)/index · SplitLedger</span>
+                    <span class="p-badge-inline">Guest Session</span>
+                  </div>
+                  <div class="p-h1">Lisbon Trip</div>
+                  <div class="p-desc">Shared group expenses &amp; net balances.</div>
+
+                  <div class="p-stat-row">
+                    <div class="p-stat-box">
+                      <span class="p-stat-val" style="color: #22c55e;" id="split-alex">+$42</span>
+                      <span class="p-stat-lbl">Alex (You)</span>
+                    </div>
+                    <div class="p-stat-box">
+                      <span class="p-stat-val">-$24</span>
+                      <span class="p-stat-lbl">Sam</span>
+                    </div>
+                    <div class="p-stat-box">
+                      <span class="p-stat-val">-$18</span>
+                      <span class="p-stat-lbl">Jordan</span>
+                    </div>
+                  </div>
+
+                  <div class="p-card">
+                    <div class="p-row">
+                      <span class="p-card-title">Time Out Market Dinner</span>
+                      <span style="font-weight: 700; font-size: 13px;" id="split-last-amt">$84.00</span>
+                    </div>
+                    <div class="p-card-desc">Paid by Alex · Split equally (3 ways)</div>
+                  </div>
+
+                  <div class="p-card">
+                    <div class="p-card-title">Guest Account Reminder</div>
+                    <div class="p-card-desc">Link email &amp; password on /profile so you keep this ledger across devices.</div>
+                  </div>
+
+                  <div class="p-card" id="split-pro-card">
+                    <div class="p-row">
+                      <span class="p-card-title">CSV Settlement Export</span>
+                      <span class="p-badge-inline" id="split-pro-badge">Locked</span>
+                    </div>
+                    <div class="p-card-desc" id="split-pro-desc">Requires active pro entitlement from BillingProvider.</div>
+                  </div>
+
+                  <button type="button" class="p-btn-primary" id="split-add-btn" style="margin-top: auto;">+ Add $30 Expense</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-code-stack">
+            <div class="code-window">
+              <div class="window-header">
+                <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                <span class="mono" id="example-contract-path">src/core/workouts.ts</span>
+                <span class="window-badge">Vendor-Free Contract</span>
+              </div>
+              <pre class="window-body" id="example-contract-code"><code>export type WorkoutEntry = {
   id: string;
   userId: string;
   title: string;
@@ -641,21 +838,21 @@ export type WorkoutRepository = {
   remove: (userId: string, workoutId: string) => Promise&lt;void&gt;;
   getStats: (userId: string) => Promise&lt;WorkoutStats&gt;;
 };</code></pre>
-          </div>
-
-          <div class="code-window">
-            <div class="window-header">
-              <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-              <span class="mono" id="example-prompt-title">AI Build Prompt — Pulse</span>
-              <button type="button" class="copy-btn" id="copy-example-btn">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-                <span id="copy-example-label">Copy Build Prompt</span>
-              </button>
             </div>
-            <pre class="window-body" id="example-prompt-code" style="white-space: pre-wrap;"><code>Build the "Pulse" Habit &amp; Workout Tracker app in this Swapstack project following `AGENTS.md`:
+
+            <div class="code-window">
+              <div class="window-header">
+                <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                <span class="mono" id="example-prompt-title">AI Build Prompt — Pulse</span>
+                <button type="button" class="copy-btn" id="copy-example-btn">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  <span id="copy-example-label">Copy Build Prompt</span>
+                </button>
+              </div>
+              <pre class="window-body" id="example-prompt-code" style="white-space: pre-wrap;"><code>Build the "Pulse" Habit &amp; Workout Tracker app in this Swapstack project following `AGENTS.md`:
 
 1. Create `src/core/workouts.ts` with `WorkoutEntry`, `WorkoutStats`, and `WorkoutRepository` types (use `type` definitions, no vendor imports).
 2. Create `src/core/mocks/mock-workout-repository.ts` implementing `WorkoutRepository` in memory with deterministic streak calculation and a `reset()` helper for tests.
@@ -663,9 +860,10 @@ export type WorkoutRepository = {
 4. Register `workouts` in `src/lib/providers/registry.ts` and expose `serviceProviders.workouts` in `src/lib/services/index.ts`.
 5. Update `src/app/(app)/index.tsx` so users (including anonymous guests) can log workouts, view their workout history, and see a "Pro Streak Analytics" card that checks `serviceProviders.billing.getEntitlements()` for an active `pro` entitlement (linking to `/paywall` when locked).
 6. Add React Native Testing Library tests in `src/app/(app)/__tests__/index.test.tsx` and run `pnpm run lint`, `pnpm run type-check`, and `pnpm test`.</code></pre>
-            <div style="padding: 14px 20px; border-top: 1px solid #262626; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 13px; color: #a3a3a3;">
-              <span class="mono" id="example-cli-cmd">$ npx create-swapstack-app pulse --name "Pulse" --bundle-id com.acme.pulse --yes</span>
-              <a href="https://github.com/swapstack/swapstack/blob/main/docs/examples.md" target="_blank" rel="noopener">All 4 Blueprints (docs/examples.md)</a>
+              <div style="padding: 14px 20px; border-top: 1px solid #262626; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 13px; color: #a3a3a3;">
+                <span class="mono" id="example-cli-cmd">$ npx create-swapstack-app pulse --name "Pulse" --bundle-id com.acme.pulse --yes</span>
+                <a href="https://github.com/swapstack/swapstack/blob/main/docs/examples.md" target="_blank" rel="noopener">All 4 Blueprints (docs/examples.md)</a>
+              </div>
             </div>
           </div>
         </div>
@@ -1075,6 +1273,20 @@ export type LedgerRepository = {
       },
     };
 
+    const exPhoneViews = {
+      pulse: document.getElementById('ex-view-pulse'),
+      memostack: document.getElementById('ex-view-memostack'),
+      promptbox: document.getElementById('ex-view-promptbox'),
+      splitledger: document.getElementById('ex-view-splitledger'),
+    };
+    const exPhoneLabel = document.getElementById('ex-phone-label');
+    const exPhoneNames = {
+      pulse: 'App: Pulse',
+      memostack: 'App: MemoStack',
+      promptbox: 'App: PromptBox',
+      splitledger: 'App: SplitLedger',
+    };
+
     exampleTabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         const key = tab.getAttribute('data-example-tab');
@@ -1086,7 +1298,102 @@ export type LedgerRepository = {
         examplePromptTitle.textContent = entry.promptTitle;
         examplePromptCode.textContent = entry.prompt;
         exampleCliCmd.textContent = entry.cli;
+        exPhoneLabel.textContent = exPhoneNames[key] || 'App Preview';
+        Object.entries(exPhoneViews).forEach(([k, view]) => {
+          view.classList.toggle('active', k === key);
+        });
       });
+    });
+
+    // Example Phone Theme & Pro Entitlement Toggles
+    const exPhoneScreen = document.getElementById('ex-phone-screen');
+    const exThemeToggle = document.getElementById('ex-theme-toggle');
+    exThemeToggle.addEventListener('click', () => {
+      const isDark = exPhoneScreen.getAttribute('data-phone-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      exPhoneScreen.setAttribute('data-phone-theme', next);
+      exThemeToggle.setAttribute('aria-pressed', String(next === 'light'));
+      exThemeToggle.textContent = `Theme: ${next === 'dark' ? 'Dark' : 'Light'}`;
+    });
+
+    const exProToggle = document.getElementById('ex-pro-toggle');
+    let isExPro = false;
+    function updateExProState() {
+      exProToggle.setAttribute('aria-pressed', String(isExPro));
+      exProToggle.textContent = isExPro ? 'Pro: Active' : 'Pro: Locked';
+
+      // Pulse Pro state
+      document.getElementById('pulse-pro-badge').textContent = isExPro ? 'Active (pro)' : 'Locked';
+      document.getElementById('pulse-pro-desc').textContent = isExPro
+        ? '90-day volume: 1,420 mins (+18% vs last month) · Recovery: 94%'
+        : 'Unlock 90-day volume charts and recovery scores via BillingProvider.';
+
+      // MemoStack Pro state
+      document.getElementById('memo-quota-badge').textContent = isExPro ? 'Unlimited Decks' : '2 / 3 Free Decks';
+      document.getElementById('memo-pro-badge').textContent = isExPro ? 'Active (pro)' : 'Pro Gate';
+      document.getElementById('memo-pro-desc').textContent = isExPro
+        ? 'Unlimited study decks & cloud sync unlocked via active pro entitlement.'
+        : 'Free tier includes 3 decks. Upgrade on /paywall for unlimited decks.';
+
+      // PromptBox Pro state
+      document.getElementById('prompt-quota-badge').textContent = isExPro ? 'Pro Unlimited' : '4 / 5 Free Today';
+      document.getElementById('prompt-pro-badge').textContent = isExPro ? 'Active (pro)' : '1 left';
+      document.getElementById('prompt-pro-desc').textContent = isExPro
+        ? 'Unlimited daily prompts & markdown export unlocked.'
+        : 'Upgrade to Pro on /paywall for unlimited daily prompts & thread export.';
+
+      // SplitLedger Pro state
+      document.getElementById('split-pro-badge').textContent = isExPro ? 'Ready (pro)' : 'Locked';
+      document.getElementById('split-pro-desc').textContent = isExPro
+        ? 'CSV & PDF settlement summary ready to export for 3 members.'
+        : 'Requires active pro entitlement from BillingProvider.';
+    }
+
+    exProToggle.addEventListener('click', () => {
+      isExPro = !isExPro;
+      updateExProState();
+    });
+
+    // Interactive actions inside Example App Screens
+    let pulseCount = 12;
+    let pulseMins = 380;
+    document.getElementById('pulse-log-btn').addEventListener('click', () => {
+      pulseCount += 1;
+      pulseMins += 30;
+      document.getElementById('pulse-count').textContent = String(pulseCount);
+      document.getElementById('pulse-mins').textContent = `${pulseMins}m`;
+      document.getElementById('pulse-streak').textContent = '6d';
+    });
+
+    let memoFlipped = false;
+    function flipMemoCard() {
+      memoFlipped = !memoFlipped;
+      document.getElementById('memo-card-side').textContent = memoFlipped
+        ? 'Active Card · Answer'
+        : 'Active Card · Front';
+      document.getElementById('memo-card-text').textContent = memoFlipped
+        ? 'Only inside adapter modules under src/lib/providers/<vendor>/ — never in src/app/ screens.'
+        : 'Where are live vendor SDKs (Supabase, RevenueCat) allowed to be imported?';
+    }
+    document.getElementById('memo-flip-btn').addEventListener('click', flipMemoCard);
+    document.getElementById('memo-flip-card').addEventListener('click', flipMemoCard);
+
+    document.getElementById('prompt-send-btn').addEventListener('click', () => {
+      if (!isExPro) {
+        document.getElementById('prompt-quota-badge').textContent = '5 / 5 Used';
+        document.getElementById('prompt-pro-badge').textContent = 'Limit Reached';
+        document.getElementById('prompt-pro-desc').textContent =
+          'Daily free limit (5/5) reached! Toggle "Pro: Active" above or route to /paywall.';
+      }
+    });
+
+    let splitAlex = 42;
+    let splitDinner = 84;
+    document.getElementById('split-add-btn').addEventListener('click', () => {
+      splitAlex += 20;
+      splitDinner += 30;
+      document.getElementById('split-alex').textContent = `+$${splitAlex}`;
+      document.getElementById('split-last-amt').textContent = `$${splitDinner}.00`;
     });
 
     copyExampleBtn.addEventListener('click', async () => {

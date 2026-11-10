@@ -1,6 +1,8 @@
 # Example App Blueprints
 
-These four end-to-end blueprints show how to turn Swapstack into real mobile products across fitness, productivity, AI SaaS, and personal finance.
+![Example App Screens](https://swapstack.github.io/swapstack/examples-showcase.png)
+
+These four end-to-end blueprints show how to turn Swapstack into real mobile products across fitness, productivity, AI SaaS, and personal finance. You can also interact with each app's live screen preview on the [Swapstack website](https://swapstack.github.io/swapstack/#examples).
 
 Every example follows Swapstack's golden rule: **screens talk only to plain TypeScript contracts in `src/core/`**, work out of the box with zero API keys using in-memory mocks (`EXPO_PUBLIC_*_PROVIDER=mock`), and can switch to live **Supabase** and **RevenueCat** adapters via `.env` without modifying a single screen.
 
