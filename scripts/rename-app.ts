@@ -303,10 +303,12 @@ async function renameApp() {
       writeFile(readmePath, updatedReadme),
     ]);
 
-    const designPath = path.join(root, 'DESIGN.md');
-    if (existsSync(designPath)) {
-      const design = await readFile(designPath, 'utf8');
-      await writeFile(designPath, design.replaceAll(/\bSwapstack\b/g, () => name));
+    for (const docFile of ['DESIGN.md', 'AGENTS.md']) {
+      const docPath = path.join(root, docFile);
+      if (existsSync(docPath)) {
+        const docContent = await readFile(docPath, 'utf8');
+        await writeFile(docPath, docContent.replaceAll(/\bSwapstack\b/g, () => name));
+      }
     }
 
     const localEnvPath = path.join(root, '.env');

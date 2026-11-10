@@ -320,10 +320,12 @@ export async function renameAppFiles(
   const readme = `# ${name}\n\nAn Expo application.\n\n## Quick start\n\n\`\`\`sh\npnpm install\npnpm start\n\`\`\`\n\nApp identity is configured in \`.env\` and \`env.ts\`.\n`;
   await writeFile(readmePath, readme, 'utf8');
 
-  const designPath = path.join(targetDir, 'DESIGN.md');
-  if (existsSync(designPath)) {
-    const design = await readFile(designPath, 'utf8');
-    await writeFile(designPath, design.replaceAll(/\bSwapstack\b/g, () => name));
+  for (const docFile of ['DESIGN.md', 'AGENTS.md']) {
+    const docPath = path.join(targetDir, docFile);
+    if (existsSync(docPath)) {
+      const docContent = await readFile(docPath, 'utf8');
+      await writeFile(docPath, docContent.replaceAll(/\bSwapstack\b/g, () => name));
+    }
   }
   await replaceTemplateNamespaces(path.join(targetDir, 'src'), slug);
 

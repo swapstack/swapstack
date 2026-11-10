@@ -166,6 +166,7 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     writeFileSync(path.join(tempDir, 'package.json'), packageJsonContent);
     writeFileSync(path.join(tempDir, 'README.md'), readmeContent);
     writeFileSync(path.join(tempDir, 'DESIGN.md'), '# Swapstack\n\nSwapstack design tokens.');
+    writeFileSync(path.join(tempDir, 'AGENTS.md'), '# AGENTS.md — AI Coding Agent Instructions for Swapstack\n');
     writeFileSync(path.join(tempDir, 'pnpm-workspace.yaml'), workspaceContent);
     writeFileSync(path.join(tempDir, 'PRODUCT.md'), 'Swapstack product context');
     mkdirSync(path.join(tempDir, '.impeccable'));
@@ -207,6 +208,7 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     assert.match(updatedReadme, /^# Save \$100 App/);
     assert.doesNotMatch(updatedReadme, /Swapstack|Do not reuse/);
     assert.doesNotMatch(readFileSync(path.join(tempDir, 'DESIGN.md'), 'utf8'), /Swapstack/);
+    assert.match(readFileSync(path.join(tempDir, 'AGENTS.md'), 'utf8'), /Save \$100 App/);
     const updatedPackage = JSON.parse(readFileSync(path.join(tempDir, 'package.json'), 'utf8'));
     assert.equal(updatedPackage.author, undefined);
     assert.equal(updatedPackage.repository, undefined);

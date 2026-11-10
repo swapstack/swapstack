@@ -50,6 +50,7 @@
           <li><a href="#provider-swap">Provider Swap</a></li>
           <li><a href="#architecture">Architecture</a></li>
           <li><a href="#guides">Setup &amp; Adapters</a></li>
+          <li><a href="#ai-prompts">AI Prompts</a></li>
           <li><a href="https://github.com/swapstack/swapstack/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
         </ul>
       </nav>
@@ -522,6 +523,67 @@ describeAuthProviderContract('AcmeAuthProvider', () => createAcmeAuthProvider())
         </div>
       </div>
     </section>
+
+    <!-- AI Agent Prompts Section -->
+    <section class="section" id="ai-prompts">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Built for AI coding agents.</h2>
+          </div>
+          <p class="section-desc">
+            Every Swapstack app ships with a root <code class="mono">AGENTS.md</code> that Claude Code, Cursor, Antigravity, Copilot, and Codex read automatically. Copy a prompt below to drive your agent end to end.
+          </p>
+        </div>
+
+        <div class="docs-layout">
+          <div class="docs-nav" role="tablist" aria-label="AI Agent Prompts">
+            <button type="button" class="doc-tab" role="tab" aria-selected="true" data-prompt-tab="p-scaffold">
+              <span class="doc-tab-title">Scaffold &amp; Rebrand</span>
+              <span class="doc-tab-sub">Create app, customize tokens &amp; home screen</span>
+            </button>
+            <button type="button" class="doc-tab" role="tab" aria-selected="false" data-prompt-tab="p-feature">
+              <span class="doc-tab-title">Contract-First Feature</span>
+              <span class="doc-tab-sub">Contract + mock + Jest suite + UI screen</span>
+            </button>
+            <button type="button" class="doc-tab" role="tab" aria-selected="false" data-prompt-tab="p-adapter">
+              <span class="doc-tab-title">New Vendor Adapter</span>
+              <span class="doc-tab-sub">Implement Firebase, Clerk, Stripe, etc.</span>
+            </button>
+            <button type="button" class="doc-tab" role="tab" aria-selected="false" data-prompt-tab="p-golive">
+              <span class="doc-tab-title">Go Live (Supabase + RC)</span>
+              <span class="doc-tab-sub">Wire live env vars, SQL schema &amp; prebuild</span>
+            </button>
+          </div>
+
+          <div class="code-window">
+            <div class="window-header">
+              <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span class="mono" id="prompt-window-title">Prompt: Scaffold &amp; Rebrand a New App</span>
+              <button type="button" class="copy-btn" id="copy-prompt-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                <span id="copy-prompt-label">Copy Prompt</span>
+              </button>
+            </div>
+            <pre class="window-body" id="prompt-body" style="white-space: pre-wrap;"><code>Create a new Expo app using Swapstack and customize it for my product:
+
+1. Run `npx create-swapstack-app my-app --name "My App" --bundle-id com.acme.myapp --yes` and `cd` into the project.
+2. Read `AGENTS.md` and `DESIGN.md` to understand the contract architecture and token system.
+3. Update the brand tokens in `DESIGN.md`, `src/global.css`, and `src/components/ui/colors.js` to match our brand palette while preserving light and dark mode contrast.
+4. Update `src/app/(app)/index.tsx` using primitives from `@/components/ui` (`Screen`, `Card`, `Button`, `Text`, `View`), keeping links to `/profile` and `/paywall`.
+5. Keep all providers on `mock` in `.env` so everything runs without external API keys.
+6. Update tests in `src/app/(app)/__tests__/index.test.tsx` and verify `pnpm run lint`, `pnpm run type-check`, and `pnpm test` pass.</code></pre>
+            <div style="padding: 14px 20px; border-top: 1px solid #262626; display: flex; flex-wrap: wrap; gap: 20px; font-size: 13px; color: #a3a3a3;">
+              <a href="https://github.com/swapstack/swapstack/blob/main/AGENTS.md" target="_blank" rel="noopener">View root AGENTS.md</a>
+              <a href="https://github.com/swapstack/swapstack/blob/main/docs/ai-prompts.md" target="_blank" rel="noopener">Full AI Prompt Library (docs/ai-prompts.md)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -532,6 +594,8 @@ describeAuthProviderContract('AcmeAuthProvider', () => createAcmeAuthProvider())
       <ul class="footer-links">
         <li><a href="https://github.com/swapstack/swapstack" target="_blank" rel="noopener">GitHub Repository</a></li>
         <li><a href="https://www.npmjs.com/package/create-swapstack-app" target="_blank" rel="noopener">npm (create-swapstack-app)</a></li>
+        <li><a href="https://github.com/swapstack/swapstack/blob/main/AGENTS.md" target="_blank" rel="noopener">AGENTS.md</a></li>
+        <li><a href="https://github.com/swapstack/swapstack/blob/main/docs/ai-prompts.md" target="_blank" rel="noopener">AI Prompts</a></li>
         <li><a href="https://github.com/swapstack/swapstack/blob/main/docs/supabase.md" target="_blank" rel="noopener">Supabase Docs</a></li>
         <li><a href="https://github.com/swapstack/swapstack/blob/main/docs/revenuecat.md" target="_blank" rel="noopener">RevenueCat Docs</a></li>
         <li><a href="https://github.com/swapstack/swapstack/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
@@ -689,6 +753,92 @@ describeAuthProviderContract('AcmeAuthProvider', () => createAcmeAuthProvider())
           panel.classList.toggle('active', key === target);
         });
       });
+    });
+
+    // 6. AI Agent Prompts Switcher & Copy
+    const promptTabs = document.querySelectorAll('[data-prompt-tab]');
+    const promptBody = document.getElementById('prompt-body');
+    const promptWindowTitle = document.getElementById('prompt-window-title');
+    const copyPromptBtn = document.getElementById('copy-prompt-btn');
+    const copyPromptLabel = document.getElementById('copy-prompt-label');
+
+    const promptsData = {
+      'p-scaffold': {
+        title: 'Prompt: Scaffold & Rebrand a New App',
+        text: `Create a new Expo app using Swapstack and customize it for my product:
+
+1. Run \`npx create-swapstack-app my-app --name "My App" --bundle-id com.acme.myapp --yes\` and \`cd\` into the project.
+2. Read \`AGENTS.md\` and \`DESIGN.md\` to understand the contract architecture and token system.
+3. Update the brand tokens in \`DESIGN.md\`, \`src/global.css\`, and \`src/components/ui/colors.js\` to match our brand palette while preserving light and dark mode contrast.
+4. Update \`src/app/(app)/index.tsx\` using primitives from \`@/components/ui\` (\`Screen\`, \`Card\`, \`Button\`, \`Text\`, \`View\`), keeping links to \`/profile\` and \`/paywall\`.
+5. Keep all providers on \`mock\` in \`.env\` so everything runs without external API keys.
+6. Update tests in \`src/app/(app)/__tests__/index.test.tsx\` and verify \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\` pass.`,
+      },
+      'p-feature': {
+        title: 'Prompt: Build a New Feature Contract-First',
+        text: `Build a new "<Feature Name>" feature in this Swapstack app following the contract-first architecture in \`AGENTS.md\`:
+
+1. Contract & Types (\`src/core/\`):
+   - Define vendor-free TypeScript \`type\` definitions and repository methods in \`src/core/\` (do not import any vendor SDKs).
+2. In-Memory Mock (\`src/core/mocks/\`):
+   - Implement an in-memory mock adapter with deterministic state, subscription cleanup, and reset support for tests.
+3. Contract Test Suite (\`src/core/contracts/\`):
+   - Write a reusable \`describe<Feature>Contract\` Jest suite in \`src/core/contracts/\` and run it against the mock adapter in \`src/core/__tests__/\`.
+4. Registry & Services (\`src/lib/providers/\` & \`src/lib/services/\`):
+   - Register the \`mock\` adapter in \`src/lib/providers/registry.ts\` and expose it on \`serviceProviders\`.
+5. Screen & Flow Tests (\`src/app/(app)/\`):
+   - Build the UI screen in \`src/app/(app)/\` using \`@/components/ui\` primitives and calling only \`serviceProviders\`.
+   - Write React Native Testing Library tests in \`src/app/(app)/__tests__/\` against the mock provider.
+6. Run \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\` and fix any issues.`,
+      },
+      'p-adapter': {
+        title: 'Prompt: Implement a New Vendor Adapter',
+        text: `Implement a \`<vendor>\` adapter for \`<auth | data | billing>\` in Swapstack without modifying any screen in \`src/app/\`:
+
+1. Read \`AGENTS.md\`, \`CONTRIBUTING.md\`, and the existing adapter in \`src/lib/providers/supabase/\` (or \`src/lib/providers/revenuecat/\`) as a reference implementation.
+2. Create \`src/lib/providers/<vendor>/\` implementing the contract from \`@/core\` (\`AuthProvider\`, \`DataRepository\`, or \`BillingProvider\`) with \`mode: 'live'\`.
+3. Map all vendor-specific errors to \`AuthError\` or \`BillingError\` from \`@/core/errors\` so existing screens handle error codes uniformly.
+4. Register \`<vendor>\` inside \`initDefaultProviders()\` in \`src/lib/providers/registry.ts\`.
+5. Add runtime credential validation in \`validateProviderConfig()\` (\`src/lib/providers/registry.ts\`) and prebuild validation in \`validateStrictEnv()\` (\`env.ts\`), and document the new env vars in \`.env.example\` and \`docs/<vendor>.md\`.
+6. Create \`src/lib/providers/<vendor>/__tests__/\` and run the shared contract test suite from \`@/core/contracts\` against a mocked vendor SDK client.
+7. Verify \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\` pass.`,
+      },
+      'p-golive': {
+        title: 'Prompt: Switch from Mocks to Live Supabase & RevenueCat',
+        text: `Help me switch this Swapstack app from \`mock\` providers to live \`supabase\` and \`revenuecat\` adapters:
+
+1. Read \`docs/supabase.md\`, \`docs/revenuecat.md\`, and \`env.ts\`.
+2. Check my \`.env\` file and list the exact environment variables needed for:
+   - \`EXPO_PUBLIC_AUTH_PROVIDER=supabase\`
+   - \`EXPO_PUBLIC_DATA_PROVIDER=supabase\`
+   - \`EXPO_PUBLIC_BILLING_PROVIDER=revenuecat\`
+3. Output the Supabase SQL migration and RLS policies from \`docs/supabase.md\` that I need to run in the Supabase SQL Editor for the \`public.profiles\` table.
+4. Verify that \`STRICT_ENV_VALIDATION=1\` passes with my configuration and that no screen files in \`src/app/\` needed to change.
+5. Run \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\`.`,
+      },
+    };
+
+    promptTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const key = tab.getAttribute('data-prompt-tab');
+        const entry = promptsData[key];
+        if (!entry) return;
+        promptTabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+        promptWindowTitle.textContent = entry.title;
+        promptBody.textContent = entry.text;
+      });
+    });
+
+    copyPromptBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(promptBody.textContent.trim());
+        copyPromptLabel.textContent = 'Copied';
+        setTimeout(() => {
+          copyPromptLabel.textContent = 'Copy Prompt';
+        }, 1800);
+      } catch {
+        copyPromptLabel.textContent = 'Copied';
+      }
     });
   </script>
 </body>

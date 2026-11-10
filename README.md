@@ -60,6 +60,17 @@ To switch a provider, set the variable to any registered provider name. An unkno
 
 The `prebuild:*` scripts set `STRICT_ENV_VALIDATION=1`, which additionally fails the native prebuild early if a live provider is selected without its required credentials. Want to add a provider? See the adapter guide in [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Building with AI agents
+
+Swapstack includes a root [AGENTS.md](AGENTS.md) file that AI coding agents (Claude Code, Cursor, Antigravity, GitHub Copilot, Windsurf, and Codex) load automatically to enforce contract boundaries, design tokens, and test suites.
+
+See [AI Agent Prompts & Workflows](docs/ai-prompts.md) for copy-paste prompts to:
+
+- Scaffold and rebrand a new app with `create-swapstack-app`
+- Build new domain features contract-first against in-memory mocks
+- Implement and contract-test a new vendor adapter (Firebase, Clerk, Stripe, etc.)
+- Switch from `mock` providers to live Supabase and RevenueCat adapters
+
 ## What's inside
 
 Swapstack structures core services behind vendor-agnostic contracts under `src/core`:
