@@ -33,6 +33,7 @@ export default antfu(
       '.agents/**',
       '.github/**',
       'packages/*/dist/**',
+      'site/**',
     ],
   },
   {

@@ -172,6 +172,10 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     writeFileSync(path.join(tempDir, '.impeccable', 'direction.md'), 'Swapstack direction');
     mkdirSync(path.join(tempDir, 'scripts'), { recursive: true });
     writeFileSync(path.join(tempDir, 'scripts/test-cli.ts'), 'export {};\n');
+    mkdirSync(path.join(tempDir, 'site'), { recursive: true });
+    writeFileSync(path.join(tempDir, 'site/index.html'), '<html></html>\n');
+    mkdirSync(path.join(tempDir, '.github/workflows'), { recursive: true });
+    writeFileSync(path.join(tempDir, '.github/workflows/pages.yml'), 'name: Pages\n');
     mkdirSync(path.join(tempDir, 'src/lib/auth'), { recursive: true });
     mkdirSync(path.join(tempDir, 'src/core/mocks'), { recursive: true });
     writeFileSync(path.join(tempDir, 'src/lib/auth/storage.ts'), 'export const key = \u0027swapstack.auth.session\u0027;');
@@ -213,5 +217,7 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     assert.match(readFileSync(path.join(tempDir, 'src/core/mocks/auth.ts'), 'utf8'), /mock_google_user@save-100-app\.example/);
     assert.equal(existsSync(path.join(tempDir, 'PRODUCT.md')), false);
     assert.equal(existsSync(path.join(tempDir, '.impeccable')), false);
+    assert.equal(existsSync(path.join(tempDir, 'site')), false);
+    assert.equal(existsSync(path.join(tempDir, '.github/workflows/pages.yml')), false);
   });
 });

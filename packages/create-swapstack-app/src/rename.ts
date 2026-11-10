@@ -333,7 +333,7 @@ export async function renameAppFiles(
     await rm(packagesDir, { recursive: true, force: true });
   }
 
-  for (const artifact of ['PRODUCT.md', '.impeccable', 'scripts/test-cli.ts']) {
+  for (const artifact of ['PRODUCT.md', '.impeccable', 'scripts/test-cli.ts', 'site', '.github/workflows/pages.yml']) {
     await rm(path.join(targetDir, artifact), { recursive: true, force: true });
   }
 

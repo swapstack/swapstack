@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Swapstack — Vendor-Agnostic Expo &amp; React Native Boilerplate</title>
+  <meta
+    name="description"
+    content="Free, open-source Expo boilerplate with plain TypeScript contracts for Auth, Data, and Billing. Start with zero-key mocks, then flip .env to Supabase and RevenueCat without rewriting a screen."
+  />
+
+  <!-- OpenGraph / X Card Meta -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Swapstack — Ship Expo apps without vendor lock-in" />
+  <meta
+    property="og:description"
+    content="Plain TypeScript contracts for Auth, Data, and Billing. Built-in mocks, live Supabase & RevenueCat adapters, Auth kit, and Subscription Paywall."
+  />
+  <meta property="og:image" content="https://swapstack.github.io/swapstack/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Swapstack — Ship Expo apps without vendor lock-in" />
+  <meta
+    name="twitter:description"
+    content="Free Expo + React Native starter with swappable Auth, Data, and Billing adapters. Try it: npx create-swapstack-app my-app"
+  />
+  <meta name="twitter:image" content="https://swapstack.github.io/swapstack/og-image.png" />
+
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="icon" type="image/png" href="./favicon.png" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
+            <path d="M12 46 L32 56 L52 46" stroke="currentColor" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M12 35 L32 45 L52 35" stroke="currentColor" stroke-opacity="0.72" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M32 9 L54 20.5 L32 32 L10 20.5 Z" fill="currentColor" />
+            <path d="M23 20.5 H40 M35.5 16.5 L41 20.5 L35.5 24.5" stroke="var(--primary-fg)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <span>Swapstack</span>
+        <span class="version-pill">v0.2.0</span>
+      </a>
+
+      <nav aria-label="Primary">
+        <ul class="nav-links">
+          <li><a href="#provider-swap">Provider Swap</a></li>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="#guides">Setup &amp; Adapters</a></li>
+          <li><a href="https://github.com/swapstack/swapstack/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle color theme">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+          </svg>
+          <span id="theme-label">Light</span>
+        </button>
+
+        <a
+          href="https://github.com/swapstack/swapstack"
+          target="_blank"
+          rel="noopener"
+          class="icon-btn"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <h1 class="hero-title">Ship Expo apps without vendor lock-in.</h1>
+          <p class="hero-lead">
+            Swapstack is a free, open-source React Native boilerplate built around plain TypeScript contracts for authentication, user data, and subscription billing. Build locally with zero API keys, then switch to Supabase and RevenueCat via <code class="mono">.env</code> without rewriting a single screen.
+          </p>
+
+          <div class="cli-bar" role="region" aria-label="CLI Quick Start">
+            <div class="cli-cmd">
+              <span class="cli-prompt">$</span>
+              <span id="cli-text">npx create-swapstack-app my-app</span>
+            </div>
+            <button type="button" class="copy-btn" id="copy-cli-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <span id="copy-cli-label">Copy</span>
+            </button>
+          </div>
+
+          <div class="hero-cta-row">
+            <a href="https://github.com/swapstack/swapstack" target="_blank" rel="noopener" class="btn btn-primary">
+              Explore on GitHub
+            </a>
+            <a href="#provider-swap" class="btn btn-secondary">
+              Try Interactive Swap
+            </a>
+          </div>
+
+          <ul class="hero-facts">
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+              <span>In-memory mocks work out of the box (0 keys)</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+              <span>Live Supabase Auth &amp; Profile adapters</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+              <span>Live RevenueCat Billing &amp; Paywall screen</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+              <span>Expo 54 · Expo Router · Uniwind · Jest</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Interactive Phone Preview -->
+        <div class="device-stage" aria-label="Interactive Screen Preview">
+          <div class="device-toolbar">
+            <div class="seg-group" role="tablist" aria-label="App Screens">
+              <button type="button" class="seg-btn" role="tab" aria-selected="true" data-screen="login">Login</button>
+              <button type="button" class="seg-btn" role="tab" aria-selected="false" data-screen="paywall">Paywall</button>
+              <button type="button" class="seg-btn" role="tab" aria-selected="false" data-screen="profile">Profile</button>
+            </div>
+            <button type="button" class="seg-btn" id="phone-theme-btn" aria-pressed="false" title="Toggle device light/dark mode">
+              Theme: Dark
+            </button>
+          </div>
+
+          <div class="phone-shell">
+            <div class="phone-screen" id="phone-screen" data-phone-theme="dark">
+              <div class="phone-island" aria-hidden="true"></div>
+
+              <!-- Screen 1: Login -->
+              <div class="phone-view active" id="view-login" role="tabpanel">
+                <span class="phone-route-badge">(auth)/login</span>
+                <div class="p-h1">Welcome back</div>
+                <div class="p-desc">Sign in to continue to your account.</div>
+
+                <div class="p-label">Email</div>
+                <div class="p-input">alex@swapstack.dev</div>
+
+                <div class="p-label">Password</div>
+                <div class="p-input">••••••••••••</div>
+
+                <button type="button" class="p-btn-primary" data-goto-screen="paywall">Sign in</button>
+
+                <div class="p-row" style="margin-top: 12px; font-size: 12px;">
+                  <span style="color: var(--p-muted-fg);">Forgot password?</span>
+                  <span style="font-weight: 600;">Create account</span>
+                </div>
+
+                <div style="text-align: center; font-size: 11.5px; color: var(--p-muted-fg); margin: 14px 0;">or</div>
+                <button type="button" class="p-btn-outline" data-goto-screen="profile">Continue without account</button>
+              </div>
+
+              <!-- Screen 2: Paywall -->
+              <div class="phone-view" id="view-paywall" role="tabpanel">
+                <span class="phone-route-badge">(app)/paywall</span>
+                <div class="p-h1">Choose a plan</div>
+                <div class="p-desc">Unlock premium features with a subscription.</div>
+
+                <div class="p-card" id="entitlement-banner" style="border-color: rgba(34,197,94,0.45); background-color: rgba(34,197,94,0.08);">
+                  <div class="p-card-title" style="color: #22c55e; font-size: 13px;">Subscription active</div>
+                  <div class="p-card-desc" id="entitlement-text">Active entitlements: pro</div>
+                </div>
+
+                <div class="p-card">
+                  <div class="p-card-title">Pro Monthly</div>
+                  <div class="p-card-desc">Full access billed monthly.</div>
+                  <div class="p-row" style="margin-top: 10px;">
+                    <span style="font-weight: 700; font-size: 15px;">$9.99/mo</span>
+                    <button type="button" class="p-btn-primary" style="width: auto; height: 32px; margin-top: 0; padding: 0 14px; font-size: 12px;" data-purchase="pro_monthly">Purchase</button>
+                  </div>
+                </div>
+
+                <div class="p-card">
+                  <div class="p-card-title">Pro Annual</div>
+                  <div class="p-card-desc">Save 33% with annual billing.</div>
+                  <div class="p-row" style="margin-top: 10px;">
+                    <span style="font-weight: 700; font-size: 15px;">$79.99/yr</span>
+                    <button type="button" class="p-btn-primary" style="width: auto; height: 32px; margin-top: 0; padding: 0 14px; font-size: 12px;" data-purchase="pro_annual">Purchase</button>
+                  </div>
+                </div>
+
+                <button type="button" class="p-btn-outline" style="margin-top: auto;" data-purchase="pro_restored">Restore purchases</button>
+              </div>
+
+              <!-- Screen 3: Profile -->
+              <div class="phone-view" id="view-profile" role="tabpanel">
+                <span class="phone-route-badge">(app)/profile</span>
+                <div class="p-h1">Your profile</div>
+                <div class="p-desc">Manage your account details and session.</div>
+
+                <div class="p-avatar">G</div>
+                <div style="text-align: center; font-weight: 600; font-size: 14px;">Guest account</div>
+
+                <div class="p-card">
+                  <div class="p-card-title">Upgrade your account</div>
+                  <div class="p-card-desc">Add email and password to keep your data and sign in on other devices.</div>
+                  <button type="button" class="p-btn-primary" style="height: 34px; margin-top: 10px; font-size: 12px;" data-goto-screen="login">Link email and password</button>
+                </div>
+
+                <div class="p-label">Display name</div>
+                <div class="p-input">Alex Rivera</div>
+                <button type="button" class="p-btn-primary" style="margin-top: 12px;">Save profile</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Provider Swap Section -->
+    <section class="section section-subtle" id="provider-swap">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Flip <code class="mono">.env</code> — never rewrite a screen.</h2>
+          </div>
+          <p class="section-desc">
+            Screens call only <code class="mono">useAuthSession()</code> and <code class="mono">serviceProviders</code>. Toggle between local development and production below to inspect how configuration resolves at startup.
+          </p>
+        </div>
+
+        <div class="swap-controls" role="tablist" aria-label="Environment Mode">
+          <button type="button" class="mode-btn" role="tab" aria-selected="true" data-env-mode="mock">
+            <span class="status-dot mock"></span>
+            <span>Local Development (mock)</span>
+          </button>
+          <button type="button" class="mode-btn" role="tab" aria-selected="false" data-env-mode="live">
+            <span class="status-dot live"></span>
+            <span>Production (supabase + revenuecat)</span>
+          </button>
+        </div>
+
+        <div class="workbench-grid">
+          <div class="code-window">
+            <div class="window-header">
+              <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span class="mono">.env</span>
+              <span class="mono" id="env-badge">0 API keys required</span>
+            </div>
+            <pre class="window-body" id="env-code"><code><span class="tok-comment"># Provider configuration ("mock" or "supabase" / "revenuecat")</span>
+<span class="tok-key">EXPO_PUBLIC_AUTH_PROVIDER</span>=<span class="tok-mock">mock</span>
+<span class="tok-key">EXPO_PUBLIC_DATA_PROVIDER</span>=<span class="tok-mock">mock</span>
+<span class="tok-key">EXPO_PUBLIC_BILLING_PROVIDER</span>=<span class="tok-mock">mock</span>
+
+<span class="tok-comment"># Leave blank during local mock development:</span>
+<span class="tok-key">EXPO_PUBLIC_SUPABASE_URL</span>=
+<span class="tok-key">EXPO_PUBLIC_SUPABASE_ANON_KEY</span>=
+<span class="tok-key">EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY</span>=</code></pre>
+          </div>
+
+          <div class="code-window">
+            <div class="window-header">
+              <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span class="mono">src/app/(app)/paywall.tsx &amp; login.tsx</span>
+              <span class="window-badge">0 lines changed</span>
+            </div>
+            <pre class="window-body"><code><span class="tok-comment">// Screens depend strictly on plain TypeScript contracts:</span>
+<span class="tok-kw">const</span> { auth } = <span class="tok-fn">useAuthSession</span>();
+<span class="tok-kw">const</span> billing = serviceProviders.billing;
+
+<span class="tok-comment">// Works with MockAuthProvider or SupabaseAuthProvider:</span>
+<span class="tok-kw">await</span> auth.<span class="tok-fn">signIn</span>({ email, password });
+<span class="tok-kw">await</span> auth.<span class="tok-fn">signInAnonymously</span>();
+<span class="tok-kw">await</span> auth.<span class="tok-fn">linkAccount</span>({ email, password });
+
+<span class="tok-comment">// Works with MockBillingProvider or RevenueCatBillingProvider:</span>
+<span class="tok-kw">const</span> offerings = <span class="tok-kw">await</span> billing.<span class="tok-fn">getOfferings</span>();
+<span class="tok-kw">const</span> entitlements = <span class="tok-kw">await</span> billing.<span class="tok-fn">purchase</span>(offering.id);</code></pre>
+          </div>
+        </div>
+
+        <div class="provider-Runtime-bar" aria-live="polite">
+          <div class="runtime-items">
+            <div class="runtime-item">
+              <span class="runtime-label">Resolved Auth Adapter</span>
+              <span class="runtime-val" id="rt-auth">MockAuthProvider (in-memory)</span>
+            </div>
+            <div class="runtime-item">
+              <span class="runtime-label">Resolved Data Repository</span>
+              <span class="runtime-val" id="rt-data">MockDataRepository (in-memory)</span>
+            </div>
+            <div class="runtime-item">
+              <span class="runtime-label">Resolved Billing Adapter</span>
+              <span class="runtime-val" id="rt-billing">MockBillingProvider (in-memory)</span>
+            </div>
+          </div>
+          <div class="runtime-item">
+            <span class="runtime-label">Prebuild Check (<code class="mono">STRICT_ENV_VALIDATION=1</code>)</span>
+            <span class="runtime-val" id="rt-strict" style="color: var(--success);">Passes without external credentials</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="section" id="architecture">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Three decoupled layers. Verified by contract tests.</h2>
+          </div>
+          <p class="section-desc">
+            Every mock and live adapter runs against the same reusable Jest contract suites in <code class="mono">src/core/contracts/</code> so behavior stays consistent across vendors.
+          </p>
+        </div>
+
+        <div class="arch-stack">
+          <div class="arch-layer">
+            <div>
+              <div class="arch-layer-title">Presentation &amp; Route Kits</div>
+              <div class="arch-layer-path">src/app/ · src/features/ · src/components/ui/</div>
+              <p class="arch-layer-desc">Session-gated Expo Router groups and token-driven UI primitives.</p>
+            </div>
+            <div class="arch-modules">
+              <div class="arch-module">
+                <div class="arch-module-head">
+                  <span>Public Auth Flow</span>
+                  <span class="arch-tag">(auth)</span>
+                </div>
+                <p class="arch-module-body">Login, sign-up, password recovery, email verification pending, and guest-to-account upgrade screens.</p>
+              </div>
+              <div class="arch-module">
+                <div class="arch-module-head">
+                  <span>Authenticated Shell</span>
+                  <span class="arch-tag">(app)</span>
+                </div>
+                <p class="arch-module-body">Automatic session restore, profile editing, guest sign-out data warnings, and account deletion.</p>
+              </div>
+              <div class="arch-module">
+                <div class="arch-module-head">
+                  <span>Subscription Paywall</span>
+                  <span class="arch-tag">paywall.tsx</span>
+                </div>
+                <p class="arch-module-body">Displays offerings, active entitlements, purchase loading states, and restore purchases.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-layer contracts-layer">
+            <div>
+              <div class="arch-layer-title">Core Contracts &amp; Registry</div>
+              <div class="arch-layer-path">src/core/ · src/lib/providers/</div>
+              <p class="arch-layer-desc">Vendor-free TypeScript interfaces, models, typed errors, and startup validation.</p>
+            </div>
+            <div class="arch-modules">
+              <div class="arch-module">
+                <div class="arch-module-head">
+                  <span class="mono">AuthProvider</span>
+                  <span class="arch-tag">Contract</span>
+                </div>
+                <p class="arch-module-body"><code class="mono">signIn</code>, <code class="mono">signUp</code>, <code class="mono">signInWithOAuth</code>, <code class="mono">signInAnonymously</code>, <code class="mono">linkAccount</code>, <code class="mono">updateProfile</code>, <code class="mono">deleteAccount</code>.</p>
+              </div>
+              <div class="arch-module">
+                <div class="arch-module-head">
+                  <span class="mono">DataRepository</span>
+                  <span class="arch-tag">Contract</span>
+                </div>
+                <p class="arch-module-body"><code class="mono">get</code>, <code class="mono">update</code>, and real-time <code class="mono">subscribe</code> for user profiles with deterministic listener cleanup.</p>
+              </div>
+              <div class="arch-module">
+                <div class="arch-module-head">
+                  <span class="mono">BillingProvider</span>
+                  <span class="arch-tag">Contract</span>
+                </div>
+                <p class="arch-module-body"><code class="mono">getOfferings</code>, <code class="mono">purchase</code>, <code class="mono">restore</code>, <code class="mono">getEntitlements</code>, and <code class="mono">onEntitlementsChange</code>.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-layer">
+            <div>
+              <div class="arch-layer-title">Swappable Service Adapters</div>
+              <div class="arch-layer-path">src/core/mocks/ · src/lib/providers/</div>
+              <p class="arch-layer-desc">Plug-and-play implementations resolved dynamically from environment variables.</p>
+            </div>
+            <div class="arch-modules">
+              <div class="arch-module">
+                <div class="arch-module-head">
+                  <span>In-Memory Mocks</span>
+                  <span class="arch-tag">mock</span>
+                </div>
+                <p class="arch-module-body">Default local development and fast CI component testing without network flakiness or external accounts.</p>
+              </div>
+              <div class="arch-module">
+                <div class="arch-module-head">
+                  <span>Supabase Adapter</span>
+                  <span class="arch-tag">supabase</span>
+                </div>
+                <p class="arch-module-body">Email, OAuth, anonymous sessions, and <code class="mono">profiles</code> table sync backed by namespaced <code class="mono">expo-secure-store</code>.</p>
+              </div>
+              <div class="arch-module">
+                <div class="arch-module-head">
+                  <span>RevenueCat Adapter</span>
+                  <span class="arch-tag">revenuecat</span>
+                </div>
+                <p class="arch-module-body">Wraps <code class="mono">react-native-purchases</code> v11, mapping offerings, customer info, and cancellation states to <code class="mono">BillingError</code>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Setup & Adapter Guides -->
+    <section class="section section-subtle" id="guides">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">From scaffold to production in four steps.</h2>
+          </div>
+          <p class="section-desc">
+            Generate your project, customize your app identity and design tokens, or wire up live services whenever you are ready.
+          </p>
+        </div>
+
+        <div class="docs-layout">
+          <div class="docs-nav" role="tablist" aria-label="Setup Guides">
+            <button type="button" class="doc-tab" role="tab" aria-selected="true" data-doc-tab="quickstart">
+              <span class="doc-tab-title">1. Scaffold &amp; Rename</span>
+              <span class="doc-tab-sub">Create your app and set bundle IDs</span>
+            </button>
+            <button type="button" class="doc-tab" role="tab" aria-selected="false" data-doc-tab="supabase">
+              <span class="doc-tab-title">2. Supabase Auth &amp; Data</span>
+              <span class="doc-tab-sub">Configure URL, anon key, and RLS</span>
+            </button>
+            <button type="button" class="doc-tab" role="tab" aria-selected="false" data-doc-tab="revenuecat">
+              <span class="doc-tab-title">3. RevenueCat Billing</span>
+              <span class="doc-tab-sub">Connect StoreKit &amp; Play Billing</span>
+            </button>
+            <button type="button" class="doc-tab" role="tab" aria-selected="false" data-doc-tab="custom">
+              <span class="doc-tab-title">4. Write an Adapter</span>
+              <span class="doc-tab-sub">Add Firebase, Clerk, or custom APIs</span>
+            </button>
+          </div>
+
+          <div>
+            <div class="doc-panel active" id="doc-quickstart" role="tabpanel">
+              <h3>Scaffold with <code class="mono">create-swapstack-app</code></h3>
+              <p>
+                The interactive CLI downloads the latest template, configures your display name, URL scheme, iOS bundle identifier, and Android package name, namespaces storage keys, and installs dependencies.
+              </p>
+              <pre class="doc-pre"><code>npx create-swapstack-app my-app
+cd my-app
+pnpm start
+
+# Or pass flags non-interactively:
+npx create-swapstack-app my-app --name "My App" --bundle-id com.acme.myapp --yes</code></pre>
+              <div class="doc-links">
+                <a href="https://github.com/swapstack/swapstack#quick-start" target="_blank" rel="noopener">Read Quick Start in README</a>
+                <a href="https://github.com/swapstack/swapstack/blob/main/DESIGN.md" target="_blank" rel="noopener">Customize Design Tokens (DESIGN.md)</a>
+              </div>
+            </div>
+
+            <div class="doc-panel" id="doc-supabase" role="tabpanel">
+              <h3>Enable the Supabase Auth &amp; Profile Adapters</h3>
+              <p>
+                Set <code class="mono">EXPO_PUBLIC_AUTH_PROVIDER=supabase</code> and <code class="mono">EXPO_PUBLIC_DATA_PROVIDER=supabase</code> in your <code class="mono">.env</code> file along with your project URL and anon public key.
+              </p>
+              <pre class="doc-pre"><code>EXPO_PUBLIC_AUTH_PROVIDER=supabase
+EXPO_PUBLIC_DATA_PROVIDER=supabase
+EXPO_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+# Prebuild scripts enforce STRICT_ENV_VALIDATION=1 automatically:
+pnpm run prebuild:production</code></pre>
+              <div class="doc-links">
+                <a href="https://github.com/swapstack/swapstack/blob/main/docs/supabase.md" target="_blank" rel="noopener">Full Supabase Setup &amp; SQL Schema Guide (docs/supabase.md)</a>
+              </div>
+            </div>
+
+            <div class="doc-panel" id="doc-revenuecat" role="tabpanel">
+              <h3>Enable the RevenueCat Billing Adapter</h3>
+              <p>
+                Set <code class="mono">EXPO_PUBLIC_BILLING_PROVIDER=revenuecat</code> and provide your RevenueCat public SDK key. Because native store purchases require StoreKit / Google Play Billing, use an Expo development build (<code class="mono">pnpm run ios</code> or <code class="mono">pnpm run android</code>).
+              </p>
+              <pre class="doc-pre"><code>EXPO_PUBLIC_BILLING_PROVIDER=revenuecat
+EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY=appl_your_public_sdk_key
+
+# Run a native development build to test store offerings:
+pnpm run ios</code></pre>
+              <div class="doc-links">
+                <a href="https://github.com/swapstack/swapstack/blob/main/docs/revenuecat.md" target="_blank" rel="noopener">Full RevenueCat Setup Guide (docs/revenuecat.md)</a>
+              </div>
+            </div>
+
+            <div class="doc-panel" id="doc-custom" role="tabpanel">
+              <h3>Implement &amp; Verify a New Provider Adapter</h3>
+              <p>
+                Implement <code class="mono">AuthProvider</code>, <code class="mono">DataRepository</code>, or <code class="mono">BillingProvider</code>, register it in <code class="mono">src/lib/providers/registry.ts</code>, and verify compliance with the shared contract test suite.
+              </p>
+              <pre class="doc-pre"><code>import { describeAuthProviderContract } from '@/core/contracts';
+import { createAcmeAuthProvider } from '../auth-provider';
+
+// Runs the complete lifecycle contract test suite against your adapter:
+describeAuthProviderContract('AcmeAuthProvider', () => createAcmeAuthProvider());</code></pre>
+              <div class="doc-links">
+                <a href="https://github.com/swapstack/swapstack/blob/main/CONTRIBUTING.md#adding-a-provider-adapter" target="_blank" rel="noopener">Adapter Authoring Guide (CONTRIBUTING.md)</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>Swapstack</strong> · Released under the <a href="https://github.com/swapstack/swapstack/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>.
+      </div>
+      <ul class="footer-links">
+        <li><a href="https://github.com/swapstack/swapstack" target="_blank" rel="noopener">GitHub Repository</a></li>
+        <li><a href="https://www.npmjs.com/package/create-swapstack-app" target="_blank" rel="noopener">npm (create-swapstack-app)</a></li>
+        <li><a href="https://github.com/swapstack/swapstack/blob/main/docs/supabase.md" target="_blank" rel="noopener">Supabase Docs</a></li>
+        <li><a href="https://github.com/swapstack/swapstack/blob/main/docs/revenuecat.md" target="_blank" rel="noopener">RevenueCat Docs</a></li>
+        <li><a href="https://github.com/swapstack/swapstack/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    // 1. Page Theme Toggle
+    const htmlEl = document.documentElement;
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeLabel = document.getElementById('theme-label');
+
+    function setPageTheme(nextTheme) {
+      htmlEl.setAttribute('data-theme', nextTheme);
+      themeLabel.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const current = htmlEl.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      setPageTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // 2. Copy CLI Command
+    const copyBtn = document.getElementById('copy-cli-btn');
+    const copyLabel = document.getElementById('copy-cli-label');
+    const cliText = document.getElementById('cli-text');
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(cliText.textContent.trim());
+        copyLabel.textContent = 'Copied';
+        setTimeout(() => {
+          copyLabel.textContent = 'Copy';
+        }, 1800);
+      } catch {
+        copyLabel.textContent = 'Copied';
+      }
+    });
+
+    // 3. Interactive Phone Screen Switcher & Theme
+    const screenButtons = document.querySelectorAll('[data-screen]');
+    const phoneViews = {
+      login: document.getElementById('view-login'),
+      paywall: document.getElementById('view-paywall'),
+      profile: document.getElementById('view-profile'),
+    };
+
+    function activatePhoneScreen(screenName) {
+      screenButtons.forEach((btn) => {
+        btn.setAttribute('aria-selected', String(btn.getAttribute('data-screen') === screenName));
+      });
+      Object.entries(phoneViews).forEach(([key, view]) => {
+        view.classList.toggle('active', key === screenName);
+      });
+    }
+
+    screenButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activatePhoneScreen(btn.getAttribute('data-screen'));
+      });
+    });
+
+    document.querySelectorAll('[data-goto-screen]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activatePhoneScreen(btn.getAttribute('data-goto-screen'));
+      });
+    });
+
+    const phoneScreen = document.getElementById('phone-screen');
+    const phoneThemeBtn = document.getElementById('phone-theme-btn');
+    phoneThemeBtn.addEventListener('click', () => {
+      const isDark = phoneScreen.getAttribute('data-phone-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      phoneScreen.setAttribute('data-phone-theme', next);
+      phoneThemeBtn.setAttribute('aria-pressed', String(next === 'light'));
+      phoneThemeBtn.textContent = `Theme: ${next === 'dark' ? 'Dark' : 'Light'}`;
+    });
+
+    const entitlementText = document.getElementById('entitlement-text');
+    document.querySelectorAll('[data-purchase]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const plan = btn.getAttribute('data-purchase');
+        entitlementText.textContent = `Active entitlements: pro (${plan})`;
+      });
+    });
+
+    // 4. Interactive .env Provider Switcher
+    const envModeButtons = document.querySelectorAll('[data-env-mode]');
+    const envCode = document.getElementById('env-code');
+    const envBadge = document.getElementById('env-badge');
+    const rtAuth = document.getElementById('rt-auth');
+    const rtData = document.getElementById('rt-data');
+    const rtBilling = document.getElementById('rt-billing');
+    const rtStrict = document.getElementById('rt-strict');
+
+    const envTemplates = {
+      mock: `<span class="tok-comment"># Provider configuration ("mock" or "supabase" / "revenuecat")</span>
+<span class="tok-key">EXPO_PUBLIC_AUTH_PROVIDER</span>=<span class="tok-mock">mock</span>
+<span class="tok-key">EXPO_PUBLIC_DATA_PROVIDER</span>=<span class="tok-mock">mock</span>
+<span class="tok-key">EXPO_PUBLIC_BILLING_PROVIDER</span>=<span class="tok-mock">mock</span>
+
+<span class="tok-comment"># Leave blank during local mock development:</span>
+<span class="tok-key">EXPO_PUBLIC_SUPABASE_URL</span>=
+<span class="tok-key">EXPO_PUBLIC_SUPABASE_ANON_KEY</span>=
+<span class="tok-key">EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY</span>=`,
+      live: `<span class="tok-comment"># Production adapters selected via environment variables:</span>
+<span class="tok-key">EXPO_PUBLIC_AUTH_PROVIDER</span>=<span class="tok-live">supabase</span>
+<span class="tok-key">EXPO_PUBLIC_DATA_PROVIDER</span>=<span class="tok-live">supabase</span>
+<span class="tok-key">EXPO_PUBLIC_BILLING_PROVIDER</span>=<span class="tok-live">revenuecat</span>
+
+<span class="tok-comment"># Live credentials validated at startup &amp; native prebuild:</span>
+<span class="tok-key">EXPO_PUBLIC_SUPABASE_URL</span>=<span class="tok-live">https://xyzcompany.supabase.co</span>
+<span class="tok-key">EXPO_PUBLIC_SUPABASE_ANON_KEY</span>=<span class="tok-live">eyJhbGciOiJIUzI1NiIsInR5cCI6...</span>
+<span class="tok-key">EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY</span>=<span class="tok-live">appl_N1b2C3d4E5f6G7h8I9j0</span>`,
+    };
+
+    envModeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-env-mode');
+        envModeButtons.forEach((b) => {
+          b.setAttribute('aria-selected', String(b === btn));
+        });
+        envCode.innerHTML = `<code>${envTemplates[mode]}</code>`;
+        if (mode === 'mock') {
+          envBadge.textContent = '0 API keys required';
+          rtAuth.textContent = 'MockAuthProvider (in-memory)';
+          rtData.textContent = 'MockDataRepository (in-memory)';
+          rtBilling.textContent = 'MockBillingProvider (in-memory)';
+          rtStrict.textContent = 'Passes without external credentials';
+        } else {
+          envBadge.textContent = 'Live Providers Active';
+          rtAuth.textContent = 'SupabaseAuthProvider (SecureStore)';
+          rtData.textContent = 'SupabaseProfileRepository (Postgres RLS)';
+          rtBilling.textContent = 'RevenueCatBillingProvider (StoreKit / Play)';
+          rtStrict.textContent = 'Verifies URL, Anon Key & SDK Key before native build';
+        }
+      });
+    });
+
+    // 5. Setup & Adapter Guide Tabs
+    const docTabs = document.querySelectorAll('[data-doc-tab]');
+    const docPanels = {
+      quickstart: document.getElementById('doc-quickstart'),
+      supabase: document.getElementById('doc-supabase'),
+      revenuecat: document.getElementById('doc-revenuecat'),
+      custom: document.getElementById('doc-custom'),
+    };
+
+    docTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-doc-tab');
+        docTabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+        Object.entries(docPanels).forEach(([key, panel]) => {
+          panel.classList.toggle('active', key === target);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

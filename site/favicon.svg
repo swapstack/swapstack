@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#0a0a0a" />
+  <rect x="1" y="1" width="62" height="62" rx="13" stroke="#262626" stroke-width="2" />
+  <!-- Bottom layer -->
+  <path d="M12 45 L32 55 L52 45" stroke="#525252" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Middle layer with left swap chevron -->
+  <path d="M12 35 L32 45 L52 35" stroke="#a3a3a3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Top isometric diamond with swap arrow -->
+  <path d="M32 9 L54 20.5 L32 32 L10 20.5 Z" fill="#fafafa" />
+  <path d="M23 20.5 H40 M35.5 16.5 L41 20.5 L35.5 24.5" stroke="#0a0a0a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
