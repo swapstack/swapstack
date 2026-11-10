@@ -2,7 +2,7 @@
 
 Swapstack is structured so AI coding agents (Claude Code, Cursor, Antigravity, GitHub Copilot, Windsurf, and Codex) can scaffold apps, build features against in-memory mocks, and swap in live backend adapters without leaking vendor SDKs into application screens.
 
- Every app generated with `create-swapstack-app` includes a root [AGENTS.md](../AGENTS.md) file that agents automatically read for architectural boundaries, file locations, and test commands.
+Every app generated with `create-swapstack-app` includes a root [AGENTS.md](../AGENTS.md) file that agents automatically read for architectural boundaries, file locations, and test commands. For complete product recipes with domain contracts and copy-paste build prompts, see [Example App Blueprints](examples.md).
 
 Below are ready-to-paste prompts for the four most common agent workflows.
 

@@ -51,6 +51,7 @@
           <li><a href="#architecture">Architecture</a></li>
           <li><a href="#guides">Setup &amp; Adapters</a></li>
           <li><a href="#ai-prompts">AI Prompts</a></li>
+          <li><a href="#examples">Example Apps</a></li>
           <li><a href="https://github.com/swapstack/swapstack/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
         </ul>
       </nav>
@@ -584,6 +585,92 @@ describeAuthProviderContract('AcmeAuthProvider', () => createAcmeAuthProvider())
         </div>
       </div>
     </section>
+
+    <!-- Example App Blueprints Section -->
+    <section class="section section-subtle" id="examples">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Four apps you can build in one prompt.</h2>
+          </div>
+          <p class="section-desc">
+            Each blueprint combines Swapstack's guest-first auth, <code class="mono">pro</code> subscription entitlement gate, and a custom domain contract in <code class="mono">src/core/</code>.
+          </p>
+        </div>
+
+        <div class="swap-controls" role="tablist" aria-label="Example App Blueprints">
+          <button type="button" class="mode-btn" role="tab" aria-selected="true" data-example-tab="pulse">
+            <span>Pulse (Workout Tracker)</span>
+          </button>
+          <button type="button" class="mode-btn" role="tab" aria-selected="false" data-example-tab="memostack">
+            <span>MemoStack (Flashcards)</span>
+          </button>
+          <button type="button" class="mode-btn" role="tab" aria-selected="false" data-example-tab="promptbox">
+            <span>PromptBox (AI Assistant)</span>
+          </button>
+          <button type="button" class="mode-btn" role="tab" aria-selected="false" data-example-tab="splitledger">
+            <span>SplitLedger (Expense Splitter)</span>
+          </button>
+        </div>
+
+        <div class="workbench-grid">
+          <div class="code-window">
+            <div class="window-header">
+              <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span class="mono" id="example-contract-path">src/core/workouts.ts</span>
+              <span class="window-badge">Vendor-Free Contract</span>
+            </div>
+            <pre class="window-body" id="example-contract-code"><code>export type WorkoutEntry = {
+  id: string;
+  userId: string;
+  title: string;
+  durationMinutes: number;
+  completedAt: string;
+};
+
+export type WorkoutStats = {
+  totalWorkouts: number;
+  currentStreakDays: number;
+  totalMinutes: number;
+};
+
+export type WorkoutRepository = {
+  readonly mode: 'mock' | 'live';
+  list: (userId: string) => Promise&lt;WorkoutEntry[]&gt;;
+  log: (userId: string, input: { title: string; durationMinutes: number }) => Promise&lt;WorkoutEntry&gt;;
+  remove: (userId: string, workoutId: string) => Promise&lt;void&gt;;
+  getStats: (userId: string) => Promise&lt;WorkoutStats&gt;;
+};</code></pre>
+          </div>
+
+          <div class="code-window">
+            <div class="window-header">
+              <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span class="mono" id="example-prompt-title">AI Build Prompt — Pulse</span>
+              <button type="button" class="copy-btn" id="copy-example-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                <span id="copy-example-label">Copy Build Prompt</span>
+              </button>
+            </div>
+            <pre class="window-body" id="example-prompt-code" style="white-space: pre-wrap;"><code>Build the "Pulse" Habit &amp; Workout Tracker app in this Swapstack project following `AGENTS.md`:
+
+1. Create `src/core/workouts.ts` with `WorkoutEntry`, `WorkoutStats`, and `WorkoutRepository` types (use `type` definitions, no vendor imports).
+2. Create `src/core/mocks/mock-workout-repository.ts` implementing `WorkoutRepository` in memory with deterministic streak calculation and a `reset()` helper for tests.
+3. Create `src/core/contracts/workout-repository.contract.ts` (`describeWorkoutRepositoryContract`) and run it in `src/core/__tests__/workout-repository.test.ts`.
+4. Register `workouts` in `src/lib/providers/registry.ts` and expose `serviceProviders.workouts` in `src/lib/services/index.ts`.
+5. Update `src/app/(app)/index.tsx` so users (including anonymous guests) can log workouts, view their workout history, and see a "Pro Streak Analytics" card that checks `serviceProviders.billing.getEntitlements()` for an active `pro` entitlement (linking to `/paywall` when locked).
+6. Add React Native Testing Library tests in `src/app/(app)/__tests__/index.test.tsx` and run `pnpm run lint`, `pnpm run type-check`, and `pnpm test`.</code></pre>
+            <div style="padding: 14px 20px; border-top: 1px solid #262626; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 13px; color: #a3a3a3;">
+              <span class="mono" id="example-cli-cmd">$ npx create-swapstack-app pulse --name "Pulse" --bundle-id com.acme.pulse --yes</span>
+              <a href="https://github.com/swapstack/swapstack/blob/main/docs/examples.md" target="_blank" rel="noopener">All 4 Blueprints (docs/examples.md)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -596,6 +683,7 @@ describeAuthProviderContract('AcmeAuthProvider', () => createAcmeAuthProvider())
         <li><a href="https://www.npmjs.com/package/create-swapstack-app" target="_blank" rel="noopener">npm (create-swapstack-app)</a></li>
         <li><a href="https://github.com/swapstack/swapstack/blob/main/AGENTS.md" target="_blank" rel="noopener">AGENTS.md</a></li>
         <li><a href="https://github.com/swapstack/swapstack/blob/main/docs/ai-prompts.md" target="_blank" rel="noopener">AI Prompts</a></li>
+        <li><a href="https://github.com/swapstack/swapstack/blob/main/docs/examples.md" target="_blank" rel="noopener">Example Apps</a></li>
         <li><a href="https://github.com/swapstack/swapstack/blob/main/docs/supabase.md" target="_blank" rel="noopener">Supabase Docs</a></li>
         <li><a href="https://github.com/swapstack/swapstack/blob/main/docs/revenuecat.md" target="_blank" rel="noopener">RevenueCat Docs</a></li>
         <li><a href="https://github.com/swapstack/swapstack/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
@@ -838,6 +926,178 @@ describeAuthProviderContract('AcmeAuthProvider', () => createAcmeAuthProvider())
         }, 1800);
       } catch {
         copyPromptLabel.textContent = 'Copied';
+      }
+    });
+
+    // 7. Example App Blueprints Switcher & Copy
+    const exampleTabs = document.querySelectorAll('[data-example-tab]');
+    const exampleContractPath = document.getElementById('example-contract-path');
+    const exampleContractCode = document.getElementById('example-contract-code');
+    const examplePromptTitle = document.getElementById('example-prompt-title');
+    const examplePromptCode = document.getElementById('example-prompt-code');
+    const exampleCliCmd = document.getElementById('example-cli-cmd');
+    const copyExampleBtn = document.getElementById('copy-example-btn');
+    const copyExampleLabel = document.getElementById('copy-example-label');
+
+    const examplesData = {
+      pulse: {
+        path: 'src/core/workouts.ts',
+        cli: '$ npx create-swapstack-app pulse --name "Pulse" --bundle-id com.acme.pulse --yes',
+        promptTitle: 'AI Build Prompt — Pulse',
+        contract: `export type WorkoutEntry = {
+  id: string;
+  userId: string;
+  title: string;
+  durationMinutes: number;
+  completedAt: string;
+};
+
+export type WorkoutStats = {
+  totalWorkouts: number;
+  currentStreakDays: number;
+  totalMinutes: number;
+};
+
+export type WorkoutRepository = {
+  readonly mode: 'mock' | 'live';
+  list: (userId: string) => Promise<WorkoutEntry[]>;
+  log: (userId: string, input: { title: string; durationMinutes: number }) => Promise<WorkoutEntry>;
+  remove: (userId: string, workoutId: string) => Promise<void>;
+  getStats: (userId: string) => Promise<WorkoutStats>;
+};`,
+        prompt: `Build the "Pulse" Habit & Workout Tracker app in this Swapstack project following \`AGENTS.md\`:
+
+1. Create \`src/core/workouts.ts\` with \`WorkoutEntry\`, \`WorkoutStats\`, and \`WorkoutRepository\` types (use \`type\` definitions, no vendor imports).
+2. Create \`src/core/mocks/mock-workout-repository.ts\` implementing \`WorkoutRepository\` in memory with deterministic streak calculation and a \`reset()\` helper for tests.
+3. Create \`src/core/contracts/workout-repository.contract.ts\` (\`describeWorkoutRepositoryContract\`) and run it in \`src/core/__tests__/workout-repository.test.ts\`.
+4. Register \`workouts\` in \`src/lib/providers/registry.ts\` and expose \`serviceProviders.workouts\` in \`src/lib/services/index.ts\`.
+5. Update \`src/app/(app)/index.tsx\` so users (including anonymous guests) can log workouts, view their workout history, and see a "Pro Streak Analytics" card that checks \`serviceProviders.billing.getEntitlements()\` for an active \`pro\` entitlement (linking to \`/paywall\` when locked).
+6. Add React Native Testing Library tests in \`src/app/(app)/__tests__/index.test.tsx\` and run \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\`.`,
+      },
+      memostack: {
+        path: 'src/core/decks.ts',
+        cli: '$ npx create-swapstack-app memostack --name "MemoStack" --bundle-id com.acme.memostack --yes',
+        promptTitle: 'AI Build Prompt — MemoStack',
+        contract: `export type Flashcard = {
+  id: string;
+  front: string;
+  back: string;
+  mastered: boolean;
+};
+
+export type StudyDeck = {
+  id: string;
+  userId: string;
+  title: string;
+  cards: Flashcard[];
+  updatedAt: string;
+};
+
+export type DeckRepository = {
+  readonly mode: 'mock' | 'live';
+  listDecks: (userId: string) => Promise<StudyDeck[]>;
+  createDeck: (userId: string, title: string) => Promise<StudyDeck>;
+  addCard: (userId: string, deckId: string, card: { front: string; back: string }) => Promise<StudyDeck>;
+  toggleMastered: (userId: string, deckId: string, cardId: string) => Promise<StudyDeck>;
+};`,
+        prompt: `Build the "MemoStack" Flashcards & Study Decks app in this Swapstack project following \`AGENTS.md\`:
+
+1. Create \`src/core/decks.ts\` defining \`Flashcard\`, \`StudyDeck\`, and \`DeckRepository\` using plain \`type\` aliases.
+2. Implement \`MockDeckRepository\` in \`src/core/mocks/mock-deck-repository.ts\` and verify it with a reusable \`describeDeckRepositoryContract\` suite in \`src/core/contracts/deck-repository.contract.ts\`.
+3. Register \`decks\` in \`src/lib/providers/registry.ts\` and expose \`serviceProviders.decks\` in \`src/lib/services/index.ts\`.
+4. Build the deck list and card study view in \`src/app/(app)/index.tsx\` using \`@/components/ui\` primitives (\`Screen\`, \`Card\`, \`Input\`, \`Button\`, \`Checkbox\`, \`Text\`).
+5. Enforce a free-tier limit of 3 decks unless the user has an active \`pro\` entitlement from \`serviceProviders.billing.getEntitlements()\`, routing to \`/paywall\` when they exceed the free limit.
+6. Write flow tests in \`src/app/(app)/__tests__/index.test.tsx\` and run \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\`.`,
+      },
+      promptbox: {
+        path: 'src/core/assistant.ts',
+        cli: '$ npx create-swapstack-app promptbox --name "PromptBox" --bundle-id com.acme.promptbox --yes',
+        promptTitle: 'AI Build Prompt — PromptBox',
+        contract: `export type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  createdAt: string;
+};
+
+export type ChatThread = {
+  id: string;
+  userId: string;
+  title: string;
+  messages: ChatMessage[];
+};
+
+export type AssistantProvider = {
+  readonly mode: 'mock' | 'live';
+  listThreads: (userId: string) => Promise<ChatThread[]>;
+  sendMessage: (userId: string, input: { threadId?: string; prompt: string }) => Promise<ChatThread>;
+  deleteThread: (userId: string, threadId: string) => Promise<void>;
+};`,
+        prompt: `Build the "PromptBox" AI Assistant app in this Swapstack project following \`AGENTS.md\`:
+
+1. Create \`src/core/assistant.ts\` with \`ChatMessage\`, \`ChatThread\`, and \`AssistantProvider\` types.
+2. Implement \`MockAssistantProvider\` in \`src/core/mocks/mock-assistant-provider.ts\` returning deterministic assistant replies, and test it via \`describeAssistantProviderContract\` in \`src/core/contracts/assistant-provider.contract.ts\`.
+3. Register \`assistant\` in \`src/lib/providers/registry.ts\` and expose \`serviceProviders.assistant\` in \`src/lib/services/index.ts\`.
+4. Update \`src/app/(app)/index.tsx\` to let users send prompts, view saved threads, and track message count. Gate unlimited prompts behind the \`pro\` entitlement from \`serviceProviders.billing\`, showing an upgrade prompt to \`/paywall\` after 5 free messages.
+5. Add tests in \`src/app/(app)/__tests__/index.test.tsx\` and run \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\`.`,
+      },
+      splitledger: {
+        path: 'src/core/ledger.ts',
+        cli: '$ npx create-swapstack-app splitledger --name "SplitLedger" --bundle-id com.acme.splitledger --yes',
+        promptTitle: 'AI Build Prompt — SplitLedger',
+        contract: `export type ExpenseItem = {
+  id: string;
+  description: string;
+  amountCents: number;
+  paidBy: string;
+  participants: string[];
+  createdAt: string;
+};
+
+export type BalanceSummary = {
+  member: string;
+  netCents: number;
+};
+
+export type LedgerRepository = {
+  readonly mode: 'mock' | 'live';
+  listExpenses: (userId: string) => Promise<ExpenseItem[]>;
+  addExpense: (userId: string, expense: Omit<ExpenseItem, 'id' | 'createdAt'>) => Promise<ExpenseItem>;
+  getBalances: (userId: string) => Promise<BalanceSummary[]>;
+};`,
+        prompt: `Build the "SplitLedger" Expense Splitter app in this Swapstack project following \`AGENTS.md\`:
+
+1. Create \`src/core/ledger.ts\` with \`ExpenseItem\`, \`BalanceSummary\`, and \`LedgerRepository\` types.
+2. Implement \`MockLedgerRepository\` in \`src/core/mocks/mock-ledger-repository.ts\` that calculates net per-member balances in cents, and verify it with \`describeLedgerRepositoryContract\` in \`src/core/contracts/ledger-repository.contract.ts\`.
+3. Register \`ledger\` in \`src/lib/providers/registry.ts\` and expose \`serviceProviders.ledger\` in \`src/lib/services/index.ts\`.
+4. Update \`src/app/(app)/index.tsx\` using \`@/components/ui\` primitives so users can add expenses, view net balances, see a guest-account upgrade reminder linking to \`/profile\` when \`session.user.isAnonymous\` is true, and unlock settlement export via \`/paywall\`.
+5. Write tests in \`src/app/(app)/__tests__/index.test.tsx\` and run \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\`.`,
+      },
+    };
+
+    exampleTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const key = tab.getAttribute('data-example-tab');
+        const entry = examplesData[key];
+        if (!entry) return;
+        exampleTabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+        exampleContractPath.textContent = entry.path;
+        exampleContractCode.textContent = entry.contract;
+        examplePromptTitle.textContent = entry.promptTitle;
+        examplePromptCode.textContent = entry.prompt;
+        exampleCliCmd.textContent = entry.cli;
+      });
+    });
+
+    copyExampleBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(examplePromptCode.textContent.trim());
+        copyExampleLabel.textContent = 'Copied';
+        setTimeout(() => {
+          copyExampleLabel.textContent = 'Copy Build Prompt';
+        }, 1800);
+      } catch {
+        copyExampleLabel.textContent = 'Copied';
       }
     });
   </script>

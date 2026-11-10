@@ -71,6 +71,8 @@ See [AI Agent Prompts & Workflows](docs/ai-prompts.md) for copy-paste prompts to
 - Implement and contract-test a new vendor adapter (Firebase, Clerk, Stripe, etc.)
 - Switch from `mock` providers to live Supabase and RevenueCat adapters
 
+Want concrete product ideas? See [Example App Blueprints](docs/examples.md) for four complete app recipes (**Pulse** Workout Tracker, **MemoStack** Flashcards, **PromptBox** AI Assistant, and **SplitLedger** Expense Splitter) with TypeScript contracts and one-prompt AI build instructions.
+
 ## What's inside
 
 Swapstack structures core services behind vendor-agnostic contracts under `src/core`:
