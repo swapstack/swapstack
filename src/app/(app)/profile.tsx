@@ -6,6 +6,7 @@ import { AuthScreen } from '@/features/auth/components/auth-screen';
 import { FormMessage } from '@/features/auth/components/form-message';
 import { useAuthSession } from '@/features/auth/session';
 import { getErrorMessage } from '@/features/auth/validation';
+import { serviceProviders } from '@/lib/services';
 
 export default function ProfileScreen() {
   const { auth, session } = useAuthSession();
@@ -14,11 +15,12 @@ export default function ProfileScreen() {
   const [error, setError] = React.useState<string>();
   const [success, setSuccess] = React.useState<string>();
   const [isSaving, setIsSaving] = React.useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = React.useState(false);
   const [isSigningOut, setIsSigningOut] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [confirmDelete, setConfirmDelete] = React.useState(false);
   const [confirmGuestSignOut, setConfirmGuestSignOut] = React.useState(false);
-  const isBusy = isSaving || isSigningOut || isDeleting;
+  const isBusy = isSaving || isUploadingAvatar || isSigningOut || isDeleting;
 
   const runAction = React.useCallback(async (action: () => Promise<void>) => {
     setError(undefined);
@@ -52,6 +54,34 @@ export default function ProfileScreen() {
         <Avatar size="xl" src={user.avatarUrl} initials={initials} />
         <Text className="mt-3 font-semibold text-lg">{user.displayName || (user.isAnonymous ? 'Guest account' : 'Your account')}</Text>
         {user.email && <Text className="text-sm text-neutral-500">{user.email}</Text>}
+        <Button
+          testID="upload-avatar-button"
+          variant="outline"
+          size="sm"
+          fullWidth={false}
+          label="Upload avatar"
+          loading={isUploadingAvatar}
+          disabled={isBusy}
+          onPress={() => {
+            if (isBusy) {
+              return;
+            }
+            setIsUploadingAvatar(true);
+            void runAction(async () => {
+              const uploaded = await serviceProviders.storage.upload({
+                bucket: 'avatars',
+                path: `${user.id}/avatar.png`,
+                uri: `file:///avatars/${user.id}.png`,
+                mimeType: 'image/png',
+              });
+              await auth.updateProfile({ avatarUrl: uploaded.publicUrl });
+              await serviceProviders.analytics.track('avatar_uploaded', {
+                userId: user.id,
+              });
+              setSuccess('Avatar updated.');
+            }).finally(() => setIsUploadingAvatar(false));
+          }}
+        />
       </View>
 
       {user.isAnonymous && (

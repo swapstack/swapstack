@@ -1,14 +1,20 @@
 import type {
+  AnalyticsProvider,
   AuthProvider,
   BillingProvider,
   DataRepository,
   EntitlementsChangeCallback,
+  FileStorageProvider,
+  NotificationProvider,
   Profile,
   SessionStorage,
 } from '@/core';
 import {
+  mockAnalyticsProvider,
   mockAuthProvider,
   mockBillingProvider,
+  mockFileStorageProvider,
+  mockNotificationProvider,
   mockProfileRepository,
 } from '@/core';
 import { SecureSessionStorage } from '@/lib/auth/secure-session-storage';
@@ -16,12 +22,15 @@ import { createRevenueCatBillingProvider } from './revenuecat/billing-provider';
 import { createSupabaseAuthProvider, createSupabaseClient } from './supabase/auth-provider';
 import { createSupabaseProfileRepository } from './supabase/profile-repository';
 
-export type ProviderKind = 'auth' | 'data' | 'billing';
+export type ProviderKind = 'auth' | 'data' | 'billing' | 'storage' | 'notifications' | 'analytics';
 
 export type ProviderTypeMap = {
   readonly auth: AuthProvider;
   readonly data: DataRepository<Profile>;
   readonly billing: BillingProvider;
+  readonly storage: FileStorageProvider;
+  readonly notifications: NotificationProvider;
+  readonly analytics: AnalyticsProvider;
 };
 
 export type ProviderFactory<K extends ProviderKind> = () => ProviderTypeMap[K];
@@ -42,24 +51,36 @@ type RegistryStore = {
   readonly auth: Map<string, ProviderFactory<'auth'>>;
   readonly data: Map<string, ProviderFactory<'data'>>;
   readonly billing: Map<string, ProviderFactory<'billing'>>;
+  readonly storage: Map<string, ProviderFactory<'storage'>>;
+  readonly notifications: Map<string, ProviderFactory<'notifications'>>;
+  readonly analytics: Map<string, ProviderFactory<'analytics'>>;
 };
 
 type InstanceStore = {
   readonly auth: Map<string, AuthProvider>;
   readonly data: Map<string, DataRepository<Profile>>;
   readonly billing: Map<string, BillingProvider>;
+  readonly storage: Map<string, FileStorageProvider>;
+  readonly notifications: Map<string, NotificationProvider>;
+  readonly analytics: Map<string, AnalyticsProvider>;
 };
 
 const registries: RegistryStore = {
   auth: new Map(),
   data: new Map(),
   billing: new Map(),
+  storage: new Map(),
+  notifications: new Map(),
+  analytics: new Map(),
 };
 
 const instances: InstanceStore = {
   auth: new Map(),
   data: new Map(),
   billing: new Map(),
+  storage: new Map(),
+  notifications: new Map(),
+  analytics: new Map(),
 };
 
 let cachedBackendAdapter: BackendAdapter | null = null;
@@ -103,6 +124,18 @@ export function register<K extends ProviderKind>(
       registries.billing.set(normalized, factory as ProviderFactory<'billing'>);
       instances.billing.delete(normalized);
       break;
+    case 'storage':
+      registries.storage.set(normalized, factory as ProviderFactory<'storage'>);
+      instances.storage.delete(normalized);
+      break;
+    case 'notifications':
+      registries.notifications.set(normalized, factory as ProviderFactory<'notifications'>);
+      instances.notifications.delete(normalized);
+      break;
+    case 'analytics':
+      registries.analytics.set(normalized, factory as ProviderFactory<'analytics'>);
+      instances.analytics.delete(normalized);
+      break;
   }
 }
 
@@ -117,6 +150,15 @@ function getEnvProviderName(kind: ProviderKind): string {
       break;
     case 'billing':
       envVal = process.env.EXPO_PUBLIC_BILLING_PROVIDER;
+      break;
+    case 'storage':
+      envVal = process.env.EXPO_PUBLIC_STORAGE_PROVIDER;
+      break;
+    case 'notifications':
+      envVal = process.env.EXPO_PUBLIC_NOTIFICATIONS_PROVIDER;
+      break;
+    case 'analytics':
+      envVal = process.env.EXPO_PUBLIC_ANALYTICS_PROVIDER;
       break;
   }
 
@@ -142,6 +184,12 @@ function getCachedInstance<K extends ProviderKind>(
       return instances.data.get(name) as ProviderTypeMap[K] | undefined;
     case 'billing':
       return instances.billing.get(name) as ProviderTypeMap[K] | undefined;
+    case 'storage':
+      return instances.storage.get(name) as ProviderTypeMap[K] | undefined;
+    case 'notifications':
+      return instances.notifications.get(name) as ProviderTypeMap[K] | undefined;
+    case 'analytics':
+      return instances.analytics.get(name) as ProviderTypeMap[K] | undefined;
   }
 }
 
@@ -159,6 +207,15 @@ function cacheInstance<K extends ProviderKind>(
       break;
     case 'billing':
       instances.billing.set(name, instance as BillingProvider);
+      break;
+    case 'storage':
+      instances.storage.set(name, instance as FileStorageProvider);
+      break;
+    case 'notifications':
+      instances.notifications.set(name, instance as NotificationProvider);
+      break;
+    case 'analytics':
+      instances.analytics.set(name, instance as AnalyticsProvider);
       break;
   }
 }
@@ -198,8 +255,27 @@ export function getBillingProvider(name?: string): BillingProvider {
   return getProvider('billing', name);
 }
 
+export function getFileStorageProvider(name?: string): FileStorageProvider {
+  return getProvider('storage', name);
+}
+
+export function getNotificationProvider(name?: string): NotificationProvider {
+  return getProvider('notifications', name);
+}
+
+export function getAnalyticsProvider(name?: string): AnalyticsProvider {
+  return getProvider('analytics', name);
+}
+
 export function validateProviderConfig(): void {
-  const kinds: readonly ProviderKind[] = ['auth', 'data', 'billing'];
+  const kinds: readonly ProviderKind[] = [
+    'auth',
+    'data',
+    'billing',
+    'storage',
+    'notifications',
+    'analytics',
+  ];
   const errors: string[] = [];
 
   for (const kind of kinds) {
@@ -238,10 +314,16 @@ export function initDefaultProviders(): void {
   registries.auth.clear();
   registries.data.clear();
   registries.billing.clear();
+  registries.storage.clear();
+  registries.notifications.clear();
+  registries.analytics.clear();
 
   instances.auth.clear();
   instances.data.clear();
   instances.billing.clear();
+  instances.storage.clear();
+  instances.notifications.clear();
+  instances.analytics.clear();
 
   cachedBackendAdapter = null;
   cachedBillingAdapter = null;
@@ -250,6 +332,9 @@ export function initDefaultProviders(): void {
   register('auth', 'mock', () => mockAuthProvider);
   register('data', 'mock', () => mockProfileRepository);
   register('billing', 'mock', () => mockBillingProvider);
+  register('storage', 'mock', () => mockFileStorageProvider);
+  register('notifications', 'mock', () => mockNotificationProvider);
+  register('analytics', 'mock', () => mockAnalyticsProvider);
   register('auth', 'supabase', () => createSupabaseAuthProvider({ client: getSharedSupabaseClient() }));
   register('data', 'supabase', () => createSupabaseProfileRepository(getSharedSupabaseClient()));
   register('billing', 'revenuecat', () => createRevenueCatBillingProvider());
