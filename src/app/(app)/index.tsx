@@ -25,6 +25,9 @@ export default function HomeScreen() {
         <Link href="/profile" asChild>
           <Button className="mt-6" variant="outline" label="Manage profile" />
         </Link>
+        <Link href="/paywall" asChild>
+          <Button className="mt-3" variant="outline" label="View plans" />
+        </Link>
       </View>
     </SafeAreaView>
   );

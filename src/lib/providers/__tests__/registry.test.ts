@@ -51,6 +51,7 @@ describe('provider registry resolution', () => {
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY', undefined);
     initDefaultProviders();
   });
 
@@ -60,6 +61,7 @@ describe('provider registry resolution', () => {
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY', undefined);
     initDefaultProviders();
   });
 
@@ -117,6 +119,17 @@ describe('provider registry resolution', () => {
     expect(() => validateProviderConfig()).not.toThrow();
   });
 
+  it('validates the required RevenueCat public SDK key', () => {
+    setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', 'revenuecat');
+
+    expect(() => validateProviderConfig()).toThrow(
+      'Missing EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY.',
+    );
+
+    setExpoEnv('EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY', 'public-key');
+    expect(() => validateProviderConfig()).not.toThrow();
+  });
+
   it('throws an error listing valid provider names when unknown provider is requested', () => {
     expect(() => getAuthProvider('unknown')).toThrow(
       'Unknown auth provider "unknown". Valid auth providers: mock, supabase.',
@@ -125,7 +138,7 @@ describe('provider registry resolution', () => {
       'Unknown data provider "unknown". Valid data providers: mock, supabase.',
     );
     expect(() => getBillingProvider('unknown')).toThrow(
-      'Unknown billing provider "unknown". Valid billing providers: mock.',
+      'Unknown billing provider "unknown". Valid billing providers: mock, revenuecat.',
     );
   });
 });
@@ -137,6 +150,7 @@ describe('provider registry caching and adapters', () => {
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY', undefined);
     initDefaultProviders();
   });
 
@@ -146,6 +160,7 @@ describe('provider registry caching and adapters', () => {
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY', undefined);
     initDefaultProviders();
   });
 

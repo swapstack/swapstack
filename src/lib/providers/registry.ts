@@ -12,6 +12,7 @@ import {
   mockProfileRepository,
 } from '@/core';
 import { SecureSessionStorage } from '@/lib/auth/secure-session-storage';
+import { createRevenueCatBillingProvider } from './revenuecat/billing-provider';
 import { createSupabaseAuthProvider, createSupabaseClient } from './supabase/auth-provider';
 import { createSupabaseProfileRepository } from './supabase/profile-repository';
 
@@ -221,6 +222,13 @@ export function validateProviderConfig(): void {
     }
   }
 
+  if (getEnvProviderName('billing') === 'revenuecat') {
+    const revenueCatKey = process.env.EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY?.trim();
+    if (!revenueCatKey) {
+      errors.push('Missing EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY.');
+    }
+  }
+
   if (errors.length > 0) {
     throw new Error(`Provider configuration error:\n${errors.join('\n')}`);
   }
@@ -244,6 +252,7 @@ export function initDefaultProviders(): void {
   register('billing', 'mock', () => mockBillingProvider);
   register('auth', 'supabase', () => createSupabaseAuthProvider({ client: getSharedSupabaseClient() }));
   register('data', 'supabase', () => createSupabaseProfileRepository(getSharedSupabaseClient()));
+  register('billing', 'revenuecat', () => createRevenueCatBillingProvider());
 }
 
 export function getBackendAdapter(): BackendAdapter {
