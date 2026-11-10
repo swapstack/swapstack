@@ -222,4 +222,53 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     assert.equal(existsSync(path.join(tempDir, 'site')), false);
     assert.equal(existsSync(path.join(tempDir, '.github/workflows/pages.yml')), false);
   });
+
+  it('applies --theme and --style presets to src/global.css and UI components', async () => {
+    mkdirSync(path.join(tempDir, 'src/components/ui'), { recursive: true });
+    writeFileSync(
+      path.join(tempDir, 'src/global.css'),
+      `@theme {\n  --color-background: #ffffff;\n  --color-foreground: #0a0a0a;\n  --color-card: #ffffff;\n  --color-card-foreground: #0a0a0a;\n  --color-muted: #f5f5f5;\n  --color-muted-foreground: #737373;\n  --color-border: #e5e5e5;\n  --color-input: #e5e5e5;\n  --color-ring: #171717;\n}\n@layer theme {\n  :root {\n    @variant light {\n      --color-background: #ffffff;\n      --color-foreground: #0a0a0a;\n      --color-card: #ffffff;\n      --color-card-foreground: #0a0a0a;\n      --color-muted: #f5f5f5;\n      --color-muted-foreground: #737373;\n      --color-border: #e5e5e5;\n      --color-input: #e5e5e5;\n      --color-ring: #171717;\n      --color-destructive: #ef4444;\n      --color-destructive-foreground: #ffffff;\n    }\n  }\n}\n`,
+    );
+    writeFileSync(
+      path.join(tempDir, 'src/components/ui/colors.js'),
+      `module.exports = {\n  border: {\n    light: '#E5E5E5',\n    dark: '#2E2E2E',\n  },\n  card: {\n    light: '#FFFFFF',\n    dark: '#141414',\n  },\n  muted: {\n    light: '#F5F5F5',\n    dark: '#262626',\n  },\n};\n`,
+    );
+    writeFileSync(
+      path.join(tempDir, 'src/components/ui/card.tsx'),
+      `const c = 'rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900';\n`,
+    );
+    writeFileSync(
+      path.join(tempDir, 'src/components/ui/button.tsx'),
+      `const b = { container: 'my-2 flex flex-row items-center justify-center rounded-md px-4' };\n`,
+    );
+    writeFileSync(
+      path.join(tempDir, 'src/components/ui/input.tsx'),
+      `const i = 'mt-0 rounded-xl border-[0.5px] border-neutral-300 bg-neutral-100 px-4 py-3 font-medium text-base/5 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white';\n`,
+    );
+
+    await renameAppFiles(tempDir, {
+      name: 'Pulse App',
+      iosBundleId: 'com.acme.pulse',
+      androidPackage: 'com.acme.pulse',
+      theme: 'matcha',
+      style: 'soft',
+    });
+
+    const updatedCss = readFileSync(path.join(tempDir, 'src/global.css'), 'utf8');
+    assert.match(updatedCss, /--color-background: #f7faf6;/);
+    assert.match(updatedCss, /--color-ring: #143d29;/);
+
+    const updatedColors = readFileSync(path.join(tempDir, 'src/components/ui/colors.js'), 'utf8');
+    assert.match(updatedColors, /light: '#CFE0CB'/);
+    assert.match(updatedColors, /light: '#E6EFE3'/);
+
+    const updatedCard = readFileSync(path.join(tempDir, 'src/components/ui/card.tsx'), 'utf8');
+    assert.match(updatedCard, /rounded-3xl/);
+
+    const updatedButton = readFileSync(path.join(tempDir, 'src/components/ui/button.tsx'), 'utf8');
+    assert.match(updatedButton, /rounded-full/);
+
+    const updatedInput = readFileSync(path.join(tempDir, 'src/components/ui/input.tsx'), 'utf8');
+    assert.match(updatedInput, /rounded-full/);
+  });
 });

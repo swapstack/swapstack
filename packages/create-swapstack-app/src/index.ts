@@ -155,6 +155,8 @@ Options:
   --bundle-id <id>            Bundle ID for both iOS and Android (e.g. com.example.app)
   --ios-bundle-id <id>        Apple bundle identifier
   --android-package <id>      Android application ID
+  --theme <preset>            Color theme (matcha, terracotta, cobalt, sakura, espresso, light, dark)
+  --style <preset>            UI design style (minimal, soft, editorial, brutalist, terminal)
   --no-install                Skip running pnpm install
   --no-git                    Skip initializing a git repository
   --yes, -y                   Accept all defaults without prompting
@@ -283,6 +285,8 @@ async function run(): Promise<void> {
     name: appName,
     iosBundleId,
     androidPackage,
+    theme: args.theme,
+    style: args.style,
   });
 
   initGitAndInstallDeps(targetPath, targetDir, args);

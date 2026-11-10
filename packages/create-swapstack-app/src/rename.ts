@@ -1,11 +1,16 @@
+import type { StylePreset, ThemePreset } from './themes.js';
 import { existsSync } from 'node:fs';
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+
+import { applyThemeAndStyle } from './themes.js';
 
 export type RenameOptions = {
   name: string;
   iosBundleId: string;
   androidPackage: string;
+  theme?: ThemePreset;
+  style?: StylePreset;
 };
 
 export function slugify(value: string): string {
@@ -328,6 +333,13 @@ export async function renameAppFiles(
     }
   }
   await replaceTemplateNamespaces(path.join(targetDir, 'src'), slug);
+
+  if (options.theme || options.style) {
+    await applyThemeAndStyle(targetDir, {
+      theme: options.theme,
+      style: options.style,
+    });
+  }
 
   // 6. Clean up internal template artifacts if present in downloaded template
   const packagesDir = path.join(targetDir, 'packages');
