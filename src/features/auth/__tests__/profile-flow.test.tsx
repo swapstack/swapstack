@@ -60,4 +60,19 @@ describe('profile flows', () => {
     await user.press(await screen.findByTestId('confirm-delete-button'));
     await waitFor(async () => expect(await provider.getSession()).toBeNull());
   });
+
+  it('uploads an avatar via storage provider and updates user profile', async () => {
+    const provider = new MockAuthProvider();
+    await provider.signInAnonymously();
+    const { user } = setup(
+      <AuthSessionProvider provider={provider}><ProfileScreen /></AuthSessionProvider>,
+    );
+
+    await user.press(await screen.findByTestId('upload-avatar-button'));
+    expect(await screen.findByText('Avatar updated.')).toBeOnTheScreen();
+    await waitFor(async () => {
+      const session = await provider.getSession();
+      expect(session?.user.avatarUrl).toContain('https://mock-storage.local/avatars/');
+    });
+  });
 });
