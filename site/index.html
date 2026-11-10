@@ -112,7 +112,7 @@
           </div>
 
           <div class="theme-strip" role="group" aria-label="Live Theme Presets">
-            <span class="theme-strip-label">Live Theme:</span>
+            <span class="theme-strip-label">Color Theme:</span>
             <button type="button" class="theme-pill" data-set-theme="matcha" aria-pressed="false">
               <span class="swatch-pair"><span class="swatch-dot" style="background:#f7faf6;"></span><span class="swatch-dot" style="background:#143d29;"></span></span>
               <span>Matcha</span>
@@ -140,6 +140,25 @@
             <button type="button" class="theme-pill" data-set-theme="dark" aria-pressed="true">
               <span class="swatch-pair"><span class="swatch-dot" style="background:#0a0a0a;"></span><span class="swatch-dot" style="background:#fafafa;"></span></span>
               <span>Obsidian</span>
+            </button>
+          </div>
+
+          <div class="theme-strip" style="margin-top: 10px;" role="group" aria-label="Live App Design Styles">
+            <span class="theme-strip-label">App Design:</span>
+            <button type="button" class="theme-pill" data-set-style="minimal" aria-pressed="true">
+              <span>Swiss Minimal</span>
+            </button>
+            <button type="button" class="theme-pill" data-set-style="soft" aria-pressed="false">
+              <span>Soft Pill</span>
+            </button>
+            <button type="button" class="theme-pill" data-set-style="editorial" aria-pressed="false">
+              <span>Editorial Serif</span>
+            </button>
+            <button type="button" class="theme-pill" data-set-style="brutalist" aria-pressed="false">
+              <span>Neo-Brutalist</span>
+            </button>
+            <button type="button" class="theme-pill" data-set-style="terminal" aria-pressed="false">
+              <span>Technical Mono</span>
             </button>
           </div>
 
@@ -177,7 +196,7 @@
           </div>
 
           <div class="phone-shell">
-            <div class="phone-screen" id="phone-screen" data-phone-theme="dark">
+            <div class="phone-screen" id="phone-screen" data-phone-theme="dark" data-phone-style="minimal">
               <div class="phone-island" aria-hidden="true"></div>
 
               <!-- Screen 1: Login -->
@@ -659,7 +678,7 @@ describeAuthProviderContract('AcmeAuthProvider', () => createAcmeAuthProvider())
             </div>
 
             <div class="phone-shell">
-              <div class="phone-screen" id="ex-phone-screen" data-phone-theme="dark">
+              <div class="phone-screen" id="ex-phone-screen" data-phone-theme="dark" data-phone-style="minimal">
                 <div class="phone-island" aria-hidden="true"></div>
 
                 <!-- Example 1: Pulse (Workout Tracker) -->
@@ -900,19 +919,20 @@ export type WorkoutRepository = {
       </div>
     </section>
 
-    <!-- Live Theme Token Studio Section -->
+    <!-- Live Theme & Design Style Studio Section -->
     <section class="section" id="themes">
       <div class="container">
         <div class="section-header">
           <div>
-            <h2 class="section-title">Token-driven light &amp; dark themes.</h2>
+            <h2 class="section-title">5 App Design Styles &times; 7 Color Themes.</h2>
           </div>
           <p class="section-desc">
-            Click any palette below to live-preview it across this entire page and the interactive device screens—then copy the <code class="mono">src/global.css</code> tokens into your app.
+            Mix any UI geometry (**Swiss Minimal**, **Soft Pill**, **Editorial Serif**, **Neo-Brutalist**, **Technical Mono**) with any color palette to preview 35 distinct app designs live on the device screens—then copy the tokens or AI prompt.
           </p>
         </div>
 
-        <div class="theme-strip" style="margin-top: 0; margin-bottom: 24px;" role="group" aria-label="Theme Studio Presets">
+        <div class="theme-strip" style="margin-top: 0; margin-bottom: 12px;" role="group" aria-label="Theme Studio Color Presets">
+          <span class="theme-strip-label">1. Color Palette:</span>
           <button type="button" class="theme-pill" data-set-theme="matcha" aria-pressed="false">
             <span class="swatch-pair"><span class="swatch-dot" style="background:#f7faf6;"></span><span class="swatch-dot" style="background:#143d29;"></span></span>
             <span>Matcha &amp; Sage</span>
@@ -940,6 +960,25 @@ export type WorkoutRepository = {
           <button type="button" class="theme-pill" data-set-theme="dark" aria-pressed="true">
             <span class="swatch-pair"><span class="swatch-dot" style="background:#0a0a0a;"></span><span class="swatch-dot" style="background:#fafafa;"></span></span>
             <span>Obsidian Dark</span>
+          </button>
+        </div>
+
+        <div class="theme-strip" style="margin-top: 0; margin-bottom: 24px;" role="group" aria-label="Theme Studio App Design Styles">
+          <span class="theme-strip-label">2. App Design Style:</span>
+          <button type="button" class="theme-pill" data-set-style="minimal" aria-pressed="true">
+            <span>Swiss Minimal (12px · Sans)</span>
+          </button>
+          <button type="button" class="theme-pill" data-set-style="soft" aria-pressed="false">
+            <span>Soft Pill &amp; Tactile (9999px · Plush)</span>
+          </button>
+          <button type="button" class="theme-pill" data-set-style="editorial" aria-pressed="false">
+            <span>Editorial Serif (2px · Serif Headings)</span>
+          </button>
+          <button type="button" class="theme-pill" data-set-style="brutalist" aria-pressed="false">
+            <span>Neo-Brutalist (2px Ink Border · Hard Shadow)</span>
+          </button>
+          <button type="button" class="theme-pill" data-set-style="terminal" aria-pressed="false">
+            <span>Technical Mono (0px · Monospace Grid)</span>
           </button>
         </div>
 
@@ -1055,7 +1094,7 @@ export type WorkoutRepository = {
   </footer>
 
   <script>
-    // 1. Unified Theme Presets & Studio
+    // 1. Unified Theme Presets & App Design Styles Studio
     const htmlEl = document.documentElement;
     const themeToggle = document.getElementById('theme-toggle');
     const themeLabel = document.getElementById('theme-label');
@@ -1064,6 +1103,10 @@ export type WorkoutRepository = {
     const exPhoneScreen = document.getElementById('ex-phone-screen');
     const exThemeToggle = document.getElementById('ex-theme-toggle');
     const themePresetButtons = document.querySelectorAll('[data-set-theme]');
+    const stylePresetButtons = document.querySelectorAll('[data-set-style]');
+
+    let activeThemeKey = 'dark';
+    let activeStyleKey = 'minimal';
 
     const themeOrder = ['matcha', 'terracotta', 'cobalt', 'sakura', 'espresso', 'light', 'dark'];
     const themePresets = {
@@ -1153,36 +1196,63 @@ export type WorkoutRepository = {
       },
     };
 
-    function applyThemePreset(themeKey) {
-      const t = themePresets[themeKey] || themePresets.dark;
-      htmlEl.setAttribute('data-theme', themeKey);
-      themeLabel.textContent = t.short;
+    const stylePresets = {
+      minimal: {
+        name: 'Swiss Minimal',
+        short: 'Minimal',
+        fontToken: 'Inter',
+        cardClasses: 'rounded-xl border border-border bg-card p-4',
+        buttonClasses: 'rounded-lg h-11 px-4 font-semibold',
+        inputClasses: 'rounded-lg h-11 px-3 border border-input bg-muted',
+        designRule: 'Clean geometric sans (`Inter`), `rounded-xl` (12px) cards with 1px hairline borders, `rounded-lg` (8px) buttons and inputs, zero drop shadows.',
+      },
+      soft: {
+        name: 'Soft Pill & Tactile',
+        short: 'Soft Pill',
+        fontToken: 'PlusJakartaSans',
+        cardClasses: 'rounded-3xl border border-border/60 bg-card p-5 shadow-sm',
+        buttonClasses: 'rounded-full h-12 px-6 font-bold',
+        inputClasses: 'rounded-full h-12 px-5 border border-input bg-muted',
+        designRule: 'Friendly rounded humanist sans, `rounded-full` (9999px) pill buttons, inputs, and badges, `rounded-3xl` (24px) plush cards with subtle ambient elevation.',
+      },
+      editorial: {
+        name: 'Editorial Serif',
+        short: 'Editorial',
+        fontToken: 'InstrumentSerif',
+        cardClasses: 'rounded-none border-t-2 border-foreground border-b border-border bg-transparent py-4 px-1',
+        buttonClasses: 'rounded-sm h-11 px-5 font-semibold tracking-wide',
+        inputClasses: 'rounded-sm h-11 px-3 border border-border bg-muted',
+        designRule: 'High-contrast serif display headings (`Instrument Serif` / `Georgia`), uppercase tracked form labels (`tracking-widest text-xs`), crisp `rounded-sm` (2px) corners, and top-ruled editorial card dividers.',
+      },
+      brutalist: {
+        name: 'Neo-Brutalist',
+        short: 'Brutalist',
+        fontToken: 'SpaceGrotesk',
+        cardClasses: 'rounded-md border-2 border-foreground bg-card p-4 shadow-[4px_4px_0px_0px_var(--color-foreground)]',
+        buttonClasses: 'rounded-md h-11 px-5 border-2 border-foreground font-extrabold uppercase tracking-wider shadow-[3px_3px_0px_0px_var(--color-foreground)]',
+        inputClasses: 'rounded-md h-11 px-3 border-2 border-foreground bg-card font-semibold',
+        designRule: 'Bold uppercase headings, `border-2 border-foreground` ink borders on all cards, buttons, and inputs, `rounded-md` (6px) corners, and hard offset shadows (`4px 4px 0px`).',
+      },
+      terminal: {
+        name: 'Technical Mono',
+        short: 'Terminal',
+        fontToken: 'JetBrainsMono',
+        cardClasses: 'rounded-none border border-dashed border-foreground/70 bg-card p-3.5 font-mono',
+        buttonClasses: 'rounded-none h-10 px-4 font-mono uppercase tracking-wider text-xs font-bold',
+        inputClasses: 'rounded-none h-10 px-3 border border-foreground/60 bg-muted font-mono text-xs',
+        designRule: 'Full monospace typography (`JetBrains Mono`) across headings, labels, inputs, and buttons, `rounded-none` (0px) sharp corners, and `border-dashed` technical card frames.',
+      },
+    };
 
-      // Update both interactive phone screens
-      phoneScreen.setAttribute('data-phone-theme', themeKey);
-      phoneThemeBtn.textContent = `Theme: ${t.short}`;
-      exPhoneScreen.setAttribute('data-phone-theme', themeKey);
-      exThemeToggle.textContent = `Theme: ${t.short}`;
+    function updateStudioCodeAndPrompts() {
+      const t = themePresets[activeThemeKey] || themePresets.dark;
+      const s = stylePresets[activeStyleKey] || stylePresets.minimal;
 
-      // Update all theme pills
-      themePresetButtons.forEach((btn) => {
-        btn.setAttribute('aria-pressed', String(btn.getAttribute('data-set-theme') === themeKey));
-      });
-
-      // Update Theme Studio chips & code windows
-      document.getElementById('swatch-bg').style.backgroundColor = t.bg;
-      document.getElementById('hex-bg').textContent = t.bg;
-      document.getElementById('swatch-fg').style.backgroundColor = t.fg;
-      document.getElementById('hex-fg').textContent = t.fg;
-      document.getElementById('swatch-muted').style.backgroundColor = t.muted;
-      document.getElementById('hex-muted').textContent = t.muted;
-      document.getElementById('swatch-border').style.backgroundColor = t.border;
-      document.getElementById('hex-border').textContent = t.border;
-      document.getElementById('swatch-primary').style.backgroundColor = t.primary;
-      document.getElementById('hex-primary').textContent = t.primary;
-
-      document.getElementById('theme-css-title').textContent = `src/global.css — ${t.name}`;
-      document.getElementById('theme-css-code').textContent = `/* src/global.css */
+      document.getElementById('theme-css-title').textContent = `${t.name} · ${s.name}`;
+      document.getElementById('theme-css-code').textContent = `/* 1. src/global.css — ${t.name} + ${s.name} */
+@theme {
+  --font-sans: '${s.fontToken}';
+}
 @variant ${t.variant} {
   --color-background: ${t.bg};
   --color-foreground: ${t.fg};
@@ -1194,14 +1264,72 @@ export type WorkoutRepository = {
   --color-input: ${t.border};
   --color-ring: ${t.primary};
   --color-neutral-900: ${t.primary};
-}`;
+}
 
-      document.getElementById('theme-prompt-title').textContent = `AI Rebrand Prompt — ${t.name}`;
-      document.getElementById('theme-prompt-code').textContent = `Apply the "${t.name}" theme preset from \`docs/themes.md\` to this Swapstack app:
+/* 2. src/components/ui/ primitive variants (${s.name}) */
+// Card:   "${s.cardClasses}"
+// Button: "${s.buttonClasses}"
+// Input:  "${s.inputClasses}"`;
 
-1. Update the semantic color tokens in \`DESIGN.md\`, \`src/global.css\`, and \`src/components/ui/colors.js\` using background \`${t.bg}\`, foreground \`${t.fg}\`, card \`${t.card}\`, muted \`${t.muted}\`, muted-foreground \`${t.mutedFg}\`, border \`${t.border}\`, and primary \`${t.primary}\`.
-2. Ensure all text and muted-foreground combinations maintain >= 4.5:1 WCAG AA contrast.
+      document.getElementById('theme-prompt-title').textContent = `AI Design Prompt — ${t.short} + ${s.short}`;
+      document.getElementById('theme-prompt-code').textContent = `Apply the "${t.name}" color palette AND the "${s.name}" UI design style from \`docs/themes.md\` to this Swapstack app:
+
+1. Color Tokens (\`DESIGN.md\`, \`src/global.css\`, \`src/components/ui/colors.js\`):
+   - Set background \`${t.bg}\`, foreground \`${t.fg}\`, card \`${t.card}\`, muted \`${t.muted}\`, muted-foreground \`${t.mutedFg}\`, border \`${t.border}\`, and primary \`${t.primary}\` (>= 4.5:1 WCAG AA contrast).
+2. UI Design Style — ${s.name} (\`src/components/ui/\`):
+   - ${s.designRule}
+   - Update \`Card\` (\`${s.cardClasses}\`), \`Button\` (\`${s.buttonClasses}\`), and \`Input\` (\`${s.inputClasses}\`).
 3. Run \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\`.`;
+    }
+
+    function applyThemePreset(themeKey) {
+      activeThemeKey = themePresets[themeKey] ? themeKey : 'dark';
+      const t = themePresets[activeThemeKey];
+      const s = stylePresets[activeStyleKey];
+      htmlEl.setAttribute('data-theme', activeThemeKey);
+      themeLabel.textContent = t.short;
+
+      // Update both interactive phone screens
+      phoneScreen.setAttribute('data-phone-theme', activeThemeKey);
+      phoneThemeBtn.textContent = `${t.short} · ${s.short}`;
+      exPhoneScreen.setAttribute('data-phone-theme', activeThemeKey);
+      exThemeToggle.textContent = `${t.short} · ${s.short}`;
+
+      // Update all theme pills
+      themePresetButtons.forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(btn.getAttribute('data-set-theme') === activeThemeKey));
+      });
+
+      // Update Theme Studio chips
+      document.getElementById('swatch-bg').style.backgroundColor = t.bg;
+      document.getElementById('hex-bg').textContent = t.bg;
+      document.getElementById('swatch-fg').style.backgroundColor = t.fg;
+      document.getElementById('hex-fg').textContent = t.fg;
+      document.getElementById('swatch-muted').style.backgroundColor = t.muted;
+      document.getElementById('hex-muted').textContent = t.muted;
+      document.getElementById('swatch-border').style.backgroundColor = t.border;
+      document.getElementById('hex-border').textContent = t.border;
+      document.getElementById('swatch-primary').style.backgroundColor = t.primary;
+      document.getElementById('hex-primary').textContent = t.primary;
+
+      updateStudioCodeAndPrompts();
+    }
+
+    function applyDesignStyle(styleKey) {
+      activeStyleKey = stylePresets[styleKey] ? styleKey : 'minimal';
+      const t = themePresets[activeThemeKey];
+      const s = stylePresets[activeStyleKey];
+
+      phoneScreen.setAttribute('data-phone-style', activeStyleKey);
+      exPhoneScreen.setAttribute('data-phone-style', activeStyleKey);
+      phoneThemeBtn.textContent = `${t.short} · ${s.short}`;
+      exThemeToggle.textContent = `${t.short} · ${s.short}`;
+
+      stylePresetButtons.forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(btn.getAttribute('data-set-style') === activeStyleKey));
+      });
+
+      updateStudioCodeAndPrompts();
     }
 
     function cycleNextTheme(currentKey) {
@@ -1213,6 +1341,12 @@ export type WorkoutRepository = {
     themePresetButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         applyThemePreset(btn.getAttribute('data-set-theme'));
+      });
+    });
+
+    stylePresetButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        applyDesignStyle(btn.getAttribute('data-set-style'));
       });
     });
 

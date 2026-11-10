@@ -189,3 +189,52 @@ A sunlit oat-and-ivory surface anchored by rich roasted espresso buttons—great
   --color-neutral-900: #362214;
 }
 ```
+
+---
+
+## 5 App UI Design Styles (Geometry, Borders & Typography)
+
+Beyond color tokens, you can transform the visual personality of every screen by updating the geometry, border weight, shadow, and typography of Swapstack's UI primitives (`src/components/ui/card.tsx`, `button.tsx`, `input.tsx`, and `text.tsx`). Combine any of the **5 App UI Design Styles** below with any of the **7 Color Themes** above for **35 distinct app aesthetics**:
+
+![5 Distinct App UI Design Styles for Swapstack](../site/design-styles-showcase.png)
+
+### Style 1: Swiss Minimal (`minimal` — Default)
+- **Best for**: SaaS companions, productivity tools, developer utilities.
+- **Typography**: `Inter` (`--font-sans: 'Inter'`), tight `-0.02em` heading tracking.
+- **Primitive classes**:
+  - `Card`: `rounded-xl border border-border bg-card p-4`
+  - `Button`: `rounded-lg h-11 px-4 font-semibold`
+  - `Input`: `rounded-lg h-11 px-3 border border-input bg-muted`
+
+### Style 2: Soft Pill & Tactile (`soft`)
+- **Best for**: Habit trackers (**Pulse**), wellness, meditation, consumer social apps.
+- **Typography**: Rounded humanist sans (`Plus Jakarta Sans`), warm bold headings.
+- **Primitive classes**:
+  - `Card`: `rounded-3xl border border-border/60 bg-card p-5 shadow-sm`
+  - `Button`: `rounded-full h-12 px-6 font-bold`
+  - `Input`: `rounded-full h-12 px-5 border border-input bg-muted`
+
+### Style 3: Editorial Serif (`editorial`)
+- **Best for**: Reading apps, study decks (**MemoStack**), journaling, knowledge tools.
+- **Typography**: High-contrast serif display headings (`Instrument Serif` / `Georgia`), uppercase tracked form labels (`uppercase tracking-widest text-xs font-bold`).
+- **Primitive classes**:
+  - `Card`: `rounded-none border-t-2 border-foreground border-b border-border bg-transparent py-4 px-1`
+  - `Button`: `rounded-sm h-11 px-5 font-semibold uppercase tracking-wider`
+  - `Input`: `rounded-sm h-11 px-3 border border-border bg-muted`
+
+### Style 4: Neo-Brutalist (`brutalist`)
+- **Best for**: Indie creator tools, expense splitters (**SplitLedger**), bold consumer fintech.
+- **Typography**: Heavy geometric headings (`font-black uppercase tracking-tight`).
+- **Primitive classes**:
+  - `Card`: `rounded-md border-2 border-foreground bg-card p-4 shadow-[4px_4px_0px_0px_var(--color-foreground)]`
+  - `Button`: `rounded-md h-11 px-5 border-2 border-foreground font-extrabold uppercase tracking-wider shadow-[3px_3px_0px_0px_var(--color-foreground)]`
+  - `Input`: `rounded-md h-11 px-3 border-2 border-foreground bg-card font-semibold`
+
+### Style 5: Technical Mono (`terminal`)
+- **Best for**: AI assistants (**PromptBox**), telemetry dashboards, developer & crypto tools.
+- **Typography**: Full monospace (`JetBrains Mono` / `SF Mono`) across headings, labels, inputs, and buttons.
+- **Primitive classes**:
+  - `Card`: `rounded-none border border-dashed border-foreground/70 bg-card p-3.5 font-mono`
+  - `Button`: `rounded-none h-10 px-4 font-mono uppercase tracking-wider text-xs font-bold`
+  - `Input`: `rounded-none h-10 px-3 border border-foreground/60 bg-muted font-mono text-xs`
+
