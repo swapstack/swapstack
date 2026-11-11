@@ -22,6 +22,56 @@ import { getItem, setItem } from '@/lib/storage';
 
 const SELECTED_THEME_KEY = 'SELECTED_THEME';
 
+function AppearanceCard({
+  selectedTheme,
+  onSelectTheme,
+}: {
+  readonly selectedTheme: ColorSchemeType;
+  readonly onSelectTheme: (theme: ColorSchemeType) => void;
+}) {
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle>Appearance</CardTitle>
+        <CardDescription testID="current-theme-label">
+          {`Active theme: ${selectedTheme}`}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <View className="flex-row gap-2">
+          <View className="flex-1">
+            <Button
+              testID="theme-light-button"
+              size="sm"
+              variant={selectedTheme === 'light' ? 'default' : 'outline'}
+              label="Light"
+              onPress={() => onSelectTheme('light')}
+            />
+          </View>
+          <View className="flex-1">
+            <Button
+              testID="theme-dark-button"
+              size="sm"
+              variant={selectedTheme === 'dark' ? 'default' : 'outline'}
+              label="Dark"
+              onPress={() => onSelectTheme('dark')}
+            />
+          </View>
+          <View className="flex-1">
+            <Button
+              testID="theme-system-button"
+              size="sm"
+              variant={selectedTheme === 'system' ? 'default' : 'outline'}
+              label="System"
+              onPress={() => onSelectTheme('system')}
+            />
+          </View>
+        </View>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function SettingsScreen() {
   const [selectedTheme, setSelectedThemeState] = React.useState<ColorSchemeType>(
     () => getItem<ColorSchemeType>(SELECTED_THEME_KEY) ?? 'system',
@@ -30,6 +80,7 @@ export default function SettingsScreen() {
   const [analyticsEnabled, setAnalyticsEnabled] = React.useState<boolean>(
     () => serviceProviders.analytics.isEnabled(),
   );
+  const [biometricLockEnabled, setBiometricLockEnabled] = React.useState(false);
   const [hasProEntitlement, setHasProEntitlement] = React.useState(false);
   const [statusMessage, setStatusMessage] = React.useState<string>();
 
@@ -38,12 +89,14 @@ export default function SettingsScreen() {
     void Promise.all([
       serviceProviders.notifications.getPermissionStatus(),
       serviceProviders.billing.getEntitlements(),
-    ]).then(([perm, entitlements]) => {
+      serviceProviders.biometrics.isAppLockEnabled(),
+    ]).then(([perm, entitlements, appLock]) => {
       if (!isMounted) {
         return;
       }
       setPermissionStatus(perm);
       setHasProEntitlement(entitlements.some(e => e.id === 'pro' && e.isActive));
+      setBiometricLockEnabled(appLock);
     });
     return () => {
       isMounted = false;
@@ -81,6 +134,14 @@ export default function SettingsScreen() {
     setStatusMessage(checked ? 'Analytics enabled.' : 'Analytics disabled.');
   }, []);
 
+  const handleToggleBiometricLock = React.useCallback(async (checked: boolean) => {
+    const res = await serviceProviders.biometrics.setAppLockEnabled(checked);
+    if (res.success) {
+      setBiometricLockEnabled(checked);
+      setStatusMessage(checked ? 'Biometric app lock enabled.' : 'Biometric app lock disabled.');
+    }
+  }, []);
+
   return (
     <Screen className="px-6 py-8">
       <Text className="font-bold text-3xl">Settings</Text>
@@ -94,45 +155,7 @@ export default function SettingsScreen() {
         </Text>
       )}
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription testID="current-theme-label">
-            {`Active theme: ${selectedTheme}`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <View className="flex-row gap-2">
-            <View className="flex-1">
-              <Button
-                testID="theme-light-button"
-                size="sm"
-                variant={selectedTheme === 'light' ? 'default' : 'outline'}
-                label="Light"
-                onPress={() => handleSelectTheme('light')}
-              />
-            </View>
-            <View className="flex-1">
-              <Button
-                testID="theme-dark-button"
-                size="sm"
-                variant={selectedTheme === 'dark' ? 'default' : 'outline'}
-                label="Dark"
-                onPress={() => handleSelectTheme('dark')}
-              />
-            </View>
-            <View className="flex-1">
-              <Button
-                testID="theme-system-button"
-                size="sm"
-                variant={selectedTheme === 'system' ? 'default' : 'outline'}
-                label="System"
-                onPress={() => handleSelectTheme('system')}
-              />
-            </View>
-          </View>
-        </CardContent>
-      </Card>
+      <AppearanceCard selectedTheme={selectedTheme} onSelectTheme={handleSelectTheme} />
 
       <Card className="mt-4">
         <CardHeader>
@@ -170,13 +193,22 @@ export default function SettingsScreen() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Checkbox
-            testID="analytics-opt-in-checkbox"
-            checked={analyticsEnabled}
-            onChange={handleToggleAnalytics}
-            label="Share anonymous usage analytics"
-            accessibilityLabel="Share anonymous usage analytics"
-          />
+          <View className="gap-3">
+            <Checkbox
+              testID="analytics-opt-in-checkbox"
+              checked={analyticsEnabled}
+              onChange={handleToggleAnalytics}
+              label="Share anonymous usage analytics"
+              accessibilityLabel="Share anonymous usage analytics"
+            />
+            <Checkbox
+              testID="biometric-lock-checkbox"
+              checked={biometricLockEnabled}
+              onChange={handleToggleBiometricLock}
+              label="Require Face ID / Biometrics on app resume"
+              accessibilityLabel="Require Face ID / Biometrics on app resume"
+            />
+          </View>
         </CardContent>
       </Card>
 
