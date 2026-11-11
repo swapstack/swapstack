@@ -232,9 +232,14 @@ export default function SettingsScreen() {
 
       <Divider className="my-6" />
 
-      <Link href="/profile" asChild>
-        <Button testID="settings-profile-link" variant="outline" label="Manage profile" />
-      </Link>
+      <View className="gap-3">
+        <Link href="/profile" asChild>
+          <Button testID="settings-profile-link" variant="outline" label="Manage profile" />
+        </Link>
+        <Link href="/devtools" asChild>
+          <Button testID="settings-devtools-link" variant="outline" label="Open Developer Debug Studio" />
+        </Link>
+      </View>
     </Screen>
   );
 }

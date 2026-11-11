@@ -3,11 +3,13 @@ import type {
   BillingProviderOption,
   DataProviderOption,
 } from './args.js';
+import type { BlueprintPreset } from './blueprints.js';
 import type { StylePreset, ThemePreset } from './themes.js';
 import { existsSync } from 'node:fs';
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { applyBlueprint } from './blueprints.js';
 import { applyThemeAndStyle } from './themes.js';
 
 export type RenameOptions = {
@@ -16,6 +18,7 @@ export type RenameOptions = {
   androidPackage: string;
   theme?: ThemePreset;
   style?: StylePreset;
+  template?: BlueprintPreset;
   authProvider?: AuthProviderOption;
   dataProvider?: DataProviderOption;
   billingProvider?: BillingProviderOption;
@@ -366,6 +369,10 @@ export async function renameAppFiles(
       theme: options.theme,
       style: options.style,
     });
+  }
+
+  if (options.template && options.template !== 'default') {
+    await applyBlueprint(targetDir, options.template);
   }
 
   // 6. Clean up internal template artifacts if present in downloaded template

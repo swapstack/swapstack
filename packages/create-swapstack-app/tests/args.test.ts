@@ -57,13 +57,22 @@ describe('argument parsing', () => {
     assert.equal(parsed.androidPackage, 'com.android.app');
   });
 
-  it('parses --theme and --style flags and rejects invalid presets', () => {
-    const parsed = parseArgs(['styled-app', '--theme', 'matcha', '--style=soft']);
+  it('parses --theme, --style, and --template flags and rejects invalid presets', () => {
+    const parsed = parseArgs([
+      'styled-app',
+      '--theme',
+      'matcha',
+      '--style=soft',
+      '--template',
+      'pulse',
+    ]);
     assert.equal(parsed.theme, 'matcha');
     assert.equal(parsed.style, 'soft');
+    assert.equal(parsed.template, 'pulse');
 
     assert.throws(() => parseArgs(['--theme', 'neon']), /Invalid --theme "neon"/);
     assert.throws(() => parseArgs(['--style=glass']), /Invalid --style "glass"/);
+    assert.throws(() => parseArgs(['--template=unknown']), /Invalid --template "unknown"/);
   });
 
   it('parses --ui, --auth, --data, and --billing flags and rejects invalid providers', () => {

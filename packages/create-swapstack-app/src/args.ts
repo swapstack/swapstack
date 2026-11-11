@@ -1,4 +1,6 @@
+import type { BlueprintPreset } from './blueprints.js';
 import type { StylePreset, ThemePreset } from './themes.js';
+import { BLUEPRINT_PRESETS, validateBlueprintPreset } from './blueprints.js';
 import { STYLE_PRESETS, THEME_PRESETS, validateStylePreset, validateThemePreset } from './themes.js';
 
 export const AUTH_PROVIDERS = ['mock', 'supabase', 'firebase', 'clerk'] as const;
@@ -29,6 +31,7 @@ export type ParsedArgs = {
   androidPackage?: string;
   theme?: ThemePreset;
   style?: StylePreset;
+  template?: BlueprintPreset;
   authProvider?: AuthProviderOption;
   dataProvider?: DataProviderOption;
   billingProvider?: BillingProviderOption;
@@ -158,6 +161,17 @@ export function parseArgs(args: string[]): ParsedArgs {
         );
       }
       parsed.style = val;
+      i = res.nextIndex;
+    }
+    else if (arg === '--template' || arg.startsWith('--template=')) {
+      const res = getOptionValue(args, i, arg);
+      const val = res.value.toLowerCase();
+      if (!validateBlueprintPreset(val)) {
+        throw new Error(
+          `Invalid --template "${res.value}". Valid options: ${BLUEPRINT_PRESETS.join(', ')}`,
+        );
+      }
+      parsed.template = val;
       i = res.nextIndex;
     }
     else if (arg === '--auth' || arg.startsWith('--auth=')) {

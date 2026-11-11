@@ -158,6 +158,7 @@ Options:
   --android-package <id>      Android application ID
   --theme <preset>            Color theme (matcha, terracotta, cobalt, sakura, espresso, light, dark)
   --style <preset>            UI design style (minimal, soft, editorial, brutalist, terminal)
+  --template <blueprint>      App starter blueprint (default, pulse, memostack, promptbox, splitledger)
   --auth <provider>           Auth provider (mock, supabase, firebase, clerk)
   --data <provider>           Data provider (mock, supabase, firebase)
   --billing <provider>        Billing provider (mock, revenuecat)
@@ -335,6 +336,7 @@ async function run(): Promise<void> {
     androidPackage,
     theme: args.theme,
     style: args.style,
+    template: args.template,
     authProvider: args.authProvider,
     dataProvider: args.dataProvider,
     billingProvider: args.billingProvider,

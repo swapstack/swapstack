@@ -33,6 +33,7 @@ npx create-swapstack-app <project-directory> [options]
 | `--android-package <id>` | Specific Android application ID |
 | `--theme <preset>` | Color theme preset (`matcha`, `terracotta`, `cobalt`, `sakura`, `espresso`, `light`, `dark`) |
 | `--style <preset>` | UI design style (`minimal`, `soft`, `editorial`, `brutalist`, `terminal`) |
+| `--template <blueprint>` | App starter blueprint (`default`, `pulse`, `memostack`, `promptbox`, `splitledger`) |
 | `--auth <provider>` | Initial Auth provider (`mock`, `supabase`, `firebase`, `clerk`) |
 | `--data <provider>` | Initial Data repository (`mock`, `supabase`, `firebase`) |
 | `--billing <provider>` | Initial Billing provider (`mock`, `revenuecat`) |
