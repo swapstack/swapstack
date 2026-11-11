@@ -6,6 +6,13 @@ export type QueuedMutation<T> = {
   readonly id: string;
   readonly patch: Partial<T>;
   readonly queuedAt: string;
+  readonly retryCount?: number;
+  readonly lastError?: string;
+};
+
+export type OfflineSyncQueueOptions = {
+  readonly maxRetries?: number;
+  readonly onMutationFailed?: <T>(mutation: QueuedMutation<T>, error: unknown) => void;
 };
 
 export class OfflineSyncQueue<T extends { readonly id: string }> implements DataRepository<T> {
@@ -14,12 +21,15 @@ export class OfflineSyncQueue<T extends { readonly id: string }> implements Data
   private readonly queue: QueuedMutation<T>[] = [];
   private readonly listeners = new Map<string, Set<(data: T | null) => void>>();
   private readonly unsubscribeNetwork: Unsubscribe;
+  private readonly maxRetries: number;
 
   constructor(
     private readonly remote: DataRepository<T>,
     private readonly network: NetworkProvider,
+    private readonly options: OfflineSyncQueueOptions = {},
   ) {
     this.mode = remote.mode ?? 'live';
+    this.maxRetries = options.maxRetries ?? 3;
     this.unsubscribeNetwork = this.network.onStatusChange((status) => {
       if (status.isConnected && status.isInternetReachable) {
         void this.flush();
@@ -62,15 +72,29 @@ export class OfflineSyncQueue<T extends { readonly id: string }> implements Data
         id,
         patch: data,
         queuedAt: new Date().toISOString(),
+        retryCount: 0,
       });
       this.notify(id, optimistic);
       return optimistic;
     }
 
-    const saved = await this.remote.update(id, data);
-    this.cache.set(id, saved);
-    this.notify(id, saved);
-    return saved;
+    try {
+      const saved = await this.remote.update(id, data);
+      this.cache.set(id, saved);
+      this.notify(id, saved);
+      return saved;
+    }
+    catch (error) {
+      this.queue.push({
+        id,
+        patch: data,
+        queuedAt: new Date().toISOString(),
+        retryCount: 0,
+        lastError: error instanceof Error ? error.message : String(error),
+      });
+      this.notify(id, optimistic);
+      return optimistic;
+    }
   };
 
   flush = async (): Promise<number> => {
@@ -78,14 +102,38 @@ export class OfflineSyncQueue<T extends { readonly id: string }> implements Data
     if (!online || this.queue.length === 0) {
       return 0;
     }
-    const items = this.queue.splice(0, this.queue.length);
+
     let flushedCount = 0;
-    for (const item of items) {
-      const saved = await this.remote.update(item.id, item.patch);
-      this.cache.set(item.id, saved);
-      this.notify(item.id, saved);
-      flushedCount += 1;
+    while (this.queue.length > 0) {
+      const current = this.queue[0];
+      if (!current) {
+        break;
+      }
+
+      try {
+        const saved = await this.remote.update(current.id, current.patch);
+        this.cache.set(current.id, saved);
+        this.notify(current.id, saved);
+        this.queue.shift();
+        flushedCount += 1;
+      }
+      catch (error) {
+        const nextRetry = (current.retryCount ?? 0) + 1;
+        if (nextRetry >= this.maxRetries) {
+          this.queue.shift();
+          this.options.onMutationFailed?.(current, error);
+        }
+        else {
+          this.queue[0] = {
+            ...current,
+            retryCount: nextRetry,
+            lastError: error instanceof Error ? error.message : String(error),
+          };
+          break;
+        }
+      }
     }
+
     return flushedCount;
   };
 
@@ -119,6 +167,7 @@ export class OfflineSyncQueue<T extends { readonly id: string }> implements Data
 export function createOfflineAwareDataRepository<T extends { readonly id: string }>(
   remote: DataRepository<T>,
   network: NetworkProvider,
+  options?: OfflineSyncQueueOptions,
 ): OfflineSyncQueue<T> {
-  return new OfflineSyncQueue(remote, network);
+  return new OfflineSyncQueue(remote, network, options);
 }

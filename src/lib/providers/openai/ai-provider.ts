@@ -32,6 +32,16 @@ export type OpenAiClientAdapter = {
   ) => Promise<OpenAiCompletionRawResponse>;
 };
 
+/**
+ * Configuration options for OpenAiProvider.
+ *
+ * Security Notice:
+ * For production releases, avoid embedding raw OpenAI API keys directly in mobile
+ * application bundles via EXPO_PUBLIC_OPENAI_API_KEY. Instead, point `baseUrl`
+ * (or EXPO_PUBLIC_OPENAI_BASE_URL) to an authenticated backend proxy or serverless
+ * edge function (e.g. Supabase Edge Functions, Cloudflare Workers, Next.js), or
+ * pass a custom `client` adapter.
+ */
 export type OpenAiProviderConfig = {
   readonly apiKey?: string;
   readonly baseUrl?: string;
@@ -86,6 +96,16 @@ export class OpenAiProvider implements AiProvider {
       ?? process.env.EXPO_PUBLIC_OPENAI_BASE_URL
       ?? 'https://api.openai.com/v1'
     ).trim();
+
+    if (
+      baseUrl === 'https://api.openai.com/v1'
+      && typeof process !== 'undefined'
+      && process.env.NODE_ENV === 'development'
+    ) {
+      console.warn(
+        '[Swapstack] Caution: Direct OpenAI client keys in EXPO_PUBLIC_OPENAI_API_KEY are visible in mobile bundles. For production apps, route through a proxy via EXPO_PUBLIC_OPENAI_BASE_URL.',
+      );
+    }
 
     this.client = createFetchOpenAiClient(apiKey, baseUrl);
   }
