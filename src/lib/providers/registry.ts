@@ -2,8 +2,10 @@ import type {
   AnalyticsProvider,
   AuthProvider,
   BillingProvider,
+  BiometricProvider,
   DataRepository,
   EntitlementsChangeCallback,
+  FeatureFlagProvider,
   FileStorageProvider,
   NetworkProvider,
   NotificationProvider,
@@ -14,6 +16,8 @@ import {
   mockAnalyticsProvider,
   mockAuthProvider,
   mockBillingProvider,
+  mockBiometricProvider,
+  mockFeatureFlagProvider,
   mockFileStorageProvider,
   mockNetworkProvider,
   mockNotificationProvider,
@@ -31,7 +35,16 @@ import { createSupabaseAuthProvider, createSupabaseClient } from './supabase/aut
 import { createSupabaseProfileRepository } from './supabase/profile-repository';
 import { createSupabaseFileStorageProvider } from './supabase/storage-provider';
 
-export type ProviderKind = 'auth' | 'data' | 'billing' | 'storage' | 'notifications' | 'analytics' | 'network';
+export type ProviderKind
+  = | 'auth'
+    | 'data'
+    | 'billing'
+    | 'storage'
+    | 'notifications'
+    | 'analytics'
+    | 'network'
+    | 'featureFlags'
+    | 'biometrics';
 
 export type ProviderTypeMap = {
   readonly auth: AuthProvider;
@@ -41,6 +54,8 @@ export type ProviderTypeMap = {
   readonly notifications: NotificationProvider;
   readonly analytics: AnalyticsProvider;
   readonly network: NetworkProvider;
+  readonly featureFlags: FeatureFlagProvider;
+  readonly biometrics: BiometricProvider;
 };
 
 export type ProviderFactory<K extends ProviderKind> = () => ProviderTypeMap[K];
@@ -65,6 +80,8 @@ type RegistryStore = {
   readonly notifications: Map<string, ProviderFactory<'notifications'>>;
   readonly analytics: Map<string, ProviderFactory<'analytics'>>;
   readonly network: Map<string, ProviderFactory<'network'>>;
+  readonly featureFlags: Map<string, ProviderFactory<'featureFlags'>>;
+  readonly biometrics: Map<string, ProviderFactory<'biometrics'>>;
 };
 
 type InstanceStore = {
@@ -75,6 +92,8 @@ type InstanceStore = {
   readonly notifications: Map<string, NotificationProvider>;
   readonly analytics: Map<string, AnalyticsProvider>;
   readonly network: Map<string, NetworkProvider>;
+  readonly featureFlags: Map<string, FeatureFlagProvider>;
+  readonly biometrics: Map<string, BiometricProvider>;
 };
 
 const registries: RegistryStore = {
@@ -85,6 +104,8 @@ const registries: RegistryStore = {
   notifications: new Map(),
   analytics: new Map(),
   network: new Map(),
+  featureFlags: new Map(),
+  biometrics: new Map(),
 };
 
 const instances: InstanceStore = {
@@ -95,6 +116,8 @@ const instances: InstanceStore = {
   notifications: new Map(),
   analytics: new Map(),
   network: new Map(),
+  featureFlags: new Map(),
+  biometrics: new Map(),
 };
 
 let cachedBackendAdapter: BackendAdapter | null = null;
@@ -154,6 +177,14 @@ export function register<K extends ProviderKind>(
       registries.network.set(normalized, factory as ProviderFactory<'network'>);
       instances.network.delete(normalized);
       break;
+    case 'featureFlags':
+      registries.featureFlags.set(normalized, factory as ProviderFactory<'featureFlags'>);
+      instances.featureFlags.delete(normalized);
+      break;
+    case 'biometrics':
+      registries.biometrics.set(normalized, factory as ProviderFactory<'biometrics'>);
+      instances.biometrics.delete(normalized);
+      break;
   }
 }
 
@@ -180,6 +211,12 @@ function getEnvProviderName(kind: ProviderKind): string {
       break;
     case 'network':
       envVal = process.env.EXPO_PUBLIC_NETWORK_PROVIDER;
+      break;
+    case 'featureFlags':
+      envVal = process.env.EXPO_PUBLIC_FEATURE_FLAGS_PROVIDER;
+      break;
+    case 'biometrics':
+      envVal = process.env.EXPO_PUBLIC_BIOMETRICS_PROVIDER;
       break;
   }
 
@@ -213,6 +250,10 @@ function getCachedInstance<K extends ProviderKind>(
       return instances.analytics.get(name) as ProviderTypeMap[K] | undefined;
     case 'network':
       return instances.network.get(name) as ProviderTypeMap[K] | undefined;
+    case 'featureFlags':
+      return instances.featureFlags.get(name) as ProviderTypeMap[K] | undefined;
+    case 'biometrics':
+      return instances.biometrics.get(name) as ProviderTypeMap[K] | undefined;
   }
 }
 
@@ -242,6 +283,12 @@ function cacheInstance<K extends ProviderKind>(
       break;
     case 'network':
       instances.network.set(name, instance as NetworkProvider);
+      break;
+    case 'featureFlags':
+      instances.featureFlags.set(name, instance as FeatureFlagProvider);
+      break;
+    case 'biometrics':
+      instances.biometrics.set(name, instance as BiometricProvider);
       break;
   }
 }
@@ -297,6 +344,14 @@ export function getNetworkProvider(name?: string): NetworkProvider {
   return getProvider('network', name);
 }
 
+export function getFeatureFlagProvider(name?: string): FeatureFlagProvider {
+  return getProvider('featureFlags', name);
+}
+
+export function getBiometricProvider(name?: string): BiometricProvider {
+  return getProvider('biometrics', name);
+}
+
 export function validateProviderConfig(): void {
   const kinds: readonly ProviderKind[] = [
     'auth',
@@ -306,6 +361,8 @@ export function validateProviderConfig(): void {
     'notifications',
     'analytics',
     'network',
+    'featureFlags',
+    'biometrics',
   ];
   const errors: string[] = [];
 
@@ -373,6 +430,8 @@ export function initDefaultProviders(): void {
   registries.notifications.clear();
   registries.analytics.clear();
   registries.network.clear();
+  registries.featureFlags.clear();
+  registries.biometrics.clear();
 
   instances.auth.clear();
   instances.data.clear();
@@ -381,6 +440,8 @@ export function initDefaultProviders(): void {
   instances.notifications.clear();
   instances.analytics.clear();
   instances.network.clear();
+  instances.featureFlags.clear();
+  instances.biometrics.clear();
 
   cachedBackendAdapter = null;
   cachedBillingAdapter = null;
@@ -393,6 +454,8 @@ export function initDefaultProviders(): void {
   register('notifications', 'mock', () => mockNotificationProvider);
   register('analytics', 'mock', () => mockAnalyticsProvider);
   register('network', 'mock', () => mockNetworkProvider);
+  register('featureFlags', 'mock', () => mockFeatureFlagProvider);
+  register('biometrics', 'mock', () => mockBiometricProvider);
   register('auth', 'supabase', () => createSupabaseAuthProvider({ client: getSharedSupabaseClient() }));
   register('data', 'supabase', () => createSupabaseProfileRepository(getSharedSupabaseClient()));
   register('storage', 'supabase', () => createSupabaseFileStorageProvider());

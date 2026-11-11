@@ -1,5 +1,7 @@
 import type {
   AnalyticsProvider,
+  BiometricProvider,
+  FeatureFlagProvider,
   FileStorageProvider,
   NetworkProvider,
   NotificationProvider,
@@ -9,6 +11,8 @@ import {
   getAnalyticsProvider,
   getBackendAdapter,
   getBillingAdapter,
+  getBiometricProvider,
+  getFeatureFlagProvider,
   getFileStorageProvider,
   getNetworkProvider,
   getNotificationProvider,
@@ -34,5 +38,11 @@ export const serviceProviders = {
   },
   get network(): NetworkProvider {
     return getNetworkProvider();
+  },
+  get featureFlags(): FeatureFlagProvider {
+    return getFeatureFlagProvider();
+  },
+  get biometrics(): BiometricProvider {
+    return getBiometricProvider();
   },
 };
