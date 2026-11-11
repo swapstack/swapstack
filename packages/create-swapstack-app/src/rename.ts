@@ -1,3 +1,8 @@
+import type {
+  AuthProviderOption,
+  BillingProviderOption,
+  DataProviderOption,
+} from './args.js';
 import type { StylePreset, ThemePreset } from './themes.js';
 import { existsSync } from 'node:fs';
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -11,6 +16,9 @@ export type RenameOptions = {
   androidPackage: string;
   theme?: ThemePreset;
   style?: StylePreset;
+  authProvider?: AuthProviderOption;
+  dataProvider?: DataProviderOption;
+  billingProvider?: BillingProviderOption;
 };
 
 export function slugify(value: string): string {
@@ -297,6 +305,24 @@ export async function renameAppFiles(
   if (existsSync(examplePath)) {
     exampleContent = await readFile(examplePath, 'utf8');
     exampleContent = updateEnvContent(exampleContent, identity);
+    if (options.authProvider) {
+      exampleContent = exampleContent.replace(
+        /^EXPO_PUBLIC_AUTH_PROVIDER=.*$/m,
+        `EXPO_PUBLIC_AUTH_PROVIDER=${options.authProvider}`,
+      );
+    }
+    if (options.dataProvider) {
+      exampleContent = exampleContent.replace(
+        /^EXPO_PUBLIC_DATA_PROVIDER=.*$/m,
+        `EXPO_PUBLIC_DATA_PROVIDER=${options.dataProvider}`,
+      );
+    }
+    if (options.billingProvider) {
+      exampleContent = exampleContent.replace(
+        /^EXPO_PUBLIC_BILLING_PROVIDER=.*$/m,
+        `EXPO_PUBLIC_BILLING_PROVIDER=${options.billingProvider}`,
+      );
+    }
     await writeFile(examplePath, exampleContent, 'utf8');
   }
 

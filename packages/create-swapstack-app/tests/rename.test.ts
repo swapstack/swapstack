@@ -17,6 +17,11 @@ import {
   validateIosBundleId,
   validateUrlScheme,
 } from '../src/rename.js';
+import {
+  buildCliCommandFromStudio,
+  buildStudioHtml,
+  validateStudioRequest,
+} from '../src/ui-server.js';
 
 describe('identifier validators', () => {
   it('validates iOS bundle IDs strictly', () => {
@@ -270,5 +275,55 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
 
     const updatedInput = readFileSync(path.join(tempDir, 'src/components/ui/input.tsx'), 'utf8');
     assert.match(updatedInput, /rounded-full/);
+  });
+
+  it('writes selected --auth, --data, and --billing providers into .env and .env.example', async () => {
+    writeFileSync(
+      path.join(tempDir, '.env.example'),
+      `APP_NAME=Swapstack\nAPP_SLUG=swapstack\nAPP_SCHEME=swapstack\nIOS_BUNDLE_ID=com.swapstack.app\nANDROID_PACKAGE=com.swapstack.app\nEXPO_PUBLIC_AUTH_PROVIDER=mock\nEXPO_PUBLIC_DATA_PROVIDER=mock\nEXPO_PUBLIC_BILLING_PROVIDER=mock\n`,
+    );
+
+    await renameAppFiles(tempDir, {
+      name: 'Studio App',
+      iosBundleId: 'com.acme.studio',
+      androidPackage: 'com.acme.studio',
+      authProvider: 'clerk',
+      dataProvider: 'firebase',
+      billingProvider: 'revenuecat',
+    });
+
+    const envOut = readFileSync(path.join(tempDir, '.env'), 'utf8');
+    assert.match(envOut, /EXPO_PUBLIC_AUTH_PROVIDER=clerk/);
+    assert.match(envOut, /EXPO_PUBLIC_DATA_PROVIDER=firebase/);
+    assert.match(envOut, /EXPO_PUBLIC_BILLING_PROVIDER=revenuecat/);
+  });
+
+  it('validates Studio requests and generates CLI commands and HTML', () => {
+    const valid = validateStudioRequest({
+      targetDir: 'my-studio-app',
+      name: 'My Studio App',
+      bundleId: 'com.acme.studio',
+      theme: 'cobalt',
+      style: 'editorial',
+      authProvider: 'supabase',
+      dataProvider: 'supabase',
+      billingProvider: 'revenuecat',
+      install: true,
+      git: true,
+    });
+    assert.equal(valid.ok, true);
+    assert.ok(valid.data);
+
+    const cmd = buildCliCommandFromStudio(valid.data);
+    assert.match(cmd, /npx create-swapstack-app my-studio-app/);
+    assert.match(cmd, /--theme cobalt/);
+    assert.match(cmd, /--style editorial/);
+    assert.match(cmd, /--auth supabase/);
+    assert.match(cmd, /--data supabase/);
+    assert.match(cmd, /--billing revenuecat/);
+
+    const html = buildStudioHtml({ name: 'Custom Studio' });
+    assert.match(html, /Swapstack Setup Studio/);
+    assert.match(html, /Custom Studio/);
   });
 });

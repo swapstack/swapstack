@@ -1,6 +1,27 @@
 import type { StylePreset, ThemePreset } from './themes.js';
 import { STYLE_PRESETS, THEME_PRESETS, validateStylePreset, validateThemePreset } from './themes.js';
 
+export const AUTH_PROVIDERS = ['mock', 'supabase', 'firebase', 'clerk'] as const;
+export type AuthProviderOption = typeof AUTH_PROVIDERS[number];
+
+export const DATA_PROVIDERS = ['mock', 'supabase', 'firebase'] as const;
+export type DataProviderOption = typeof DATA_PROVIDERS[number];
+
+export const BILLING_PROVIDERS = ['mock', 'revenuecat'] as const;
+export type BillingProviderOption = typeof BILLING_PROVIDERS[number];
+
+export function validateAuthProvider(value: string): value is AuthProviderOption {
+  return (AUTH_PROVIDERS as readonly string[]).includes(value);
+}
+
+export function validateDataProvider(value: string): value is DataProviderOption {
+  return (DATA_PROVIDERS as readonly string[]).includes(value);
+}
+
+export function validateBillingProvider(value: string): value is BillingProviderOption {
+  return (BILLING_PROVIDERS as readonly string[]).includes(value);
+}
+
 export type ParsedArgs = {
   targetDir?: string;
   name?: string;
@@ -8,6 +29,10 @@ export type ParsedArgs = {
   androidPackage?: string;
   theme?: ThemePreset;
   style?: StylePreset;
+  authProvider?: AuthProviderOption;
+  dataProvider?: DataProviderOption;
+  billingProvider?: BillingProviderOption;
+  ui: boolean;
   install: boolean;
   git: boolean;
   yes: boolean;
@@ -40,6 +65,7 @@ function getOptionValue(
 
 export function parseArgs(args: string[]): ParsedArgs {
   const parsed: ParsedArgs = {
+    ui: false,
     install: true,
     git: true,
     yes: false,
@@ -60,6 +86,9 @@ export function parseArgs(args: string[]): ParsedArgs {
     }
     else if (arg === '--yes' || arg === '-y') {
       parsed.yes = true;
+    }
+    else if (arg === '--ui') {
+      parsed.ui = true;
     }
     else if (arg === '--no-install') {
       parsed.install = false;
@@ -129,6 +158,39 @@ export function parseArgs(args: string[]): ParsedArgs {
         );
       }
       parsed.style = val;
+      i = res.nextIndex;
+    }
+    else if (arg === '--auth' || arg.startsWith('--auth=')) {
+      const res = getOptionValue(args, i, arg);
+      const val = res.value.toLowerCase();
+      if (!validateAuthProvider(val)) {
+        throw new Error(
+          `Invalid --auth "${res.value}". Valid options: ${AUTH_PROVIDERS.join(', ')}`,
+        );
+      }
+      parsed.authProvider = val;
+      i = res.nextIndex;
+    }
+    else if (arg === '--data' || arg.startsWith('--data=')) {
+      const res = getOptionValue(args, i, arg);
+      const val = res.value.toLowerCase();
+      if (!validateDataProvider(val)) {
+        throw new Error(
+          `Invalid --data "${res.value}". Valid options: ${DATA_PROVIDERS.join(', ')}`,
+        );
+      }
+      parsed.dataProvider = val;
+      i = res.nextIndex;
+    }
+    else if (arg === '--billing' || arg.startsWith('--billing=')) {
+      const res = getOptionValue(args, i, arg);
+      const val = res.value.toLowerCase();
+      if (!validateBillingProvider(val)) {
+        throw new Error(
+          `Invalid --billing "${res.value}". Valid options: ${BILLING_PROVIDERS.join(', ')}`,
+        );
+      }
+      parsed.billingProvider = val;
       i = res.nextIndex;
     }
     else if (arg.startsWith('-')) {

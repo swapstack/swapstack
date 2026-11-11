@@ -1410,6 +1410,59 @@ a:hover {
   max-width: 92%;
 }
 
+/* Visual App Setup Builder */
+.builder-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.builder-card {
+  border-radius: var(--radius-xl);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.builder-step-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.builder-inputs-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.builder-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted-fg);
+  margin-bottom: 5px;
+}
+
+.builder-input,
+.builder-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 11px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background-color: var(--bg-subtle);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
 /* Footer */
 .site-footer {
   padding: 48px 0;
@@ -1437,6 +1490,8 @@ a:hover {
   .hero-grid,
   .workbench-grid,
   .examples-workbench,
+  .builder-grid,
+  .builder-inputs-row,
   .arch-layer,
   .docs-layout {
     grid-template-columns: minmax(0, 1fr);

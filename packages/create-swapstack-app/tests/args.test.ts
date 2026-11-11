@@ -66,6 +66,26 @@ describe('argument parsing', () => {
     assert.throws(() => parseArgs(['--style=glass']), /Invalid --style "glass"/);
   });
 
+  it('parses --ui, --auth, --data, and --billing flags and rejects invalid providers', () => {
+    const parsed = parseArgs([
+      'studio-app',
+      '--ui',
+      '--auth',
+      'clerk',
+      '--data=firebase',
+      '--billing',
+      'revenuecat',
+    ]);
+    assert.equal(parsed.ui, true);
+    assert.equal(parsed.authProvider, 'clerk');
+    assert.equal(parsed.dataProvider, 'firebase');
+    assert.equal(parsed.billingProvider, 'revenuecat');
+
+    assert.throws(() => parseArgs(['--auth', 'auth0']), /Invalid --auth "auth0"/);
+    assert.throws(() => parseArgs(['--data=mysql']), /Invalid --data "mysql"/);
+    assert.throws(() => parseArgs(['--billing', 'stripe']), /Invalid --billing "stripe"/);
+  });
+
   it('parses short flags', () => {
     const parsedHelp = parseArgs(['-h']);
     assert.equal(parsedHelp.help, true);
