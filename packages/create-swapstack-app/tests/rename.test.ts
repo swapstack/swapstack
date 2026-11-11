@@ -363,4 +363,35 @@ describe('studio helpers', () => {
     assert.equal(invalid.ok, false);
     assert.match(invalid.error ?? '', /Invalid blueprint "nope"/);
   });
+
+  it('renders all 5 live blueprint previews on the Studio phone canvas', () => {
+    const html = buildStudioHtml({ name: 'Preview Studio', template: 'pulse' });
+
+    // Verify all 5 blueprint view containers exist
+    assert.match(html, /id="p-view-default"/);
+    assert.match(html, /id="p-view-pulse"/);
+    assert.match(html, /id="p-view-memostack"/);
+    assert.match(html, /id="p-view-promptbox"/);
+    assert.match(html, /id="p-view-splitledger"/);
+
+    // Verify blueprint-specific UI elements and actions are present in the HTML
+    assert.match(html, /Pulse Workouts/);
+    assert.match(html, /id="p-pulse-count"/);
+    assert.match(html, /id="p-pulse-log-btn"/);
+
+    assert.match(html, /Study Decks/);
+    assert.match(html, /id="p-memo-flip-card"/);
+    assert.match(html, /id="p-memo-flip-btn"/);
+
+    assert.match(html, /PromptBox AI/);
+    assert.match(html, /p-chat-user/);
+    assert.match(html, /id="p-prompt-send-btn"/);
+
+    assert.match(html, /Lisbon Trip/);
+    assert.match(html, /id="p-split-alex"/);
+    assert.match(html, /id="p-split-add-btn"/);
+
+    // Verify dynamic switching script logic is embedded
+    assert.match(html, /document\.getElementById\('p-view-' \+ v\)/);
+  });
 });
