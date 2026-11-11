@@ -1,6 +1,8 @@
 import type {
+  AiProvider,
   AnalyticsProvider,
   BiometricProvider,
+  ErrorReporterProvider,
   FeatureFlagProvider,
   FileStorageProvider,
   NetworkProvider,
@@ -8,10 +10,12 @@ import type {
 } from '@/core';
 import type { BackendAdapter, BillingAdapter } from '@/lib/providers/registry';
 import {
+  getAiProvider,
   getAnalyticsProvider,
   getBackendAdapter,
   getBillingAdapter,
   getBiometricProvider,
+  getErrorReporterProvider,
   getFeatureFlagProvider,
   getFileStorageProvider,
   getNetworkProvider,
@@ -44,5 +48,11 @@ export const serviceProviders = {
   },
   get biometrics(): BiometricProvider {
     return getBiometricProvider();
+  },
+  get ai(): AiProvider {
+    return getAiProvider();
+  },
+  get errorReporter(): ErrorReporterProvider {
+    return getErrorReporterProvider();
   },
 };

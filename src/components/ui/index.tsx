@@ -8,6 +8,7 @@ export * from './card';
 export * from './checkbox';
 export { default as colors } from './colors';
 export * from './divider';
+export * from './error-boundary';
 export * from './focus-aware-status-bar';
 export * from './icons';
 export * from './image';
