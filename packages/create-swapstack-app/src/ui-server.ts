@@ -5,6 +5,7 @@ import type {
   DataProviderOption,
   ParsedArgs,
 } from './args.js';
+import type { BlueprintPreset } from './blueprints.js';
 import type { StylePreset, ThemePreset } from './themes.js';
 import { exec } from 'node:child_process';
 import { createServer } from 'node:http';
@@ -14,6 +15,7 @@ import {
   validateBillingProvider,
   validateDataProvider,
 } from './args.js';
+import { BLUEPRINT_PRESETS, validateBlueprintPreset } from './blueprints.js';
 import {
   validateAndroidPackage,
   validateAppName,
@@ -27,6 +29,7 @@ export type StudioScaffoldRequest = {
   bundleId: string;
   theme: ThemePreset;
   style: StylePreset;
+  template: BlueprintPreset;
   authProvider: AuthProviderOption;
   dataProvider: DataProviderOption;
   billingProvider: BillingProviderOption;
@@ -69,6 +72,13 @@ export function validateStudioRequest(payload: Partial<StudioScaffoldRequest>): 
   if (!validateStylePreset(style)) {
     return { ok: false, error: `Invalid UI style preset "${style}".` };
   }
+  const template = (payload.template ?? 'default').toLowerCase();
+  if (!validateBlueprintPreset(template)) {
+    return {
+      ok: false,
+      error: `Invalid blueprint "${template}". Valid options: ${BLUEPRINT_PRESETS.join(', ')}.`,
+    };
+  }
   const authProvider = (payload.authProvider ?? 'mock').toLowerCase();
   if (!validateAuthProvider(authProvider)) {
     return { ok: false, error: `Invalid auth provider "${authProvider}".` };
@@ -90,6 +100,7 @@ export function validateStudioRequest(payload: Partial<StudioScaffoldRequest>): 
       bundleId,
       theme,
       style,
+      template,
       authProvider,
       dataProvider,
       billingProvider,
@@ -108,6 +119,9 @@ export function buildCliCommandFromStudio(req: StudioScaffoldRequest): string {
     `--theme ${req.theme}`,
     `--style ${req.style}`,
   ];
+  if (req.template !== 'default') {
+    parts.push(`--template ${req.template}`);
+  }
   if (req.authProvider !== 'mock') {
     parts.push(`--auth ${req.authProvider}`);
   }
@@ -308,6 +322,16 @@ function buildStudioBodyHtml(defaultDir: string, defaultName: string, defaultBun
             </select>
           </div>
         </div>
+        <div style="margin-top:14px;">
+          <label class="field" for="f-template">Starter Blueprint</label>
+          <select class="select-input" id="f-template">
+            <option value="default">default (auth + profile + paywall)</option>
+            <option value="pulse">pulse (habit &amp; workout tracker)</option>
+            <option value="memostack">memostack (spaced-repetition flashcards)</option>
+            <option value="promptbox">promptbox (AI prompt threads)</option>
+            <option value="splitledger">splitledger (group expense splitter)</option>
+          </select>
+        </div>
         <div style="display:flex;gap:20px;margin-top:14px;font-size:13px;">
           <label><input type="checkbox" id="f-git" checked /> Initialize Git repository</label>
           <label><input type="checkbox" id="f-install" checked /> Run <code>pnpm install</code></label>
@@ -330,7 +354,7 @@ function buildStudioBodyHtml(defaultDir: string, defaultName: string, defaultBun
           <div style="font-size:12px;opacity:0.75;margin-top:2px;" id="p-sub">${defaultBundle}</div>
           <div class="p-card" id="p-card-1">
             <div style="font-size:12.5px;font-weight:700;">Resolved Service Stack</div>
-            <div style="font-size:11.5px;opacity:0.8;margin-top:4px;font-family:monospace;" id="p-stack">auth: mock · data: mock · billing: mock</div>
+            <div style="font-size:11.5px;opacity:0.8;margin-top:4px;font-family:monospace;" id="p-stack">auth: mock · data: mock · billing: mock · blueprint: default</div>
           </div>
           <div class="p-card" id="p-card-2">
             <div style="font-size:12.5px;font-weight:700;">Design System Tokens</div>
@@ -351,8 +375,9 @@ function buildStudioScriptHtml(defaults: {
   defaultAuth: string;
   defaultData: string;
   defaultBilling: string;
+  defaultTemplate: string;
 }): string {
-  const { defaultTheme, defaultStyle, defaultAuth, defaultData, defaultBilling } = defaults;
+  const { defaultTheme, defaultStyle, defaultAuth, defaultData, defaultBilling, defaultTemplate } = defaults;
   return `  <script>
     const themes = {
       matcha: { bg: '#f7faf6', fg: '#0f2419', card: '#ffffff', border: '#cfe0cb', primary: '#143d29', primaryFg: '#ffffff' },
@@ -376,6 +401,7 @@ function buildStudioScriptHtml(defaults: {
     document.getElementById('f-auth').value = '${defaultAuth}';
     document.getElementById('f-data').value = '${defaultData}';
     document.getElementById('f-billing').value = '${defaultBilling}';
+    document.getElementById('f-template').value = '${defaultTemplate}';
 
     function render() {
       const dir = document.getElementById('f-dir').value.trim() || 'my-app';
@@ -384,6 +410,7 @@ function buildStudioScriptHtml(defaults: {
       const auth = document.getElementById('f-auth').value;
       const data = document.getElementById('f-data').value;
       const billing = document.getElementById('f-billing').value;
+      const template = document.getElementById('f-template').value;
       const git = document.getElementById('f-git').checked;
       const install = document.getElementById('f-install').checked;
 
@@ -421,7 +448,7 @@ function buildStudioScriptHtml(defaults: {
 
       document.getElementById('p-title').textContent = name;
       document.getElementById('p-sub').textContent = bundle;
-      document.getElementById('p-stack').textContent = 'auth: ' + auth + ' · data: ' + data + ' · billing: ' + billing;
+      document.getElementById('p-stack').textContent = 'auth: ' + auth + ' · data: ' + data + ' · billing: ' + billing + ' · blueprint: ' + template;
       document.getElementById('p-design').textContent = 'Theme: ' + state.theme + ' · Style: ' + state.style;
 
       const parts = [
@@ -432,6 +459,7 @@ function buildStudioScriptHtml(defaults: {
         '--theme ' + state.theme,
         '--style ' + state.style,
       ];
+      if (template !== 'default') parts.push('--template ' + template);
       if (auth !== 'mock') parts.push('--auth ' + auth);
       if (data !== 'mock') parts.push('--data ' + data);
       if (billing !== 'mock') parts.push('--billing ' + billing);
@@ -447,7 +475,7 @@ function buildStudioScriptHtml(defaults: {
     document.querySelectorAll('[data-style]').forEach((b) => {
       b.addEventListener('click', () => { state.style = b.getAttribute('data-style'); render(); });
     });
-    ['f-dir', 'f-name', 'f-bundle', 'f-auth', 'f-data', 'f-billing', 'f-git', 'f-install'].forEach((id) => {
+    ['f-dir', 'f-name', 'f-bundle', 'f-auth', 'f-data', 'f-billing', 'f-template', 'f-git', 'f-install'].forEach((id) => {
       document.getElementById(id).addEventListener('input', render);
       document.getElementById(id).addEventListener('change', render);
     });
@@ -475,6 +503,7 @@ function buildStudioScriptHtml(defaults: {
             authProvider: document.getElementById('f-auth').value,
             dataProvider: document.getElementById('f-data').value,
             billingProvider: document.getElementById('f-billing').value,
+            template: document.getElementById('f-template').value,
             git: document.getElementById('f-git').checked,
             install: document.getElementById('f-install').checked,
           }),
@@ -509,6 +538,7 @@ export function buildStudioHtml(initial: Partial<ParsedArgs> = {}): string {
   const defaultAuth = initial.authProvider ?? 'mock';
   const defaultData = initial.dataProvider ?? 'mock';
   const defaultBilling = initial.billingProvider ?? 'mock';
+  const defaultTemplate = initial.template ?? 'default';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -520,7 +550,7 @@ export function buildStudioHtml(initial: Partial<ParsedArgs> = {}): string {
 </head>
 <body>
 ${buildStudioBodyHtml(defaultDir, defaultName, defaultBundle)}
-${buildStudioScriptHtml({ defaultTheme, defaultStyle, defaultAuth, defaultData, defaultBilling })}
+${buildStudioScriptHtml({ defaultTheme, defaultStyle, defaultAuth, defaultData, defaultBilling, defaultTemplate })}
 </body>
 </html>`;
 }
