@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Platform } from 'react-native';
 import { Button, Text } from '@/components/ui';
 import { MockAuthProvider } from '@/core';
 import * as providers from '@/lib/providers';
@@ -96,6 +97,32 @@ describe('auth session provider', () => {
     });
     expect(screen.getByText('Session restoration timed out. Please try again.')).toBeOnTheScreen();
     expect(onReady).toHaveBeenCalled();
+  });
+
+  it('extends restore timeout on web platform to prevent reload timeouts', () => {
+    jest.useFakeTimers();
+    const originalPlatform = Platform.OS;
+    try {
+      Platform.OS = 'web';
+      const provider = new MockAuthProvider();
+      jest.spyOn(provider, 'getSession').mockImplementation(() => new Promise(() => {}));
+      render(<AuthSessionProvider provider={provider}><SessionView /></AuthSessionProvider>);
+
+      act(() => {
+        jest.advanceTimersByTime(5000);
+      });
+      // Should not timeout at 5000ms on web
+      expect(screen.queryByText('Session restoration timed out. Please try again.')).not.toBeOnTheScreen();
+
+      act(() => {
+        jest.advanceTimersByTime(7000);
+      });
+      // Times out at 12000ms on web
+      expect(screen.getByText('Session restoration timed out. Please try again.')).toBeOnTheScreen();
+    }
+    finally {
+      Platform.OS = originalPlatform;
+    }
   });
 
   it('handles provider resolution failures without crashing', async () => {

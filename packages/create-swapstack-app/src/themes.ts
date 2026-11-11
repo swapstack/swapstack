@@ -164,6 +164,8 @@ export function validateStylePreset(value?: string): value is StylePreset {
 export function updateGlobalCssTokens(source: string, theme: ThemePreset): string {
   const t = THEME_TOKEN_MAP[theme];
   const lightBlock = `    @variant light {
+      --color-primary: ${t.primary};
+      --color-primary-foreground: #ffffff;
       --color-background: ${t.background};
       --color-foreground: ${t.foreground};
       --color-card: ${t.card};
@@ -184,6 +186,7 @@ export function updateGlobalCssTokens(source: string, theme: ThemePreset): strin
 
   // Also update the @theme default semantic variables so light-mode fallback matches
   updated = updated
+    .replace(/--color-primary:\s*#[0-9a-fA-F]{6};/, `--color-primary: ${t.primary};`)
     .replace(/--color-background:\s*#[0-9a-fA-F]{6};/, `--color-background: ${t.background};`)
     .replace(/--color-foreground:\s*#[0-9a-fA-F]{6};/, `--color-foreground: ${t.foreground};`)
     .replace(/--color-card:\s*#[0-9a-fA-F]{6};/, `--color-card: ${t.card};`)
@@ -231,6 +234,18 @@ export async function applyThemeAndStyle(
     if (existsSync(colorsJsPath)) {
       const colorsSource = await readFile(colorsJsPath, 'utf8');
       await writeFile(colorsJsPath, updateColorsJsTokens(colorsSource, theme), 'utf8');
+    }
+
+    const buttonPath = path.join(targetDir, 'src/components/ui/button.tsx');
+    if (existsSync(buttonPath)) {
+      const buttonSource = await readFile(buttonPath, 'utf8');
+      const updatedButton = buttonSource.replace(
+        /container:\s*'bg-black dark:bg-white'/,
+        `container: 'bg-primary dark:bg-white'`,
+      );
+      if (updatedButton !== buttonSource) {
+        await writeFile(buttonPath, updatedButton, 'utf8');
+      }
     }
   }
 
