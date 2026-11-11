@@ -224,18 +224,147 @@ const STUDIO_CSS = `
   }
   .create-btn:disabled { opacity: 0.6; cursor: wait; }
   .phone-frame {
-    width: 310px; margin: 0 auto; border-radius: 36px; padding: 12px;
+    width: 320px; margin: 0 auto; border-radius: 36px; padding: 12px;
     background: #050507; border: 2px solid #2b2f3a; box-shadow: 0 24px 48px rgba(0,0,0,0.45);
   }
   .phone-canvas {
-    border-radius: 26px; padding: 20px 18px; min-height: 470px;
+    border-radius: 26px; padding: 20px 18px; min-height: 480px;
     display: flex; flex-direction: column; transition: all 0.2s ease;
   }
+  .p-view { display: flex; flex-direction: column; flex: 1; }
+  .p-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .p-badge-inline { font-size: 10px; padding: 2px 7px; border-radius: 999px; background: rgba(128,128,128,0.14); border: 1px solid rgba(128,128,128,0.25); font-weight: 600; }
+  .p-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+  .p-stat-box { padding: 8px 4px; text-align: center; transition: all 0.2s ease; }
+  .p-stat-val { font-size: 15px; font-weight: 700; display: block; }
+  .p-stat-lbl { font-size: 9.5px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; display: block; }
+  .p-chat-bubble { padding: 9px 12px; font-size: 11.5px; line-height: 1.4; margin-top: 8px; }
+  .p-chat-user { align-self: flex-end; max-width: 90%; }
+  .p-chat-ai { max-width: 95%; }
   .p-card { padding: 12px; margin-top: 10px; transition: all 0.2s ease; }
-  .p-btn { width: 100%; padding: 10px 14px; margin-top: 12px; border: none; font-weight: 700; text-align: center; }
+  .p-card-title-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; }
+  .p-card-desc { font-size: 11px; opacity: 0.8; margin-top: 4px; line-height: 1.35; }
+  .p-btn { width: 100%; padding: 10px 14px; margin-top: 12px; border: none; font-weight: 700; text-align: center; cursor: pointer; }
+  .p-btn-outline { width: 100%; padding: 8px 12px; margin-top: 10px; background: transparent; font-weight: 600; text-align: center; cursor: pointer; font-size: 12px; }
   .p-input { width: 100%; padding: 9px 12px; margin-top: 6px; font-size: 12px; }
   .status-msg { margin-top: 12px; padding: 12px 14px; border-radius: 10px; font-size: 13px; display: none; }
 `;
+
+function buildDefaultCanvasHtml(defaultName: string, defaultBundle: string): string {
+  return `          <div style="font-size:11px;opacity:0.7;font-family:monospace;" id="p-badge-default">(app)/index</div>
+          <div style="font-size:20px;font-weight:800;margin-top:6px;" id="p-title-default">${defaultName}</div>
+          <div style="font-size:12px;opacity:0.75;margin-top:2px;" id="p-sub-default">${defaultBundle}</div>
+          <div class="p-card" id="p-card-1">
+            <div style="font-size:12.5px;font-weight:700;">Resolved Service Stack</div>
+            <div style="font-size:11.5px;opacity:0.8;margin-top:4px;font-family:monospace;" id="p-stack">auth: mock · data: mock · billing: mock · blueprint: default</div>
+          </div>
+          <div class="p-card" id="p-card-2">
+            <div style="font-size:12.5px;font-weight:700;">Design System Tokens</div>
+            <div style="font-size:11.5px;opacity:0.8;margin-top:4px;" id="p-design">Theme: matcha · Style: minimal</div>
+          </div>
+          <div style="margin-top:14px;font-size:11.5px;font-weight:600;">Quick Sign-In Preview</div>
+          <div class="p-input" id="p-input">founder@swapstack.dev</div>
+          <div class="p-btn" id="p-btn">Continue to App</div>`;
+}
+
+function buildPulseCanvasHtml(): string {
+  return `          <div class="p-top-row">
+            <span style="font-size:11px;opacity:0.7;font-family:monospace;">(app)/index · Pulse</span>
+            <span class="p-badge-inline">Guest</span>
+          </div>
+          <div style="font-size:19px;font-weight:800;margin-top:4px;">Pulse Workouts</div>
+          <div style="font-size:11.5px;opacity:0.75;margin-top:2px;">Track daily training and build consistency.</div>
+          <div class="p-stat-row">
+            <div class="p-stat-box"><span class="p-stat-val" id="p-pulse-count">12</span><span class="p-stat-lbl">Workouts</span></div>
+            <div class="p-stat-box"><span class="p-stat-val" id="p-pulse-streak">5d</span><span class="p-stat-lbl">Streak</span></div>
+            <div class="p-stat-box"><span class="p-stat-val" id="p-pulse-mins">380m</span><span class="p-stat-lbl">Total Time</span></div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-title-row"><span>Upper Body Strength</span><span class="p-badge-inline">45m</span></div>
+            <div class="p-card-desc">Completed today · Logged via WorkoutRepository</div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-title-row"><span>Zone 2 Morning Run</span><span class="p-badge-inline">30m</span></div>
+            <div class="p-card-desc">Completed yesterday · 5.2 km</div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-title-row"><span>Pro Streak Analytics</span><span class="p-badge-inline">Locked</span></div>
+            <div class="p-card-desc">Unlock 90-day volume charts via BillingProvider.</div>
+          </div>
+          <button type="button" class="p-btn" id="p-pulse-log-btn" style="margin-top:auto;">+ Log 30m Workout</button>`;
+}
+
+function buildMemoStackCanvasHtml(): string {
+  return `          <div class="p-top-row">
+            <span style="font-size:11px;opacity:0.7;font-family:monospace;">(app)/index · MemoStack</span>
+            <span class="p-badge-inline" id="p-memo-quota">2 / 3 Free Decks</span>
+          </div>
+          <div style="font-size:19px;font-weight:800;margin-top:4px;">Study Decks</div>
+          <div style="font-size:11.5px;opacity:0.75;margin-top:2px;">Offline-first spaced repetition flashcards.</div>
+          <div class="p-card" id="p-memo-flip-card" style="cursor:pointer;margin-top:10px;">
+            <div class="p-card-title-row"><span class="p-badge-inline" id="p-memo-side">Active Card · Front</span><span style="font-size:10px;opacity:0.6;">Tap to flip</span></div>
+            <div style="margin-top:8px;font-size:12.5px;font-weight:600;line-height:1.4;" id="p-memo-text">Where are live vendor SDKs (Supabase, RevenueCat) allowed to be imported?</div>
+          </div>
+          <button type="button" class="p-btn-outline" id="p-memo-flip-btn">Flip Flashcard</button>
+          <div class="p-card">
+            <div class="p-card-title-row"><span>1. Architecture Contracts</span><span class="p-badge-inline">24 cards</span></div>
+            <div class="p-card-desc">18 mastered · Syncs on account upgrade</div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-title-row"><span>2. Expo Router Patterns</span><span class="p-badge-inline">16 cards</span></div>
+            <div class="p-card-desc">11 mastered · Session-protected routes</div>
+          </div>
+          <div class="p-card" style="margin-top:auto;">
+            <div class="p-card-title-row"><span>Unlimited Study Decks</span><span class="p-badge-inline">Pro Gate</span></div>
+            <div class="p-card-desc">Free tier includes 3 decks. Upgrade on /paywall.</div>
+          </div>`;
+}
+
+function buildPromptBoxCanvasHtml(): string {
+  return `          <div class="p-top-row">
+            <span style="font-size:11px;opacity:0.7;font-family:monospace;">(app)/index · PromptBox</span>
+            <span class="p-badge-inline" id="p-prompt-quota">4 / 5 Free Today</span>
+          </div>
+          <div style="font-size:19px;font-weight:800;margin-top:4px;">PromptBox AI</div>
+          <div style="font-size:11.5px;opacity:0.75;margin-top:2px;">Saved threads &amp; contract-tested replies.</div>
+          <div class="p-chat-bubble p-chat-user">Write a Supabase RLS policy so users can only update their own profile row.</div>
+          <div class="p-chat-bubble p-chat-ai">
+            <div style="font-weight:700;margin-bottom:3px;font-size:11px;">Assistant</div>
+            <div>Use <code style="font-size:10.5px;">auth.uid() = id</code> in your policy:<br/><span style="font-family:monospace;font-size:10px;opacity:0.9;">create policy "Users update own profile" on profiles for update using (auth.uid() = id);</span></div>
+          </div>
+          <div class="p-card" style="margin-top:10px;">
+            <div class="p-card-title-row"><span>Daily Message Quota</span><span class="p-badge-inline" id="p-prompt-badge">1 left</span></div>
+            <div class="p-card-desc" id="p-prompt-desc">Upgrade to Pro on /paywall for unlimited daily prompts &amp; thread export.</div>
+          </div>
+          <button type="button" class="p-btn" id="p-prompt-send-btn" style="margin-top:auto;">Send Test Prompt</button>`;
+}
+
+function buildSplitLedgerCanvasHtml(): string {
+  return `          <div class="p-top-row">
+            <span style="font-size:11px;opacity:0.7;font-family:monospace;">(app)/index · SplitLedger</span>
+            <span class="p-badge-inline">Guest Session</span>
+          </div>
+          <div style="font-size:19px;font-weight:800;margin-top:4px;">Lisbon Trip</div>
+          <div style="font-size:11.5px;opacity:0.75;margin-top:2px;">Shared group expenses &amp; net balances.</div>
+          <div class="p-stat-row">
+            <div class="p-stat-box"><span class="p-stat-val" id="p-split-alex" style="color:#22c55e;">+$42</span><span class="p-stat-lbl">Alex (You)</span></div>
+            <div class="p-stat-box"><span class="p-stat-val">-$24</span><span class="p-stat-lbl">Sam</span></div>
+            <div class="p-stat-box"><span class="p-stat-val">-$18</span><span class="p-stat-lbl">Jordan</span></div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-title-row"><span>Time Out Market Dinner</span><span id="p-split-dinner" style="font-weight:700;">$84.00</span></div>
+            <div class="p-card-desc">Paid by Alex · Split equally (3 ways)</div>
+          </div>
+          <div class="p-card">
+            <div style="font-size:12px;font-weight:700;">Guest Account Reminder</div>
+            <div class="p-card-desc">Link email &amp; password on /profile to keep this ledger across devices.</div>
+          </div>
+          <div class="p-card">
+            <div class="p-card-title-row"><span>CSV Settlement Export</span><span class="p-badge-inline">Locked</span></div>
+            <div class="p-card-desc">Requires active pro entitlement from BillingProvider.</div>
+          </div>
+          <button type="button" class="p-btn" id="p-split-add-btn" style="margin-top:auto;">+ Add $30 Expense</button>`;
+}
 
 function buildStudioBodyHtml(defaultDir: string, defaultName: string, defaultBundle: string): string {
   return `  <header class="topbar">
@@ -349,37 +478,29 @@ function buildStudioBodyHtml(defaultDir: string, defaultName: string, defaultBun
     <div style="position:sticky;top:76px;">
       <div class="phone-frame">
         <div class="phone-canvas" id="phone-canvas">
-          <div style="font-size:11px;opacity:0.7;font-family:monospace;" id="p-badge">(app)/index</div>
-          <div style="font-size:20px;font-weight:800;margin-top:6px;" id="p-title">${defaultName}</div>
-          <div style="font-size:12px;opacity:0.75;margin-top:2px;" id="p-sub">${defaultBundle}</div>
-          <div class="p-card" id="p-card-1">
-            <div style="font-size:12.5px;font-weight:700;">Resolved Service Stack</div>
-            <div style="font-size:11.5px;opacity:0.8;margin-top:4px;font-family:monospace;" id="p-stack">auth: mock · data: mock · billing: mock · blueprint: default</div>
+          <div class="p-view" id="p-view-default">
+${buildDefaultCanvasHtml(defaultName, defaultBundle)}
           </div>
-          <div class="p-card" id="p-card-2">
-            <div style="font-size:12.5px;font-weight:700;">Design System Tokens</div>
-            <div style="font-size:11.5px;opacity:0.8;margin-top:4px;" id="p-design">Theme: matcha · Style: minimal</div>
+          <div class="p-view" id="p-view-pulse" style="display:none;">
+${buildPulseCanvasHtml()}
           </div>
-          <div style="margin-top:14px;font-size:11.5px;font-weight:600;">Quick Sign-In Preview</div>
-          <div class="p-input" id="p-input">founder@swapstack.dev</div>
-          <div class="p-btn" id="p-btn">Continue to App</div>
+          <div class="p-view" id="p-view-memostack" style="display:none;">
+${buildMemoStackCanvasHtml()}
+          </div>
+          <div class="p-view" id="p-view-promptbox" style="display:none;">
+${buildPromptBoxCanvasHtml()}
+          </div>
+          <div class="p-view" id="p-view-splitledger" style="display:none;">
+${buildSplitLedgerCanvasHtml()}
+          </div>
         </div>
       </div>
     </div>
   </main>`;
 }
 
-function buildStudioScriptHtml(defaults: {
-  defaultTheme: string;
-  defaultStyle: string;
-  defaultAuth: string;
-  defaultData: string;
-  defaultBilling: string;
-  defaultTemplate: string;
-}): string {
-  const { defaultTheme, defaultStyle, defaultAuth, defaultData, defaultBilling, defaultTemplate } = defaults;
-  return `  <script>
-    const themes = {
+function buildStudioThemeConfigJs(): string {
+  return `    const themes = {
       matcha: { bg: '#f7faf6', fg: '#0f2419', card: '#ffffff', border: '#cfe0cb', primary: '#143d29', primaryFg: '#ffffff' },
       terracotta: { bg: '#fbf8f3', fg: '#241710', card: '#fffdf9', border: '#dfd3c0', primary: '#b84a27', primaryFg: '#ffffff' },
       cobalt: { bg: '#f6f9fc', fg: '#0c192c', card: '#ffffff', border: '#cbdcf0', primary: '#1d4ed8', primaryFg: '#ffffff' },
@@ -395,7 +516,69 @@ function buildStudioScriptHtml(defaults: {
       editorial: { radius: '2px', btnRadius: '2px', border: '1px solid', shadow: 'none', font: 'Georgia, serif' },
       brutalist: { radius: '6px', btnRadius: '6px', border: '2px solid', shadow: '3px 3px 0px', font: 'inherit' },
       terminal: { radius: '0px', btnRadius: '0px', border: '1px dashed', shadow: 'none', font: 'ui-monospace, monospace' },
-    };
+    };`;
+}
+
+function buildStudioInteractiveBlueprintJs(): string {
+  return `    let pulseCount = 12;
+    let pulseMins = 380;
+    const pulseLogBtn = document.getElementById('p-pulse-log-btn');
+    if (pulseLogBtn) {
+      pulseLogBtn.addEventListener('click', () => {
+        pulseCount += 1;
+        pulseMins += 30;
+        document.getElementById('p-pulse-count').textContent = String(pulseCount);
+        document.getElementById('p-pulse-mins').textContent = pulseMins + 'm';
+        document.getElementById('p-pulse-streak').textContent = '6d';
+      });
+    }
+
+    let memoFlipped = false;
+    function flipMemo() {
+      memoFlipped = !memoFlipped;
+      document.getElementById('p-memo-side').textContent = memoFlipped ? 'Active Card · Answer' : 'Active Card · Front';
+      document.getElementById('p-memo-text').textContent = memoFlipped
+        ? 'Only inside adapter modules under src/lib/providers/<vendor>/ — never in src/app/ screens.'
+        : 'Where are live vendor SDKs (Supabase, RevenueCat) allowed to be imported?';
+    }
+    const memoFlipBtn = document.getElementById('p-memo-flip-btn');
+    const memoCard = document.getElementById('p-memo-flip-card');
+    if (memoFlipBtn) memoFlipBtn.addEventListener('click', flipMemo);
+    if (memoCard) memoCard.addEventListener('click', flipMemo);
+
+    const promptSendBtn = document.getElementById('p-prompt-send-btn');
+    if (promptSendBtn) {
+      promptSendBtn.addEventListener('click', () => {
+        document.getElementById('p-prompt-quota').textContent = '5 / 5 Used';
+        document.getElementById('p-prompt-badge').textContent = 'Limit Reached';
+        document.getElementById('p-prompt-desc').textContent = 'Daily free limit (5/5) reached! Upgrade on /paywall for unlimited daily prompts.';
+      });
+    }
+
+    let splitAlex = 42;
+    let splitDinner = 84;
+    const splitAddBtn = document.getElementById('p-split-add-btn');
+    if (splitAddBtn) {
+      splitAddBtn.addEventListener('click', () => {
+        splitAlex += 20;
+        splitDinner += 30;
+        document.getElementById('p-split-alex').textContent = '+$' + splitAlex;
+        document.getElementById('p-split-dinner').textContent = '$' + splitDinner + '.00';
+      });
+    }`;
+}
+
+function buildStudioScriptHtml(defaults: {
+  defaultTheme: string;
+  defaultStyle: string;
+  defaultAuth: string;
+  defaultData: string;
+  defaultBilling: string;
+  defaultTemplate: string;
+}): string {
+  const { defaultTheme, defaultStyle, defaultAuth, defaultData, defaultBilling, defaultTemplate } = defaults;
+  return `  <script>
+${buildStudioThemeConfigJs()}
 
     let state = { theme: '${defaultTheme}', style: '${defaultStyle}' };
     document.getElementById('f-auth').value = '${defaultAuth}';
@@ -421,6 +604,12 @@ function buildStudioScriptHtml(defaults: {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-style') === state.style));
       });
 
+      const views = ['default', 'pulse', 'memostack', 'promptbox', 'splitledger'];
+      views.forEach((v) => {
+        const el = document.getElementById('p-view-' + v);
+        if (el) el.style.display = v === template ? 'flex' : 'none';
+      });
+
       const t = themes[state.theme] || themes.matcha;
       const s = styles[state.style] || styles.minimal;
       const canvas = document.getElementById('phone-canvas');
@@ -428,26 +617,55 @@ function buildStudioScriptHtml(defaults: {
       canvas.style.color = t.fg;
       canvas.style.fontFamily = s.font;
 
-      ['p-card-1', 'p-card-2'].forEach((id) => {
-        const el = document.getElementById(id);
+      const isBrutalist = state.style === 'brutalist';
+      const borderColor = isBrutalist ? t.fg : t.border;
+      const shadow = isBrutalist ? (s.shadow + ' ' + t.fg) : s.shadow;
+
+      document.querySelectorAll('#phone-canvas .p-card').forEach((el) => {
         el.style.background = t.card;
         el.style.borderRadius = s.radius;
-        el.style.border = s.border + ' ' + (state.style === 'brutalist' ? t.fg : t.border);
-        el.style.boxShadow = state.style === 'brutalist' ? (s.shadow + ' ' + t.fg) : s.shadow;
+        el.style.border = s.border + ' ' + borderColor;
+        el.style.boxShadow = shadow;
       });
 
-      const inp = document.getElementById('p-input');
-      inp.style.background = t.card;
-      inp.style.borderRadius = s.btnRadius;
-      inp.style.border = s.border + ' ' + (state.style === 'brutalist' ? t.fg : t.border);
+      document.querySelectorAll('#phone-canvas .p-stat-box').forEach((el) => {
+        el.style.background = t.card;
+        el.style.borderRadius = s.radius;
+        el.style.border = s.border + ' ' + borderColor;
+      });
 
-      const btn = document.getElementById('p-btn');
-      btn.style.background = t.primary;
-      btn.style.color = t.primaryFg;
-      btn.style.borderRadius = s.btnRadius;
+      document.querySelectorAll('#phone-canvas .p-input').forEach((inp) => {
+        inp.style.background = t.card;
+        inp.style.borderRadius = s.btnRadius;
+        inp.style.border = s.border + ' ' + borderColor;
+      });
 
-      document.getElementById('p-title').textContent = name;
-      document.getElementById('p-sub').textContent = bundle;
+      document.querySelectorAll('#phone-canvas .p-btn').forEach((btn) => {
+        btn.style.background = t.primary;
+        btn.style.color = t.primaryFg;
+        btn.style.borderRadius = s.btnRadius;
+      });
+
+      document.querySelectorAll('#phone-canvas .p-btn-outline').forEach((btn) => {
+        btn.style.borderRadius = s.btnRadius;
+        btn.style.border = s.border + ' ' + borderColor;
+        btn.style.color = t.fg;
+      });
+
+      document.querySelectorAll('#phone-canvas .p-chat-user').forEach((el) => {
+        el.style.background = t.primary;
+        el.style.color = t.primaryFg;
+        el.style.borderRadius = s.radius;
+      });
+
+      document.querySelectorAll('#phone-canvas .p-chat-ai').forEach((el) => {
+        el.style.background = t.card;
+        el.style.borderRadius = s.radius;
+        el.style.border = s.border + ' ' + borderColor;
+      });
+
+      document.getElementById('p-title-default').textContent = name;
+      document.getElementById('p-sub-default').textContent = bundle;
       document.getElementById('p-stack').textContent = 'auth: ' + auth + ' · data: ' + data + ' · billing: ' + billing + ' · blueprint: ' + template;
       document.getElementById('p-design').textContent = 'Theme: ' + state.theme + ' · Style: ' + state.style;
 
@@ -479,6 +697,8 @@ function buildStudioScriptHtml(defaults: {
       document.getElementById(id).addEventListener('input', render);
       document.getElementById(id).addEventListener('change', render);
     });
+
+${buildStudioInteractiveBlueprintJs()}
 
     document.getElementById('create-btn').addEventListener('click', async () => {
       const btn = document.getElementById('create-btn');

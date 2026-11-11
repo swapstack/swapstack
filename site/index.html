@@ -410,6 +410,15 @@
                   </select>
                 </div>
               </div>
+              <div id="builder-blueprint-info" style="margin-top: 10px; padding: 11px 14px; border-radius: var(--radius-md); background: var(--bg-subtle); border: 1px solid var(--border); font-size: 12.5px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <div>
+                  <span id="b-template-badge" class="mono" style="color: var(--primary); font-weight: 700; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); padding: 2px 7px; border-radius: 999px; font-size: 11px;">default</span>
+                  <span id="b-template-desc" style="color: var(--muted-fg); margin-left: 8px;">Baseline auth, profile, and paywall routes</span>
+                </div>
+                <a href="#hero" id="b-template-link" style="font-size: 11.5px; font-weight: 600; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                  View Live Preview &uarr;
+                </a>
+              </div>
             </div>
 
             <div>
@@ -1986,21 +1995,30 @@ export type LedgerRepository = {
       splitledger: 'App: SplitLedger',
     };
 
+    function activateExampleTab(key) {
+      const entry = examplesData[key];
+      if (!entry) return;
+      exampleTabs.forEach((t) => t.setAttribute('aria-selected', String(t.getAttribute('data-example-tab') === key)));
+      exampleContractPath.textContent = entry.path;
+      exampleContractCode.textContent = entry.contract;
+      examplePromptTitle.textContent = entry.promptTitle;
+      examplePromptCode.textContent = entry.prompt;
+      exampleCliCmd.textContent = entry.cli;
+      exPhoneLabel.textContent = exPhoneNames[key] || 'App Preview';
+      Object.entries(exPhoneViews).forEach(([k, view]) => {
+        view.classList.toggle('active', k === key);
+      });
+    }
+
     exampleTabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         const key = tab.getAttribute('data-example-tab');
-        const entry = examplesData[key];
-        if (!entry) return;
-        exampleTabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
-        exampleContractPath.textContent = entry.path;
-        exampleContractCode.textContent = entry.contract;
-        examplePromptTitle.textContent = entry.promptTitle;
-        examplePromptCode.textContent = entry.prompt;
-        exampleCliCmd.textContent = entry.cli;
-        exPhoneLabel.textContent = exPhoneNames[key] || 'App Preview';
-        Object.entries(exPhoneViews).forEach(([k, view]) => {
-          view.classList.toggle('active', k === key);
-        });
+        activateExampleTab(key);
+        const bTemplate = document.getElementById('b-template');
+        if (bTemplate && bTemplate.value !== key) {
+          bTemplate.value = key;
+          updateBuilderOutput();
+        }
       });
     });
 
@@ -2132,6 +2150,54 @@ export type LedgerRepository = {
       const fullCmd = parts.join(' ');
       document.getElementById('builder-cli-code').textContent = fullCmd;
       document.getElementById('cli-text').textContent = fullCmd;
+
+      const blueprintSummaries = {
+        default: {
+          badge: 'default',
+          desc: 'Baseline auth, profile, and paywall routes',
+          href: '#hero',
+          linkText: 'View Hero Preview &uarr;',
+        },
+        pulse: {
+          badge: 'pulse',
+          desc: 'Habit & workout tracker with streak analytics & WorkoutRepository',
+          href: '#app-examples',
+          linkText: 'View Live Preview &darr;',
+        },
+        memostack: {
+          badge: 'memostack',
+          desc: 'Offline flashcards with deck quota & DeckRepository',
+          href: '#app-examples',
+          linkText: 'View Live Preview &darr;',
+        },
+        promptbox: {
+          badge: 'promptbox',
+          desc: 'AI prompt threads with daily message quota & AssistantProvider',
+          href: '#app-examples',
+          linkText: 'View Live Preview &darr;',
+        },
+        splitledger: {
+          badge: 'splitledger',
+          desc: 'Group expense splitter with net balances & LedgerRepository',
+          href: '#app-examples',
+          linkText: 'View Live Preview &darr;',
+        },
+      };
+
+      const bp = blueprintSummaries[template] || blueprintSummaries.default;
+      const bBadge = document.getElementById('b-template-badge');
+      const bDesc = document.getElementById('b-template-desc');
+      const bLink = document.getElementById('b-template-link');
+      if (bBadge) bBadge.textContent = bp.badge;
+      if (bDesc) bDesc.textContent = bp.desc;
+      if (bLink) {
+        bLink.href = bp.href;
+        bLink.innerHTML = bp.linkText;
+      }
+
+      if (template !== 'default' && typeof activateExampleTab === 'function') {
+        activateExampleTab(template);
+      }
 
       const envLines = [
         `APP_NAME="${name}"`,
