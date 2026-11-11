@@ -257,6 +257,7 @@ async function run(): Promise<void> {
         androidPackage: studioReq.bundleId,
         theme: studioReq.theme,
         style: studioReq.style,
+        template: studioReq.template,
         authProvider: studioReq.authProvider,
         dataProvider: studioReq.dataProvider,
         billingProvider: studioReq.billingProvider,

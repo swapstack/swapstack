@@ -344,5 +344,23 @@ describe('studio helpers', () => {
     const html = buildStudioHtml({ name: 'Custom Studio' });
     assert.match(html, /Swapstack Setup Studio/);
     assert.match(html, /Custom Studio/);
+    assert.match(html, /id="f-template"/);
+    assert.doesNotMatch(cmd, /--template/);
+  });
+
+  it('accepts a blueprint in Studio requests and rejects unknown ones', () => {
+    const base = {
+      targetDir: 'pulse-app',
+      name: 'Pulse',
+      bundleId: 'com.acme.pulse',
+    };
+    const valid = validateStudioRequest({ ...base, template: 'pulse' });
+    assert.equal(valid.ok, true);
+    assert.ok(valid.data);
+    assert.match(buildCliCommandFromStudio(valid.data), /--template pulse/);
+
+    const invalid = validateStudioRequest({ ...base, template: 'nope' as never });
+    assert.equal(invalid.ok, false);
+    assert.match(invalid.error ?? '', /Invalid blueprint "nope"/);
   });
 });

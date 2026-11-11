@@ -395,6 +395,66 @@
                 </div>
               </div>
             </div>
+
+            <div>
+              <span class="builder-step-title">5. Starter Blueprint (<code class="mono">--template</code>)</span>
+              <div class="builder-inputs-row">
+                <div class="builder-field">
+                  <label for="b-template">Blueprint</label>
+                  <select id="b-template" class="builder-select">
+                    <option value="default">default (auth + profile + paywall)</option>
+                    <option value="pulse">pulse (habit &amp; workout tracker)</option>
+                    <option value="memostack">memostack (flashcards)</option>
+                    <option value="promptbox">promptbox (AI prompt threads)</option>
+                    <option value="splitledger">splitledger (expense splitter)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <span class="builder-step-title">6. Optional Services (<code class="mono">.env</code>)</span>
+              <div class="builder-inputs-row">
+                <div class="builder-field">
+                  <label for="b-storage">File Storage</label>
+                  <select id="b-storage" class="builder-select">
+                    <option value="mock">mock</option>
+                    <option value="supabase">supabase</option>
+                    <option value="firebase">firebase</option>
+                  </select>
+                </div>
+                <div class="builder-field">
+                  <label for="b-notifications">Push Notifications</label>
+                  <select id="b-notifications" class="builder-select">
+                    <option value="mock">mock</option>
+                    <option value="expo">expo</option>
+                  </select>
+                </div>
+                <div class="builder-field">
+                  <label for="b-analytics">Analytics</label>
+                  <select id="b-analytics" class="builder-select">
+                    <option value="mock">mock</option>
+                    <option value="posthog">posthog</option>
+                  </select>
+                </div>
+              </div>
+              <div class="builder-inputs-row">
+                <div class="builder-field">
+                  <label for="b-ai">AI</label>
+                  <select id="b-ai" class="builder-select">
+                    <option value="mock">mock</option>
+                    <option value="openai">openai</option>
+                  </select>
+                </div>
+                <div class="builder-field">
+                  <label for="b-error-reporter">Error Reporting</label>
+                  <select id="b-error-reporter" class="builder-select">
+                    <option value="mock">mock</option>
+                    <option value="sentry">sentry</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="example-code-stack">
@@ -2047,6 +2107,12 @@ export type LedgerRepository = {
       const auth = document.getElementById('b-auth').value;
       const data = document.getElementById('b-data').value;
       const billing = document.getElementById('b-billing').value;
+      const template = document.getElementById('b-template').value;
+      const storage = document.getElementById('b-storage').value;
+      const notifications = document.getElementById('b-notifications').value;
+      const analytics = document.getElementById('b-analytics').value;
+      const ai = document.getElementById('b-ai').value;
+      const errorReporter = document.getElementById('b-error-reporter').value;
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-app';
 
       const parts = [
@@ -2057,6 +2123,7 @@ export type LedgerRepository = {
         `--theme ${activeThemeKey}`,
         `--style ${activeStyleKey}`,
       ];
+      if (template !== 'default') parts.push(`--template ${template}`);
       if (auth !== 'mock') parts.push(`--auth ${auth}`);
       if (data !== 'mock') parts.push(`--data ${data}`);
       if (billing !== 'mock') parts.push(`--billing ${billing}`);
@@ -2076,11 +2143,16 @@ export type LedgerRepository = {
         `EXPO_PUBLIC_AUTH_PROVIDER=${auth}`,
         `EXPO_PUBLIC_DATA_PROVIDER=${data}`,
         `EXPO_PUBLIC_BILLING_PROVIDER=${billing}`,
+        `EXPO_PUBLIC_STORAGE_PROVIDER=${storage}`,
+        `EXPO_PUBLIC_NOTIFICATIONS_PROVIDER=${notifications}`,
+        `EXPO_PUBLIC_ANALYTICS_PROVIDER=${analytics}`,
+        `EXPO_PUBLIC_AI_PROVIDER=${ai}`,
+        `EXPO_PUBLIC_ERROR_REPORTER_PROVIDER=${errorReporter}`,
       ];
-      if (auth === 'supabase' || data === 'supabase') {
+      if (auth === 'supabase' || data === 'supabase' || storage === 'supabase') {
         envLines.push('', 'EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co', 'EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key');
       }
-      if (auth === 'firebase' || data === 'firebase') {
+      if (auth === 'firebase' || data === 'firebase' || storage === 'firebase') {
         envLines.push('', 'EXPO_PUBLIC_FIREBASE_API_KEY=AIzaSyYourFirebaseKey', 'EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project-id');
       }
       if (auth === 'clerk') {
@@ -2089,10 +2161,19 @@ export type LedgerRepository = {
       if (billing === 'revenuecat') {
         envLines.push('', 'EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY=appl_your_revenuecat_key');
       }
+      if (analytics === 'posthog') {
+        envLines.push('', 'EXPO_PUBLIC_POSTHOG_API_KEY=phc_your_posthog_key');
+      }
+      if (ai === 'openai') {
+        envLines.push('', '# Prefer a server-side proxy in production; EXPO_PUBLIC_* values ship in the app bundle.', 'EXPO_PUBLIC_OPENAI_API_KEY=sk-your-openai-key');
+      }
+      if (errorReporter === 'sentry') {
+        envLines.push('', 'EXPO_PUBLIC_SENTRY_DSN=https://public@o0.ingest.sentry.io/0');
+      }
       document.getElementById('builder-env-code').textContent = envLines.join('\n');
     }
 
-    ['b-dir', 'b-name', 'b-bundle', 'b-auth', 'b-data', 'b-billing'].forEach((id) => {
+    ['b-dir', 'b-name', 'b-bundle', 'b-auth', 'b-data', 'b-billing', 'b-template', 'b-storage', 'b-notifications', 'b-analytics', 'b-ai', 'b-error-reporter'].forEach((id) => {
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener('input', updateBuilderOutput);
