@@ -249,6 +249,7 @@ async function replaceTemplateNamespaces(directory: string, slug: string): Promi
       const source = await readFile(filePath, 'utf8');
       const renamed = source
         .replaceAll('swapstack.auth.session', `${slug}.auth.session`)
+        .replaceAll('swapstack.onboarding.seen', `${slug}.onboarding.seen`)
         .replaceAll('swapstack.supabase', `${slug}.supabase`)
         .replaceAll('swapstack.org', `${slug}.example`);
       if (renamed !== source) {
