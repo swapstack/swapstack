@@ -5,6 +5,7 @@ import type {
   DataRepository,
   EntitlementsChangeCallback,
   FileStorageProvider,
+  NetworkProvider,
   NotificationProvider,
   Profile,
   SessionStorage,
@@ -14,6 +15,7 @@ import {
   mockAuthProvider,
   mockBillingProvider,
   mockFileStorageProvider,
+  mockNetworkProvider,
   mockNotificationProvider,
   mockProfileRepository,
 } from '@/core';
@@ -29,7 +31,7 @@ import { createSupabaseAuthProvider, createSupabaseClient } from './supabase/aut
 import { createSupabaseProfileRepository } from './supabase/profile-repository';
 import { createSupabaseFileStorageProvider } from './supabase/storage-provider';
 
-export type ProviderKind = 'auth' | 'data' | 'billing' | 'storage' | 'notifications' | 'analytics';
+export type ProviderKind = 'auth' | 'data' | 'billing' | 'storage' | 'notifications' | 'analytics' | 'network';
 
 export type ProviderTypeMap = {
   readonly auth: AuthProvider;
@@ -38,6 +40,7 @@ export type ProviderTypeMap = {
   readonly storage: FileStorageProvider;
   readonly notifications: NotificationProvider;
   readonly analytics: AnalyticsProvider;
+  readonly network: NetworkProvider;
 };
 
 export type ProviderFactory<K extends ProviderKind> = () => ProviderTypeMap[K];
@@ -61,6 +64,7 @@ type RegistryStore = {
   readonly storage: Map<string, ProviderFactory<'storage'>>;
   readonly notifications: Map<string, ProviderFactory<'notifications'>>;
   readonly analytics: Map<string, ProviderFactory<'analytics'>>;
+  readonly network: Map<string, ProviderFactory<'network'>>;
 };
 
 type InstanceStore = {
@@ -70,6 +74,7 @@ type InstanceStore = {
   readonly storage: Map<string, FileStorageProvider>;
   readonly notifications: Map<string, NotificationProvider>;
   readonly analytics: Map<string, AnalyticsProvider>;
+  readonly network: Map<string, NetworkProvider>;
 };
 
 const registries: RegistryStore = {
@@ -79,6 +84,7 @@ const registries: RegistryStore = {
   storage: new Map(),
   notifications: new Map(),
   analytics: new Map(),
+  network: new Map(),
 };
 
 const instances: InstanceStore = {
@@ -88,6 +94,7 @@ const instances: InstanceStore = {
   storage: new Map(),
   notifications: new Map(),
   analytics: new Map(),
+  network: new Map(),
 };
 
 let cachedBackendAdapter: BackendAdapter | null = null;
@@ -143,6 +150,10 @@ export function register<K extends ProviderKind>(
       registries.analytics.set(normalized, factory as ProviderFactory<'analytics'>);
       instances.analytics.delete(normalized);
       break;
+    case 'network':
+      registries.network.set(normalized, factory as ProviderFactory<'network'>);
+      instances.network.delete(normalized);
+      break;
   }
 }
 
@@ -166,6 +177,9 @@ function getEnvProviderName(kind: ProviderKind): string {
       break;
     case 'analytics':
       envVal = process.env.EXPO_PUBLIC_ANALYTICS_PROVIDER;
+      break;
+    case 'network':
+      envVal = process.env.EXPO_PUBLIC_NETWORK_PROVIDER;
       break;
   }
 
@@ -197,6 +211,8 @@ function getCachedInstance<K extends ProviderKind>(
       return instances.notifications.get(name) as ProviderTypeMap[K] | undefined;
     case 'analytics':
       return instances.analytics.get(name) as ProviderTypeMap[K] | undefined;
+    case 'network':
+      return instances.network.get(name) as ProviderTypeMap[K] | undefined;
   }
 }
 
@@ -223,6 +239,9 @@ function cacheInstance<K extends ProviderKind>(
       break;
     case 'analytics':
       instances.analytics.set(name, instance as AnalyticsProvider);
+      break;
+    case 'network':
+      instances.network.set(name, instance as NetworkProvider);
       break;
   }
 }
@@ -274,6 +293,10 @@ export function getAnalyticsProvider(name?: string): AnalyticsProvider {
   return getProvider('analytics', name);
 }
 
+export function getNetworkProvider(name?: string): NetworkProvider {
+  return getProvider('network', name);
+}
+
 export function validateProviderConfig(): void {
   const kinds: readonly ProviderKind[] = [
     'auth',
@@ -282,6 +305,7 @@ export function validateProviderConfig(): void {
     'storage',
     'notifications',
     'analytics',
+    'network',
   ];
   const errors: string[] = [];
 
@@ -348,6 +372,7 @@ export function initDefaultProviders(): void {
   registries.storage.clear();
   registries.notifications.clear();
   registries.analytics.clear();
+  registries.network.clear();
 
   instances.auth.clear();
   instances.data.clear();
@@ -355,6 +380,7 @@ export function initDefaultProviders(): void {
   instances.storage.clear();
   instances.notifications.clear();
   instances.analytics.clear();
+  instances.network.clear();
 
   cachedBackendAdapter = null;
   cachedBillingAdapter = null;
@@ -366,6 +392,7 @@ export function initDefaultProviders(): void {
   register('storage', 'mock', () => mockFileStorageProvider);
   register('notifications', 'mock', () => mockNotificationProvider);
   register('analytics', 'mock', () => mockAnalyticsProvider);
+  register('network', 'mock', () => mockNetworkProvider);
   register('auth', 'supabase', () => createSupabaseAuthProvider({ client: getSharedSupabaseClient() }));
   register('data', 'supabase', () => createSupabaseProfileRepository(getSharedSupabaseClient()));
   register('storage', 'supabase', () => createSupabaseFileStorageProvider());

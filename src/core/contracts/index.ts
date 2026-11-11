@@ -7,4 +7,5 @@ export {
 } from './billing-provider.contract';
 export { describeDataRepositoryContract } from './data-repository.contract';
 export { describeFileStorageProviderContract } from './file-storage-provider.contract';
+export { describeNetworkProviderContract } from './network-provider.contract';
 export { describeNotificationProviderContract } from './notification-provider.contract';
