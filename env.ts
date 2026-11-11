@@ -51,6 +51,25 @@ function validateStrictEnv(): void {
     }
   }
 
+  if (authProvider === 'firebase' || dataProvider === 'firebase') {
+    const firebaseKey = process.env.EXPO_PUBLIC_FIREBASE_API_KEY?.trim();
+    const firebaseProjectId = process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID?.trim();
+    if (!firebaseKey || !firebaseProjectId) {
+      errors.push(
+        'The Firebase provider is selected but EXPO_PUBLIC_FIREBASE_API_KEY or EXPO_PUBLIC_FIREBASE_PROJECT_ID is missing.',
+      );
+    }
+  }
+
+  if (authProvider === 'clerk') {
+    const clerkKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim();
+    if (!clerkKey) {
+      errors.push(
+        'The Clerk provider is selected but EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY is missing.',
+      );
+    }
+  }
+
   if (errors.length > 0) {
     throw new Error(`Environment validation failed:\n${errors.join('\n')}`);
   }
