@@ -11,5 +11,6 @@ export { describeDataRepositoryContract } from './data-repository.contract';
 export { describeErrorReporterProviderContract } from './error-reporter-provider.contract';
 export { describeFeatureFlagProviderContract } from './feature-flag-provider.contract';
 export { describeFileStorageProviderContract } from './file-storage-provider.contract';
+export { describeI18nProviderContract } from './i18n-provider.contract';
 export { describeNetworkProviderContract } from './network-provider.contract';
 export { describeNotificationProviderContract } from './notification-provider.contract';

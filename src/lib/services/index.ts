@@ -5,6 +5,7 @@ import type {
   ErrorReporterProvider,
   FeatureFlagProvider,
   FileStorageProvider,
+  I18nProvider,
   NetworkProvider,
   NotificationProvider,
 } from '@/core';
@@ -18,6 +19,7 @@ import {
   getErrorReporterProvider,
   getFeatureFlagProvider,
   getFileStorageProvider,
+  getI18nProvider,
   getNetworkProvider,
   getNotificationProvider,
 } from '@/lib/providers/registry';
@@ -54,5 +56,8 @@ export const serviceProviders = {
   },
   get errorReporter(): ErrorReporterProvider {
     return getErrorReporterProvider();
+  },
+  get i18n(): I18nProvider {
+    return getI18nProvider();
   },
 };

@@ -4,6 +4,7 @@ import {
   mockAnalyticsProvider,
   mockBillingProvider,
   mockBiometricProvider,
+  mockI18nProvider,
   mockNotificationProvider,
 } from '@/core';
 import { screen, setup, waitFor } from '@/lib/test-utils';
@@ -17,11 +18,12 @@ describe('settings screen', () => {
     mockBillingProvider.reset();
     mockNotificationProvider.reset();
     mockBiometricProvider.reset();
+    mockI18nProvider.reset();
     await mockAnalyticsProvider.reset();
     mockAnalyticsProvider.setEnabled(true);
   });
 
-  it('switches themes, enables notifications, and toggles analytics and biometrics', async () => {
+  it('switches themes, locales, notifications, analytics, and biometrics', async () => {
     const { user } = setup(<SettingsScreen />);
 
     expect(await screen.findByText('Settings')).toBeOnTheScreen();
@@ -30,6 +32,10 @@ describe('settings screen', () => {
 
     await user.press(screen.getByTestId('theme-dark-button'));
     expect(await screen.findByText('Active theme: dark')).toBeOnTheScreen();
+
+    await user.press(screen.getByTestId('locale-es-button'));
+    expect(await screen.findByText('Active locale: es')).toBeOnTheScreen();
+    expect(screen.getByText('Configuración')).toBeOnTheScreen();
 
     await user.press(screen.getByTestId('enable-notifications-button'));
     await waitFor(() => {

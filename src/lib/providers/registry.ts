@@ -9,6 +9,7 @@ import type {
   ErrorReporterProvider,
   FeatureFlagProvider,
   FileStorageProvider,
+  I18nProvider,
   NetworkProvider,
   NotificationProvider,
   Profile,
@@ -23,18 +24,22 @@ import {
   mockErrorReporterProvider,
   mockFeatureFlagProvider,
   mockFileStorageProvider,
+  mockI18nProvider,
   mockNetworkProvider,
   mockNotificationProvider,
   mockProfileRepository,
 } from '@/core';
 import { SecureSessionStorage } from '@/lib/auth/secure-session-storage';
 import { createClerkAuthProvider } from './clerk/auth-provider';
+import { createExpoBiometricProvider } from './expo-biometrics/biometric-provider';
 import { createExpoNotificationProvider } from './expo-notifications/notification-provider';
 import { createFirebaseAuthProvider } from './firebase/auth-provider';
 import { createFirebaseProfileRepository } from './firebase/profile-repository';
 import { createFirebaseFileStorageProvider } from './firebase/storage-provider';
+import { createNetInfoNetworkProvider } from './netinfo/network-provider';
 import { createOpenAiProvider } from './openai/ai-provider';
 import { createPostHogAnalyticsProvider } from './posthog/analytics-provider';
+import { createPostHogFeatureFlagProvider } from './posthog/feature-flag-provider';
 import { createRevenueCatBillingProvider } from './revenuecat/billing-provider';
 import { createSentryErrorReporterProvider } from './sentry/error-reporter-provider';
 import { createSupabaseAuthProvider, createSupabaseClient } from './supabase/auth-provider';
@@ -52,7 +57,8 @@ export type ProviderKind
     | 'featureFlags'
     | 'biometrics'
     | 'ai'
-    | 'errorReporter';
+    | 'errorReporter'
+    | 'i18n';
 
 export type ProviderTypeMap = {
   readonly auth: AuthProvider;
@@ -66,6 +72,7 @@ export type ProviderTypeMap = {
   readonly biometrics: BiometricProvider;
   readonly ai: AiProvider;
   readonly errorReporter: ErrorReporterProvider;
+  readonly i18n: I18nProvider;
 };
 
 export type ProviderFactory<K extends ProviderKind> = () => ProviderTypeMap[K];
@@ -102,6 +109,7 @@ const registries: RegistryStore = {
   biometrics: new Map(),
   ai: new Map(),
   errorReporter: new Map(),
+  i18n: new Map(),
 };
 
 const instances: InstanceStore = {
@@ -116,6 +124,7 @@ const instances: InstanceStore = {
   biometrics: new Map(),
   ai: new Map(),
   errorReporter: new Map(),
+  i18n: new Map(),
 };
 
 const PROVIDER_KINDS: readonly ProviderKind[] = [
@@ -130,6 +139,7 @@ const PROVIDER_KINDS: readonly ProviderKind[] = [
   'biometrics',
   'ai',
   'errorReporter',
+  'i18n',
 ];
 
 let cachedBackendAdapter: BackendAdapter | null = null;
@@ -199,6 +209,9 @@ function getEnvProviderName(kind: ProviderKind): string {
       break;
     case 'errorReporter':
       envVal = process.env.EXPO_PUBLIC_ERROR_REPORTER_PROVIDER;
+      break;
+    case 'i18n':
+      envVal = process.env.EXPO_PUBLIC_I18N_PROVIDER;
       break;
   }
 
@@ -280,6 +293,10 @@ export function getErrorReporterProvider(name?: string): ErrorReporterProvider {
   return getProvider('errorReporter', name);
 }
 
+export function getI18nProvider(name?: string): I18nProvider {
+  return getProvider('i18n', name);
+}
+
 export function validateProviderConfig(): void {
   const kinds = PROVIDER_KINDS;
   const errors: string[] = [];
@@ -317,7 +334,11 @@ export function validateProviderConfig(): void {
     errors.push('Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.');
   }
 
-  if (getEnvProviderName('analytics') === 'posthog' && !process.env.EXPO_PUBLIC_POSTHOG_API_KEY?.trim()) {
+  if (
+    (getEnvProviderName('analytics') === 'posthog'
+      || getEnvProviderName('featureFlags') === 'posthog')
+    && !process.env.EXPO_PUBLIC_POSTHOG_API_KEY?.trim()
+  ) {
     errors.push('Missing EXPO_PUBLIC_POSTHOG_API_KEY.');
   }
 
@@ -359,6 +380,7 @@ export function initDefaultProviders(): void {
   register('biometrics', 'mock', () => mockBiometricProvider);
   register('ai', 'mock', () => mockAiProvider);
   register('errorReporter', 'mock', () => mockErrorReporterProvider);
+  register('i18n', 'mock', () => mockI18nProvider);
   register('auth', 'supabase', () => createSupabaseAuthProvider({ client: getSharedSupabaseClient() }));
   register('data', 'supabase', () => createSupabaseProfileRepository(getSharedSupabaseClient()));
   register('storage', 'supabase', () => createSupabaseFileStorageProvider());
@@ -369,6 +391,9 @@ export function initDefaultProviders(): void {
   register('billing', 'revenuecat', () => createRevenueCatBillingProvider());
   register('notifications', 'expo', () => createExpoNotificationProvider());
   register('analytics', 'posthog', () => createPostHogAnalyticsProvider());
+  register('network', 'netinfo', () => createNetInfoNetworkProvider());
+  register('featureFlags', 'posthog', () => createPostHogFeatureFlagProvider());
+  register('biometrics', 'expo', () => createExpoBiometricProvider());
   register('ai', 'openai', () => createOpenAiProvider());
   register('errorReporter', 'sentry', () => createSentryErrorReporterProvider());
 }

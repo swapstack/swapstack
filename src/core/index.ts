@@ -9,6 +9,7 @@ export * from './error-reporter';
 export * from './errors';
 export * from './feature-flags';
 export * from './file-storage';
+export * from './i18n';
 export * from './mocks';
 export * from './network';
 export * from './notifications';

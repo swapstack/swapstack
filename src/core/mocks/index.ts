@@ -16,13 +16,20 @@ import {
   MockFeatureFlagProvider,
 } from './mock-feature-flag-provider';
 import { MockFileStorageProvider } from './mock-file-storage';
+import {
+  DEFAULT_LOCALES,
+  DEFAULT_TRANSLATIONS,
+  MockI18nProvider,
+} from './mock-i18n-provider';
 import { MockNetworkProvider } from './mock-network-provider';
 import { MockNotificationProvider } from './mock-notification-provider';
 
 export {
+  DEFAULT_LOCALES,
   DEFAULT_MOCK_ENTITLEMENTS,
   DEFAULT_MOCK_FEATURE_FLAGS,
   DEFAULT_MOCK_OFFERINGS,
+  DEFAULT_TRANSLATIONS,
   InMemorySessionStorage,
   MockAiProvider,
   MockAnalyticsProvider,
@@ -33,6 +40,7 @@ export {
   MockErrorReporterProvider,
   MockFeatureFlagProvider,
   MockFileStorageProvider,
+  MockI18nProvider,
   MockNetworkProvider,
   MockNotificationProvider,
 };
@@ -48,3 +56,4 @@ export const mockFeatureFlagProvider = new MockFeatureFlagProvider();
 export const mockBiometricProvider = new MockBiometricProvider();
 export const mockAiProvider = new MockAiProvider();
 export const mockErrorReporterProvider = new MockErrorReporterProvider();
+export const mockI18nProvider = new MockI18nProvider();
