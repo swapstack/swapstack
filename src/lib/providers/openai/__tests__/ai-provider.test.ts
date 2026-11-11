@@ -32,4 +32,30 @@ describe('openAiProvider configuration', () => {
       process.env.EXPO_PUBLIC_OPENAI_API_KEY = prev;
     }
   });
+
+  it('warns when using direct OpenAI endpoint in development mode', () => {
+    const origKey = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
+    const origEnv = process.env.NODE_ENV;
+    const envObj = process.env as Record<string, string | undefined>;
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      envObj.EXPO_PUBLIC_OPENAI_API_KEY = 'sk-test-key';
+      envObj.NODE_ENV = 'development';
+      createOpenAiProvider();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[Swapstack] Caution: Direct OpenAI client keys'),
+      );
+    }
+    finally {
+      warnSpy.mockRestore();
+      if (origKey !== undefined) {
+        envObj.EXPO_PUBLIC_OPENAI_API_KEY = origKey;
+      }
+      else {
+        delete envObj.EXPO_PUBLIC_OPENAI_API_KEY;
+      }
+      envObj.NODE_ENV = origEnv;
+    }
+  });
 });
