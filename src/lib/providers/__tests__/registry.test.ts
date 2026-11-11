@@ -51,6 +51,9 @@ describe('provider registry resolution', () => {
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_API_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_PROJECT_ID', undefined);
+    setExpoEnv('EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY', undefined);
     setExpoEnv('EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY', undefined);
     initDefaultProviders();
   });
@@ -61,6 +64,9 @@ describe('provider registry resolution', () => {
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_API_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_PROJECT_ID', undefined);
+    setExpoEnv('EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY', undefined);
     setExpoEnv('EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY', undefined);
     initDefaultProviders();
   });
@@ -132,14 +138,36 @@ describe('provider registry resolution', () => {
 
   it('throws an error listing valid provider names when unknown provider is requested', () => {
     expect(() => getAuthProvider('unknown')).toThrow(
-      'Unknown auth provider "unknown". Valid auth providers: mock, supabase.',
+      'Unknown auth provider "unknown". Valid auth providers: mock, supabase, firebase, clerk.',
     );
     expect(() => getProfileRepository('unknown')).toThrow(
-      'Unknown data provider "unknown". Valid data providers: mock, supabase.',
+      'Unknown data provider "unknown". Valid data providers: mock, supabase, firebase.',
     );
     expect(() => getBillingProvider('unknown')).toThrow(
       'Unknown billing provider "unknown". Valid billing providers: mock, revenuecat.',
     );
+  });
+
+  it('validates required Firebase and Clerk environment variables', () => {
+    setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', 'firebase');
+    setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', 'firebase');
+
+    expect(() => validateProviderConfig()).toThrow(
+      'Missing EXPO_PUBLIC_FIREBASE_API_KEY or EXPO_PUBLIC_FIREBASE_PROJECT_ID.',
+    );
+
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_API_KEY', 'firebase-api-key');
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_PROJECT_ID', 'swapstack-demo');
+    expect(() => validateProviderConfig()).not.toThrow();
+
+    setExpoEnv('EXPO_PUBLIC_AUTH_PROVIDER', 'clerk');
+    setExpoEnv('EXPO_PUBLIC_DATA_PROVIDER', 'mock');
+    expect(() => validateProviderConfig()).toThrow(
+      'Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.',
+    );
+
+    setExpoEnv('EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY', 'pk_test_swapstack');
+    expect(() => validateProviderConfig()).not.toThrow();
   });
 });
 
@@ -150,6 +178,9 @@ describe('provider registry caching and adapters', () => {
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_API_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_PROJECT_ID', undefined);
+    setExpoEnv('EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY', undefined);
     setExpoEnv('EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY', undefined);
     initDefaultProviders();
   });
@@ -160,6 +191,9 @@ describe('provider registry caching and adapters', () => {
     setExpoEnv('EXPO_PUBLIC_BILLING_PROVIDER', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_URL', undefined);
     setExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_API_KEY', undefined);
+    setExpoEnv('EXPO_PUBLIC_FIREBASE_PROJECT_ID', undefined);
+    setExpoEnv('EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY', undefined);
     setExpoEnv('EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY', undefined);
     initDefaultProviders();
   });

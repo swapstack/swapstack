@@ -18,6 +18,9 @@ import {
   mockProfileRepository,
 } from '@/core';
 import { SecureSessionStorage } from '@/lib/auth/secure-session-storage';
+import { createClerkAuthProvider } from './clerk/auth-provider';
+import { createFirebaseAuthProvider } from './firebase/auth-provider';
+import { createFirebaseProfileRepository } from './firebase/profile-repository';
 import { createRevenueCatBillingProvider } from './revenuecat/billing-provider';
 import { createSupabaseAuthProvider, createSupabaseClient } from './supabase/auth-provider';
 import { createSupabaseProfileRepository } from './supabase/profile-repository';
@@ -298,6 +301,21 @@ export function validateProviderConfig(): void {
     }
   }
 
+  if (authName === 'firebase' || dataName === 'firebase') {
+    const firebaseKey = process.env.EXPO_PUBLIC_FIREBASE_API_KEY?.trim();
+    const firebaseProjectId = process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID?.trim();
+    if (!firebaseKey || !firebaseProjectId) {
+      errors.push('Missing EXPO_PUBLIC_FIREBASE_API_KEY or EXPO_PUBLIC_FIREBASE_PROJECT_ID.');
+    }
+  }
+
+  if (authName === 'clerk') {
+    const clerkKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim();
+    if (!clerkKey) {
+      errors.push('Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.');
+    }
+  }
+
   if (getEnvProviderName('billing') === 'revenuecat') {
     const revenueCatKey = process.env.EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY?.trim();
     if (!revenueCatKey) {
@@ -337,6 +355,9 @@ export function initDefaultProviders(): void {
   register('analytics', 'mock', () => mockAnalyticsProvider);
   register('auth', 'supabase', () => createSupabaseAuthProvider({ client: getSharedSupabaseClient() }));
   register('data', 'supabase', () => createSupabaseProfileRepository(getSharedSupabaseClient()));
+  register('auth', 'firebase', () => createFirebaseAuthProvider());
+  register('data', 'firebase', () => createFirebaseProfileRepository());
+  register('auth', 'clerk', () => createClerkAuthProvider());
   register('billing', 'revenuecat', () => createRevenueCatBillingProvider());
 }
 
