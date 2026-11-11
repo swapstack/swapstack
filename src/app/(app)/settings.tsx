@@ -1,4 +1,4 @@
-import type { NotificationPermissionStatus } from '@/core';
+import type { NotificationPermissionStatus, SupportedLocale } from '@/core';
 import type { ColorSchemeType } from '@/lib/hooks/use-selected-theme';
 import { Link } from 'expo-router';
 import * as React from 'react';
@@ -39,33 +39,51 @@ function AppearanceCard({
       </CardHeader>
       <CardContent>
         <View className="flex-row gap-2">
-          <View className="flex-1">
+          {(['light', 'dark', 'system'] as const).map(theme => (
+            <View key={theme} className="flex-1">
+              <Button
+                testID={`theme-${theme}-button`}
+                size="sm"
+                variant={selectedTheme === theme ? 'default' : 'outline'}
+                label={theme.charAt(0).toUpperCase() + theme.slice(1)}
+                onPress={() => onSelectTheme(theme)}
+              />
+            </View>
+          ))}
+        </View>
+      </CardContent>
+    </Card>
+  );
+}
+
+function LanguageCard({
+  currentLocale,
+  onSelectLocale,
+}: {
+  readonly currentLocale: SupportedLocale;
+  readonly onSelectLocale: (locale: SupportedLocale) => void;
+}) {
+  const locales = serviceProviders.i18n.getAvailableLocales();
+  return (
+    <Card className="mt-4">
+      <CardHeader>
+        <CardTitle>{serviceProviders.i18n.t('settings.language')}</CardTitle>
+        <CardDescription testID="current-locale-label">
+          {`Active locale: ${currentLocale}`}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <View className="flex-row flex-wrap gap-2">
+          {locales.map(item => (
             <Button
-              testID="theme-light-button"
+              key={item.code}
+              testID={`locale-${item.code}-button`}
               size="sm"
-              variant={selectedTheme === 'light' ? 'default' : 'outline'}
-              label="Light"
-              onPress={() => onSelectTheme('light')}
+              variant={currentLocale === item.code ? 'default' : 'outline'}
+              label={item.label}
+              onPress={() => onSelectLocale(item.code)}
             />
-          </View>
-          <View className="flex-1">
-            <Button
-              testID="theme-dark-button"
-              size="sm"
-              variant={selectedTheme === 'dark' ? 'default' : 'outline'}
-              label="Dark"
-              onPress={() => onSelectTheme('dark')}
-            />
-          </View>
-          <View className="flex-1">
-            <Button
-              testID="theme-system-button"
-              size="sm"
-              variant={selectedTheme === 'system' ? 'default' : 'outline'}
-              label="System"
-              onPress={() => onSelectTheme('system')}
-            />
-          </View>
+          ))}
         </View>
       </CardContent>
     </Card>
@@ -75,6 +93,9 @@ function AppearanceCard({
 export default function SettingsScreen() {
   const [selectedTheme, setSelectedThemeState] = React.useState<ColorSchemeType>(
     () => getItem<ColorSchemeType>(SELECTED_THEME_KEY) ?? 'system',
+  );
+  const [currentLocale, setCurrentLocale] = React.useState<SupportedLocale>(
+    () => serviceProviders.i18n.getLocale(),
   );
   const [permissionStatus, setPermissionStatus] = React.useState<NotificationPermissionStatus>('undetermined');
   const [analyticsEnabled, setAnalyticsEnabled] = React.useState<boolean>(
@@ -86,6 +107,7 @@ export default function SettingsScreen() {
 
   React.useEffect(() => {
     let isMounted = true;
+    const unsubscribeLocale = serviceProviders.i18n.onLocaleChange(loc => setCurrentLocale(loc));
     void Promise.all([
       serviceProviders.notifications.getPermissionStatus(),
       serviceProviders.billing.getEntitlements(),
@@ -100,6 +122,7 @@ export default function SettingsScreen() {
     });
     return () => {
       isMounted = false;
+      unsubscribeLocale();
     };
   }, []);
 
@@ -108,6 +131,11 @@ export default function SettingsScreen() {
     setItem(SELECTED_THEME_KEY, theme);
     Uniwind.setTheme(theme);
     void serviceProviders.analytics.track('theme_changed', { theme });
+  }, []);
+
+  const handleSelectLocale = React.useCallback(async (locale: SupportedLocale) => {
+    await serviceProviders.i18n.setLocale(locale);
+    setStatusMessage(`Language changed to ${locale.toUpperCase()}.`);
   }, []);
 
   const handleEnableNotifications = React.useCallback(async () => {
@@ -144,9 +172,9 @@ export default function SettingsScreen() {
 
   return (
     <Screen className="px-6 py-8">
-      <Text className="font-bold text-3xl">Settings</Text>
+      <Text className="font-bold text-3xl">{serviceProviders.i18n.t('settings.title')}</Text>
       <Text className="mt-1 text-base text-neutral-500 dark:text-neutral-400">
-        Customize appearance, notifications, privacy, and subscription preferences.
+        Customize appearance, language, notifications, privacy, and subscription preferences.
       </Text>
 
       {statusMessage && (
@@ -156,6 +184,7 @@ export default function SettingsScreen() {
       )}
 
       <AppearanceCard selectedTheme={selectedTheme} onSelectTheme={handleSelectTheme} />
+      <LanguageCard currentLocale={currentLocale} onSelectLocale={handleSelectLocale} />
 
       <Card className="mt-4">
         <CardHeader>
