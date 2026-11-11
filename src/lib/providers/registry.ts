@@ -19,11 +19,15 @@ import {
 } from '@/core';
 import { SecureSessionStorage } from '@/lib/auth/secure-session-storage';
 import { createClerkAuthProvider } from './clerk/auth-provider';
+import { createExpoNotificationProvider } from './expo-notifications/notification-provider';
 import { createFirebaseAuthProvider } from './firebase/auth-provider';
 import { createFirebaseProfileRepository } from './firebase/profile-repository';
+import { createFirebaseFileStorageProvider } from './firebase/storage-provider';
+import { createPostHogAnalyticsProvider } from './posthog/analytics-provider';
 import { createRevenueCatBillingProvider } from './revenuecat/billing-provider';
 import { createSupabaseAuthProvider, createSupabaseClient } from './supabase/auth-provider';
 import { createSupabaseProfileRepository } from './supabase/profile-repository';
+import { createSupabaseFileStorageProvider } from './supabase/storage-provider';
 
 export type ProviderKind = 'auth' | 'data' | 'billing' | 'storage' | 'notifications' | 'analytics';
 
@@ -293,7 +297,9 @@ export function validateProviderConfig(): void {
 
   const authName = getEnvProviderName('auth');
   const dataName = getEnvProviderName('data');
-  if (authName === 'supabase' || dataName === 'supabase') {
+  const storageName = getEnvProviderName('storage');
+  const analyticsName = getEnvProviderName('analytics');
+  if (authName === 'supabase' || dataName === 'supabase' || storageName === 'supabase') {
     const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim();
     const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim();
     if (!supabaseUrl || !supabaseAnonKey) {
@@ -301,7 +307,7 @@ export function validateProviderConfig(): void {
     }
   }
 
-  if (authName === 'firebase' || dataName === 'firebase') {
+  if (authName === 'firebase' || dataName === 'firebase' || storageName === 'firebase') {
     const firebaseKey = process.env.EXPO_PUBLIC_FIREBASE_API_KEY?.trim();
     const firebaseProjectId = process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID?.trim();
     if (!firebaseKey || !firebaseProjectId) {
@@ -313,6 +319,13 @@ export function validateProviderConfig(): void {
     const clerkKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim();
     if (!clerkKey) {
       errors.push('Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.');
+    }
+  }
+
+  if (analyticsName === 'posthog') {
+    const posthogKey = process.env.EXPO_PUBLIC_POSTHOG_API_KEY?.trim();
+    if (!posthogKey) {
+      errors.push('Missing EXPO_PUBLIC_POSTHOG_API_KEY.');
     }
   }
 
@@ -355,10 +368,14 @@ export function initDefaultProviders(): void {
   register('analytics', 'mock', () => mockAnalyticsProvider);
   register('auth', 'supabase', () => createSupabaseAuthProvider({ client: getSharedSupabaseClient() }));
   register('data', 'supabase', () => createSupabaseProfileRepository(getSharedSupabaseClient()));
+  register('storage', 'supabase', () => createSupabaseFileStorageProvider());
   register('auth', 'firebase', () => createFirebaseAuthProvider());
   register('data', 'firebase', () => createFirebaseProfileRepository());
+  register('storage', 'firebase', () => createFirebaseFileStorageProvider());
   register('auth', 'clerk', () => createClerkAuthProvider());
   register('billing', 'revenuecat', () => createRevenueCatBillingProvider());
+  register('notifications', 'expo', () => createExpoNotificationProvider());
+  register('analytics', 'posthog', () => createPostHogAnalyticsProvider());
 }
 
 export function getBackendAdapter(): BackendAdapter {
