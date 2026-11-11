@@ -1,10 +1,16 @@
-import type { AnalyticsProvider, FileStorageProvider, NotificationProvider } from '@/core';
+import type {
+  AnalyticsProvider,
+  FileStorageProvider,
+  NetworkProvider,
+  NotificationProvider,
+} from '@/core';
 import type { BackendAdapter, BillingAdapter } from '@/lib/providers/registry';
 import {
   getAnalyticsProvider,
   getBackendAdapter,
   getBillingAdapter,
   getFileStorageProvider,
+  getNetworkProvider,
   getNotificationProvider,
 } from '@/lib/providers/registry';
 
@@ -25,5 +31,8 @@ export const serviceProviders = {
   },
   get analytics(): AnalyticsProvider {
     return getAnalyticsProvider();
+  },
+  get network(): NetworkProvider {
+    return getNetworkProvider();
   },
 };

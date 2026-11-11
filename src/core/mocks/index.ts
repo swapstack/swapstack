@@ -9,6 +9,7 @@ import {
 } from './mock-billing-provider';
 import { MockDataRepository } from './mock-data-repository';
 import { MockFileStorageProvider } from './mock-file-storage';
+import { MockNetworkProvider } from './mock-network-provider';
 import { MockNotificationProvider } from './mock-notification-provider';
 
 export {
@@ -20,6 +21,7 @@ export {
   MockBillingProvider,
   MockDataRepository,
   MockFileStorageProvider,
+  MockNetworkProvider,
   MockNotificationProvider,
 };
 
@@ -29,3 +31,4 @@ export const mockBillingProvider = new MockBillingProvider();
 export const mockFileStorageProvider = new MockFileStorageProvider();
 export const mockNotificationProvider = new MockNotificationProvider();
 export const mockAnalyticsProvider = new MockAnalyticsProvider();
+export const mockNetworkProvider = new MockNetworkProvider();

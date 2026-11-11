@@ -14,6 +14,7 @@ export * from './image';
 export * from './input';
 export * from './list';
 export * from './modal';
+export * from './offline-banner';
 export * from './progress-bar';
 export * from './screen';
 export * from './select';

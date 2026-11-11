@@ -6,6 +6,8 @@ export * from './data';
 export * from './errors';
 export * from './file-storage';
 export * from './mocks';
+export * from './network';
 export * from './notifications';
 export * from './session-storage';
+export * from './sync-queue';
 export * from './types';
