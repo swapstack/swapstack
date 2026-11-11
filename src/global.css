@@ -89,6 +89,8 @@
   --color-danger-900: #7F1D1D;
 
   /* Light defaults, overridden by the active Uniwind theme below */
+  --color-primary: #171717;
+  --color-primary-foreground: #ffffff;
   --color-background: #ffffff;
   --color-foreground: #0a0a0a;
   --color-card: #ffffff;
@@ -112,6 +114,8 @@
     }
 
     @variant light {
+      --color-primary: #171717;
+      --color-primary-foreground: #ffffff;
       --color-background: #ffffff;
       --color-foreground: #0a0a0a;
       --color-card: #ffffff;
@@ -126,6 +130,8 @@
     }
 
     @variant dark {
+      --color-primary: #fafafa;
+      --color-primary-foreground: #0a0a0a;
       --color-background: #0a0a0a;
       --color-foreground: #fafafa;
       --color-card: #141414;

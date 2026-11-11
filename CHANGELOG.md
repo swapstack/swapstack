@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.2.2 — 2026-11-11
+
+### Added
+
+- Starter domain blueprints for `create-swapstack-app`: `--template pulse` (Workouts & Habits), `--template memostack` (Spaced Repetition Decks), `--template promptbox` (AI Threads), and `--template splitledger` (Expense Splitter).
+- Curated color themes (`--theme` matcha, terracotta, cobalt, sakura, espresso, light, dark) and UI design styles (`--style` minimal, soft, editorial, brutalist, terminal).
+- Visual Setup Studio (`npx create-swapstack-app --ui`) with live dynamic blueprint phone canvas previews and website builder sync.
+- Prebuild strict validation checks for live Firebase, Clerk, PostHog, Sentry, and OpenAI configurations.
+- Offline support contracts and recovery: `NetworkProvider`, `OfflineSyncQueue` with automatic flush and retry policies, and `<OfflineBanner />`.
+- Secondary services: `FileStorageProvider` (Supabase/Firebase), `NotificationProvider` (Expo), `AnalyticsProvider` (PostHog), `FeatureFlagProvider` (PostHog), `BiometricProvider` (Expo Local Authentication), `AiProvider` (OpenAI), and `ErrorReporterProvider` (Sentry).
+- Internationalization contract (`I18nProvider`) with 5 initial locales (`en`, `es`, `fr`, `de`, `ar`) and RTL support.
+- Reusable UI primitives: `Badge`, `Skeleton`, `EmptyState`, and modal `Sheet`.
+
+### Fixed
+
+- Synced `create-swapstack-app` npm release with GitHub `main` to support `--template`, `--theme`, `--style`, and `--ui`.
+- Fixed theme primary color application on buttons: `Button` now uses `bg-primary dark:bg-white` so themes like `matcha` render forest-green buttons instead of static black.
+- Extended session restoration timeout on Expo web (`Platform.OS === 'web'`) to 12s to prevent premature timeout errors on full page reloads.
+- Updated `docs/examples.md` scaffold commands to include `--template <name>`.
+- Updated root `README.md` to reflect implemented live adapters, blueprints, and DX tooling.
+
 ## 0.2.1 — 2026-11-11
 
 ### Added

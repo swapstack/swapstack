@@ -2,11 +2,12 @@
 import type { AuthProvider } from '@/core';
 import type { Session } from '@/core/types';
 import * as React from 'react';
+import { Platform } from 'react-native';
 import { mockAuthProvider } from '@/core';
 import { getAuthProvider } from '@/lib/providers';
 import { getErrorMessage } from './validation';
 
-const RESTORE_TIMEOUT_MS = 5000;
+export const getRestoreTimeoutMs = (): number => (Platform.OS === 'web' ? 12000 : 5000);
 
 type AuthSessionValue = {
   readonly auth: AuthProvider;
@@ -57,7 +58,7 @@ export function AuthSessionProvider({
         setSession(null);
         setRestoreLoading(false);
       }
-    }, RESTORE_TIMEOUT_MS);
+    }, getRestoreTimeoutMs());
     const unsubscribe = provider.onAuthChange((next) => {
       if (active) {
         changedBeforeRestore = true;

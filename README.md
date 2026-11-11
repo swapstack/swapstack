@@ -136,37 +136,23 @@ Swapstack's design system is structured across three levels of customization:
 
 ## Roadmap
 
-Swapstack is an early work in progress. Mock providers and a live Supabase adapter (auth & data) are included; the live RevenueCat billing adapter is not implemented yet, and APIs may change. The items below are open for contribution. Adapters are the highest-leverage additions because they plug into the existing contracts without touching any screen.
+Swapstack is continually evolving with new adapters, contracts, and developer tools. Core contracts for Auth, Data, Billing, Storage, Notifications, Analytics, Feature Flags, Biometrics, Network, AI, and Error Reporting are fully implemented and verified against shared contract test suites. The items below represent upcoming milestones open for contribution:
 
-### Adapters
+### Adapters & Integrations
 
-- **RevenueCat billing** (in progress) — the first live `BillingProvider`, with a paywall and entitlement-gated screens.
-- **Firebase** — auth and Firestore-backed `DataRepository`, as the most common alternative to Supabase.
-- **Clerk / Auth0** — hosted auth adapters for teams already using them.
-- **More OAuth providers** — the `OAuthProvider` type currently allows `apple` and `google`; GitHub, Facebook, and others are natural extensions.
-- **Passwordless sign-in** — magic links and one-time codes across adapters that support them.
-- **Multi-factor authentication** — TOTP enrolment and challenge flows behind the `AuthProvider` contract.
+- **Stripe & StoreKit direct billing** — alternative `BillingProvider` adapters for web and native subscription management.
+- **More OAuth providers** — GitHub, Twitter/X, and Discord social sign-in adapters.
+- **Passkeys & WebAuthn** — biometric passwordless authentication backed by native passkeys.
+- **Cloudflare R2 / AWS S3 storage** — S3-compatible `FileStorageProvider` adapter for high-volume uploads.
 
-### App features
+### App Features & Tooling
 
-- **Paywall and subscription screens** built on `BillingProvider`, matching the existing auth kit.
-- **Onboarding flow** — a reusable first-run walkthrough with a persisted "seen" flag.
-- **Settings screen** — theme toggle (light / dark / system), notification preferences, and account management in one place.
-- **Push notifications** — an `expo-notifications` integration with a vendor-agnostic `NotificationProvider` contract.
-- **Analytics and crash reporting** — a small `AnalyticsProvider` contract with mock, PostHog, and Sentry adapters.
-- **Offline support** — connectivity awareness, TanStack Query persistence, and optimistic updates for profile edits.
-- **Internationalisation** — `i18n` scaffolding with a sample second locale and RTL-aware layouts.
-- **Generic data entities** — `DataRepository` is currently typed to `Profile`; a list/query API would make it useful for arbitrary collections.
+- **E2E tests with Maestro** — automated end-to-end flows for simulator and physical device testing.
+- **EAS Update & OTA releases** — pre-configured over-the-air update channels and runtime rollout verification.
+- **Storybook for UI primitives** — interactive component isolation workbench for `@/components/ui`.
+- **GraphQL / tRPC DataRepository** — typed API adapters for teams with custom backend servers.
 
-### Developer experience
-
-- **Storybook** for the `src/components/ui` primitives.
-- **GitHub issue and PR templates** and a `SECURITY.md` policy.
-- **EAS Update** wiring for over-the-air releases.
-- **More CLI options** — `--template` and `--provider` flags for `create-swapstack-app` so generated apps start with the right adapter.
-- **E2E tests** with Maestro covering the auth kit flows on a simulator.
-
-Have an idea that is not listed? Open an issue to discuss it.
+Have an idea that is not listed? Open an issue or start a discussion on GitHub.
 
 ## Contributing
 

@@ -15,7 +15,7 @@ Every example follows Swapstack's golden rule: **screens talk only to plain Type
 ### Scaffold Command
 
 ```sh
-npx create-swapstack-app pulse --name "Pulse" --bundle-id com.acme.pulse --yes
+npx create-swapstack-app pulse --name "Pulse" --bundle-id com.acme.pulse --template pulse --yes
 cd pulse
 ```
 
@@ -68,7 +68,7 @@ Build the "Pulse" Habit & Workout Tracker app in this Swapstack project followin
 ### Scaffold Command
 
 ```sh
-npx create-swapstack-app memostack --name "MemoStack" --bundle-id com.acme.memostack --yes
+npx create-swapstack-app memostack --name "MemoStack" --bundle-id com.acme.memostack --template memostack --yes
 cd memostack
 ```
 
@@ -122,7 +122,7 @@ Build the "MemoStack" Flashcards & Study Decks app in this Swapstack project fol
 ### Scaffold Command
 
 ```sh
-npx create-swapstack-app promptbox --name "PromptBox" --bundle-id com.acme.promptbox --yes
+npx create-swapstack-app promptbox --name "PromptBox" --bundle-id com.acme.promptbox --template promptbox --yes
 cd promptbox
 ```
 
@@ -173,7 +173,7 @@ Build the "PromptBox" AI Assistant app in this Swapstack project following `AGEN
 ### Scaffold Command
 
 ```sh
-npx create-swapstack-app splitledger --name "SplitLedger" --bundle-id com.acme.splitledger --yes
+npx create-swapstack-app splitledger --name "SplitLedger" --bundle-id com.acme.splitledger --template splitledger --yes
 cd splitledger
 ```
 

@@ -244,7 +244,7 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     );
     writeFileSync(
       path.join(tempDir, 'src/components/ui/button.tsx'),
-      `const b = { container: 'my-2 flex flex-row items-center justify-center rounded-md px-4' };\n`,
+      `const b = { container: 'my-2 flex flex-row items-center justify-center rounded-md px-4', variant: { default: { container: 'bg-black dark:bg-white' } } };\n`,
     );
     writeFileSync(
       path.join(tempDir, 'src/components/ui/input.tsx'),
@@ -262,6 +262,8 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     const updatedCss = readFileSync(path.join(tempDir, 'src/global.css'), 'utf8');
     assert.match(updatedCss, /--color-background: #f7faf6;/);
     assert.match(updatedCss, /--color-ring: #143d29;/);
+    assert.match(updatedCss, /--color-primary: #143d29;/);
+    assert.match(updatedCss, /--color-primary-foreground: #ffffff;/);
 
     const updatedColors = readFileSync(path.join(tempDir, 'src/components/ui/colors.js'), 'utf8');
     assert.match(updatedColors, /light: '#CFE0CB'/);
@@ -272,6 +274,7 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
 
     const updatedButton = readFileSync(path.join(tempDir, 'src/components/ui/button.tsx'), 'utf8');
     assert.match(updatedButton, /rounded-full/);
+    assert.match(updatedButton, /bg-primary dark:bg-white/);
 
     const updatedInput = readFileSync(path.join(tempDir, 'src/components/ui/input.tsx'), 'utf8');
     assert.match(updatedInput, /rounded-full/);
