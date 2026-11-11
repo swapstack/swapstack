@@ -298,6 +298,25 @@ EXPO_PUBLIC_AUTH_PROVIDER=mock
     assert.match(envOut, /EXPO_PUBLIC_BILLING_PROVIDER=revenuecat/);
   });
 
+  it('scaffolds domain blueprint models when --template is passed', async () => {
+    mkdirSync(path.join(tempDir, 'src/core'), { recursive: true });
+    writeFileSync(path.join(tempDir, 'README.md'), '# Swapstack\n\nSwapstack boilerplate.\n');
+
+    await renameAppFiles(tempDir, {
+      name: 'Pulse Fitness',
+      iosBundleId: 'com.acme.pulse',
+      androidPackage: 'com.acme.pulse',
+      template: 'pulse',
+    });
+
+    const workoutFile = path.join(tempDir, 'src/core/workouts.ts');
+    assert.equal(existsSync(workoutFile), true);
+    assert.match(readFileSync(workoutFile, 'utf8'), /WorkoutRepository/);
+    assert.match(readFileSync(path.join(tempDir, 'README.md'), 'utf8'), /Starter Blueprint: `pulse`/);
+  });
+});
+
+describe('studio helpers', () => {
   it('validates Studio requests and generates CLI commands and HTML', () => {
     const valid = validateStudioRequest({
       targetDir: 'my-studio-app',
