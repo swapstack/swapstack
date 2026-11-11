@@ -1,10 +1,12 @@
 import type {
+  AiProvider,
   AnalyticsProvider,
   AuthProvider,
   BillingProvider,
   BiometricProvider,
   DataRepository,
   EntitlementsChangeCallback,
+  ErrorReporterProvider,
   FeatureFlagProvider,
   FileStorageProvider,
   NetworkProvider,
@@ -13,10 +15,12 @@ import type {
   SessionStorage,
 } from '@/core';
 import {
+  mockAiProvider,
   mockAnalyticsProvider,
   mockAuthProvider,
   mockBillingProvider,
   mockBiometricProvider,
+  mockErrorReporterProvider,
   mockFeatureFlagProvider,
   mockFileStorageProvider,
   mockNetworkProvider,
@@ -29,8 +33,10 @@ import { createExpoNotificationProvider } from './expo-notifications/notificatio
 import { createFirebaseAuthProvider } from './firebase/auth-provider';
 import { createFirebaseProfileRepository } from './firebase/profile-repository';
 import { createFirebaseFileStorageProvider } from './firebase/storage-provider';
+import { createOpenAiProvider } from './openai/ai-provider';
 import { createPostHogAnalyticsProvider } from './posthog/analytics-provider';
 import { createRevenueCatBillingProvider } from './revenuecat/billing-provider';
+import { createSentryErrorReporterProvider } from './sentry/error-reporter-provider';
 import { createSupabaseAuthProvider, createSupabaseClient } from './supabase/auth-provider';
 import { createSupabaseProfileRepository } from './supabase/profile-repository';
 import { createSupabaseFileStorageProvider } from './supabase/storage-provider';
@@ -44,7 +50,9 @@ export type ProviderKind
     | 'analytics'
     | 'network'
     | 'featureFlags'
-    | 'biometrics';
+    | 'biometrics'
+    | 'ai'
+    | 'errorReporter';
 
 export type ProviderTypeMap = {
   readonly auth: AuthProvider;
@@ -56,6 +64,8 @@ export type ProviderTypeMap = {
   readonly network: NetworkProvider;
   readonly featureFlags: FeatureFlagProvider;
   readonly biometrics: BiometricProvider;
+  readonly ai: AiProvider;
+  readonly errorReporter: ErrorReporterProvider;
 };
 
 export type ProviderFactory<K extends ProviderKind> = () => ProviderTypeMap[K];
@@ -73,27 +83,11 @@ export type BillingAdapter = BillingProvider & {
 };
 
 type RegistryStore = {
-  readonly auth: Map<string, ProviderFactory<'auth'>>;
-  readonly data: Map<string, ProviderFactory<'data'>>;
-  readonly billing: Map<string, ProviderFactory<'billing'>>;
-  readonly storage: Map<string, ProviderFactory<'storage'>>;
-  readonly notifications: Map<string, ProviderFactory<'notifications'>>;
-  readonly analytics: Map<string, ProviderFactory<'analytics'>>;
-  readonly network: Map<string, ProviderFactory<'network'>>;
-  readonly featureFlags: Map<string, ProviderFactory<'featureFlags'>>;
-  readonly biometrics: Map<string, ProviderFactory<'biometrics'>>;
+  readonly [K in ProviderKind]: Map<string, ProviderFactory<K>>;
 };
 
 type InstanceStore = {
-  readonly auth: Map<string, AuthProvider>;
-  readonly data: Map<string, DataRepository<Profile>>;
-  readonly billing: Map<string, BillingProvider>;
-  readonly storage: Map<string, FileStorageProvider>;
-  readonly notifications: Map<string, NotificationProvider>;
-  readonly analytics: Map<string, AnalyticsProvider>;
-  readonly network: Map<string, NetworkProvider>;
-  readonly featureFlags: Map<string, FeatureFlagProvider>;
-  readonly biometrics: Map<string, BiometricProvider>;
+  readonly [K in ProviderKind]: Map<string, ProviderTypeMap[K]>;
 };
 
 const registries: RegistryStore = {
@@ -106,6 +100,8 @@ const registries: RegistryStore = {
   network: new Map(),
   featureFlags: new Map(),
   biometrics: new Map(),
+  ai: new Map(),
+  errorReporter: new Map(),
 };
 
 const instances: InstanceStore = {
@@ -118,7 +114,23 @@ const instances: InstanceStore = {
   network: new Map(),
   featureFlags: new Map(),
   biometrics: new Map(),
+  ai: new Map(),
+  errorReporter: new Map(),
 };
+
+const PROVIDER_KINDS: readonly ProviderKind[] = [
+  'auth',
+  'data',
+  'billing',
+  'storage',
+  'notifications',
+  'analytics',
+  'network',
+  'featureFlags',
+  'biometrics',
+  'ai',
+  'errorReporter',
+];
 
 let cachedBackendAdapter: BackendAdapter | null = null;
 let cachedBillingAdapter: BillingAdapter | null = null;
@@ -148,44 +160,8 @@ export function register<K extends ProviderKind>(
   const normalized = name.trim().toLowerCase();
   cachedBackendAdapter = null;
   cachedBillingAdapter = null;
-  switch (kind) {
-    case 'auth':
-      registries.auth.set(normalized, factory as ProviderFactory<'auth'>);
-      instances.auth.delete(normalized);
-      break;
-    case 'data':
-      registries.data.set(normalized, factory as ProviderFactory<'data'>);
-      instances.data.delete(normalized);
-      break;
-    case 'billing':
-      registries.billing.set(normalized, factory as ProviderFactory<'billing'>);
-      instances.billing.delete(normalized);
-      break;
-    case 'storage':
-      registries.storage.set(normalized, factory as ProviderFactory<'storage'>);
-      instances.storage.delete(normalized);
-      break;
-    case 'notifications':
-      registries.notifications.set(normalized, factory as ProviderFactory<'notifications'>);
-      instances.notifications.delete(normalized);
-      break;
-    case 'analytics':
-      registries.analytics.set(normalized, factory as ProviderFactory<'analytics'>);
-      instances.analytics.delete(normalized);
-      break;
-    case 'network':
-      registries.network.set(normalized, factory as ProviderFactory<'network'>);
-      instances.network.delete(normalized);
-      break;
-    case 'featureFlags':
-      registries.featureFlags.set(normalized, factory as ProviderFactory<'featureFlags'>);
-      instances.featureFlags.delete(normalized);
-      break;
-    case 'biometrics':
-      registries.biometrics.set(normalized, factory as ProviderFactory<'biometrics'>);
-      instances.biometrics.delete(normalized);
-      break;
-  }
+  registries[kind].set(normalized, factory);
+  instances[kind].delete(normalized);
 }
 
 function getEnvProviderName(kind: ProviderKind): string {
@@ -218,6 +194,12 @@ function getEnvProviderName(kind: ProviderKind): string {
     case 'biometrics':
       envVal = process.env.EXPO_PUBLIC_BIOMETRICS_PROVIDER;
       break;
+    case 'ai':
+      envVal = process.env.EXPO_PUBLIC_AI_PROVIDER;
+      break;
+    case 'errorReporter':
+      envVal = process.env.EXPO_PUBLIC_ERROR_REPORTER_PROVIDER;
+      break;
   }
 
   return envVal && envVal.trim() !== '' ? envVal.trim().toLowerCase() : 'mock';
@@ -231,74 +213,12 @@ function resolveProviderName(kind: ProviderKind, explicitName?: string): string 
   return getEnvProviderName(kind);
 }
 
-function getCachedInstance<K extends ProviderKind>(
-  kind: K,
-  name: string,
-): ProviderTypeMap[K] | undefined {
-  switch (kind) {
-    case 'auth':
-      return instances.auth.get(name) as ProviderTypeMap[K] | undefined;
-    case 'data':
-      return instances.data.get(name) as ProviderTypeMap[K] | undefined;
-    case 'billing':
-      return instances.billing.get(name) as ProviderTypeMap[K] | undefined;
-    case 'storage':
-      return instances.storage.get(name) as ProviderTypeMap[K] | undefined;
-    case 'notifications':
-      return instances.notifications.get(name) as ProviderTypeMap[K] | undefined;
-    case 'analytics':
-      return instances.analytics.get(name) as ProviderTypeMap[K] | undefined;
-    case 'network':
-      return instances.network.get(name) as ProviderTypeMap[K] | undefined;
-    case 'featureFlags':
-      return instances.featureFlags.get(name) as ProviderTypeMap[K] | undefined;
-    case 'biometrics':
-      return instances.biometrics.get(name) as ProviderTypeMap[K] | undefined;
-  }
-}
-
-function cacheInstance<K extends ProviderKind>(
-  kind: K,
-  name: string,
-  instance: ProviderTypeMap[K],
-): void {
-  switch (kind) {
-    case 'auth':
-      instances.auth.set(name, instance as AuthProvider);
-      break;
-    case 'data':
-      instances.data.set(name, instance as DataRepository<Profile>);
-      break;
-    case 'billing':
-      instances.billing.set(name, instance as BillingProvider);
-      break;
-    case 'storage':
-      instances.storage.set(name, instance as FileStorageProvider);
-      break;
-    case 'notifications':
-      instances.notifications.set(name, instance as NotificationProvider);
-      break;
-    case 'analytics':
-      instances.analytics.set(name, instance as AnalyticsProvider);
-      break;
-    case 'network':
-      instances.network.set(name, instance as NetworkProvider);
-      break;
-    case 'featureFlags':
-      instances.featureFlags.set(name, instance as FeatureFlagProvider);
-      break;
-    case 'biometrics':
-      instances.biometrics.set(name, instance as BiometricProvider);
-      break;
-  }
-}
-
 function getProvider<K extends ProviderKind>(
   kind: K,
   explicitName?: string,
 ): ProviderTypeMap[K] {
   const name = resolveProviderName(kind, explicitName);
-  const cached = getCachedInstance(kind, name);
+  const cached = instances[kind].get(name);
   if (cached) {
     return cached;
   }
@@ -311,8 +231,8 @@ function getProvider<K extends ProviderKind>(
     );
   }
 
-  const created = factory() as ProviderTypeMap[K];
-  cacheInstance(kind, name, created);
+  const created = factory();
+  instances[kind].set(name, created);
   return created;
 }
 
@@ -352,18 +272,16 @@ export function getBiometricProvider(name?: string): BiometricProvider {
   return getProvider('biometrics', name);
 }
 
+export function getAiProvider(name?: string): AiProvider {
+  return getProvider('ai', name);
+}
+
+export function getErrorReporterProvider(name?: string): ErrorReporterProvider {
+  return getProvider('errorReporter', name);
+}
+
 export function validateProviderConfig(): void {
-  const kinds: readonly ProviderKind[] = [
-    'auth',
-    'data',
-    'billing',
-    'storage',
-    'notifications',
-    'analytics',
-    'network',
-    'featureFlags',
-    'biometrics',
-  ];
+  const kinds = PROVIDER_KINDS;
   const errors: string[] = [];
 
   for (const kind of kinds) {
@@ -379,7 +297,6 @@ export function validateProviderConfig(): void {
   const authName = getEnvProviderName('auth');
   const dataName = getEnvProviderName('data');
   const storageName = getEnvProviderName('storage');
-  const analyticsName = getEnvProviderName('analytics');
   if (authName === 'supabase' || dataName === 'supabase' || storageName === 'supabase') {
     const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim();
     const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim();
@@ -396,25 +313,24 @@ export function validateProviderConfig(): void {
     }
   }
 
-  if (authName === 'clerk') {
-    const clerkKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim();
-    if (!clerkKey) {
-      errors.push('Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.');
-    }
+  if (authName === 'clerk' && !process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim()) {
+    errors.push('Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.');
   }
 
-  if (analyticsName === 'posthog') {
-    const posthogKey = process.env.EXPO_PUBLIC_POSTHOG_API_KEY?.trim();
-    if (!posthogKey) {
-      errors.push('Missing EXPO_PUBLIC_POSTHOG_API_KEY.');
-    }
+  if (getEnvProviderName('analytics') === 'posthog' && !process.env.EXPO_PUBLIC_POSTHOG_API_KEY?.trim()) {
+    errors.push('Missing EXPO_PUBLIC_POSTHOG_API_KEY.');
   }
 
-  if (getEnvProviderName('billing') === 'revenuecat') {
-    const revenueCatKey = process.env.EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY?.trim();
-    if (!revenueCatKey) {
-      errors.push('Missing EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY.');
-    }
+  if (getEnvProviderName('billing') === 'revenuecat' && !process.env.EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY?.trim()) {
+    errors.push('Missing EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY.');
+  }
+
+  if (getEnvProviderName('ai') === 'openai' && !process.env.EXPO_PUBLIC_OPENAI_API_KEY?.trim()) {
+    errors.push('Missing EXPO_PUBLIC_OPENAI_API_KEY.');
+  }
+
+  if (getEnvProviderName('errorReporter') === 'sentry' && !process.env.EXPO_PUBLIC_SENTRY_DSN?.trim()) {
+    errors.push('Missing EXPO_PUBLIC_SENTRY_DSN.');
   }
 
   if (errors.length > 0) {
@@ -423,25 +339,10 @@ export function validateProviderConfig(): void {
 }
 
 export function initDefaultProviders(): void {
-  registries.auth.clear();
-  registries.data.clear();
-  registries.billing.clear();
-  registries.storage.clear();
-  registries.notifications.clear();
-  registries.analytics.clear();
-  registries.network.clear();
-  registries.featureFlags.clear();
-  registries.biometrics.clear();
-
-  instances.auth.clear();
-  instances.data.clear();
-  instances.billing.clear();
-  instances.storage.clear();
-  instances.notifications.clear();
-  instances.analytics.clear();
-  instances.network.clear();
-  instances.featureFlags.clear();
-  instances.biometrics.clear();
+  for (const kind of PROVIDER_KINDS) {
+    registries[kind].clear();
+    instances[kind].clear();
+  }
 
   cachedBackendAdapter = null;
   cachedBillingAdapter = null;
@@ -456,6 +357,8 @@ export function initDefaultProviders(): void {
   register('network', 'mock', () => mockNetworkProvider);
   register('featureFlags', 'mock', () => mockFeatureFlagProvider);
   register('biometrics', 'mock', () => mockBiometricProvider);
+  register('ai', 'mock', () => mockAiProvider);
+  register('errorReporter', 'mock', () => mockErrorReporterProvider);
   register('auth', 'supabase', () => createSupabaseAuthProvider({ client: getSharedSupabaseClient() }));
   register('data', 'supabase', () => createSupabaseProfileRepository(getSharedSupabaseClient()));
   register('storage', 'supabase', () => createSupabaseFileStorageProvider());
@@ -466,6 +369,8 @@ export function initDefaultProviders(): void {
   register('billing', 'revenuecat', () => createRevenueCatBillingProvider());
   register('notifications', 'expo', () => createExpoNotificationProvider());
   register('analytics', 'posthog', () => createPostHogAnalyticsProvider());
+  register('ai', 'openai', () => createOpenAiProvider());
+  register('errorReporter', 'sentry', () => createSentryErrorReporterProvider());
 }
 
 export function getBackendAdapter(): BackendAdapter {
