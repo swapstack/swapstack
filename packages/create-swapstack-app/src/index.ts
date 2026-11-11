@@ -17,6 +17,7 @@ import {
   validateIosBundleId,
   validateUrlScheme,
 } from './rename.js';
+import { buildCliCommandFromStudio, launchSetupUi } from './ui-server.js';
 
 function defaultNameFromDir(dir: string): string {
   const base = path.basename(path.resolve(process.cwd(), dir));
@@ -157,6 +158,10 @@ Options:
   --android-package <id>      Android application ID
   --theme <preset>            Color theme (matcha, terracotta, cobalt, sakura, espresso, light, dark)
   --style <preset>            UI design style (minimal, soft, editorial, brutalist, terminal)
+  --auth <provider>           Auth provider (mock, supabase, firebase, clerk)
+  --data <provider>           Data provider (mock, supabase, firebase)
+  --billing <provider>        Billing provider (mock, revenuecat)
+  --ui                        Launch the interactive local browser setup studio
   --no-install                Skip running pnpm install
   --no-git                    Skip initializing a git repository
   --yes, -y                   Accept all defaults without prompting
@@ -228,6 +233,49 @@ async function run(): Promise<void> {
     return;
   }
 
+  if (args.ui) {
+    await launchSetupUi(args, async (studioReq) => {
+      const targetPath = path.resolve(process.cwd(), studioReq.targetDir);
+      const dirCheck = checkTargetDir(targetPath);
+      if (!dirCheck.ok) {
+        return { ok: false, error: dirCheck.error };
+      }
+
+      await Promise.all(
+        ['.DS_Store', 'Thumbs.db'].map(file => rm(path.join(targetPath, file), { force: true })),
+      );
+
+      await downloadTemplate('github:swapstack/swapstack#main', {
+        dir: targetPath,
+        force: false,
+      });
+
+      await renameAppFiles(targetPath, {
+        name: studioReq.name,
+        iosBundleId: studioReq.bundleId,
+        androidPackage: studioReq.bundleId,
+        theme: studioReq.theme,
+        style: studioReq.style,
+        authProvider: studioReq.authProvider,
+        dataProvider: studioReq.dataProvider,
+        billingProvider: studioReq.billingProvider,
+      });
+
+      initGitAndInstallDeps(targetPath, studioReq.targetDir, {
+        ...args,
+        git: studioReq.git,
+        install: studioReq.install,
+      });
+
+      return {
+        ok: true,
+        targetPath,
+        cliCommand: buildCliCommandFromStudio(studioReq),
+      };
+    });
+    return;
+  }
+
   if (args.yes && (!args.iosBundleId || !args.androidPackage)) {
     console.error('Error: --bundle-id (or --ios-bundle-id and --android-package) is required when using --yes.');
     process.exit(1);
@@ -287,6 +335,9 @@ async function run(): Promise<void> {
     androidPackage,
     theme: args.theme,
     style: args.style,
+    authProvider: args.authProvider,
+    dataProvider: args.dataProvider,
+    billingProvider: args.billingProvider,
   });
 
   initGitAndInstallDeps(targetPath, targetDir, args);

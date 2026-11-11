@@ -103,11 +103,11 @@
           </div>
 
           <div class="hero-cta-row">
-            <a href="https://github.com/swapstack/swapstack" target="_blank" rel="noopener" class="btn btn-primary">
-              Explore on GitHub
+            <a href="#builder" class="btn btn-primary">
+              Open Visual App Builder
             </a>
-            <a href="#provider-swap" class="btn btn-secondary">
-              Try Interactive Swap
+            <a href="https://github.com/swapstack/swapstack" target="_blank" rel="noopener" class="btn btn-secondary">
+              Explore on GitHub
             </a>
           </div>
 
@@ -273,6 +273,171 @@
                 <div class="p-input">Alex Rivera</div>
                 <button type="button" class="p-btn-primary" style="margin-top: 12px;">Save profile</button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Visual Setup Studio Section -->
+    <section class="section" id="builder">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Visual Setup Studio — Configure your stack in seconds.</h2>
+          </div>
+          <p class="section-desc">
+            Select your app identity, color theme, UI design geometry, and backend providers below—or run <code class="mono">npx create-swapstack-app --ui</code> to launch this studio locally on your machine.
+          </p>
+        </div>
+
+        <div class="builder-grid">
+          <div class="builder-card">
+            <div>
+              <span class="builder-step-title">1. App Identity</span>
+              <div class="builder-inputs-row">
+                <div class="builder-field">
+                  <label for="b-dir">Project Directory</label>
+                  <input type="text" id="b-dir" class="builder-input" value="my-app" />
+                </div>
+                <div class="builder-field">
+                  <label for="b-name">Display Name</label>
+                  <input type="text" id="b-name" class="builder-input" value="My App" />
+                </div>
+                <div class="builder-field">
+                  <label for="b-bundle">Bundle ID (iOS &amp; Android)</label>
+                  <input type="text" id="b-bundle" class="builder-input" value="com.acme.myapp" />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <span class="builder-step-title">2. Color Palette (<code class="mono">--theme</code>)</span>
+              <div class="theme-strip" style="margin-top: 0;">
+                <button type="button" class="theme-pill" data-set-theme="matcha" aria-pressed="false">
+                  <span class="swatch-pair"><span class="swatch-dot" style="background:#f7faf6;"></span><span class="swatch-dot" style="background:#143d29;"></span></span>
+                  <span>Matcha</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-theme="terracotta" aria-pressed="false">
+                  <span class="swatch-pair"><span class="swatch-dot" style="background:#fbf8f3;"></span><span class="swatch-dot" style="background:#b84a27;"></span></span>
+                  <span>Terracotta</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-theme="cobalt" aria-pressed="false">
+                  <span class="swatch-pair"><span class="swatch-dot" style="background:#f6f9fc;"></span><span class="swatch-dot" style="background:#1d4ed8;"></span></span>
+                  <span>Cobalt</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-theme="sakura" aria-pressed="false">
+                  <span class="swatch-pair"><span class="swatch-dot" style="background:#fdf8f9;"></span><span class="swatch-dot" style="background:#9d174d;"></span></span>
+                  <span>Sakura</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-theme="espresso" aria-pressed="false">
+                  <span class="swatch-pair"><span class="swatch-dot" style="background:#fdfbf6;"></span><span class="swatch-dot" style="background:#362214;"></span></span>
+                  <span>Espresso</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-theme="light" aria-pressed="false">
+                  <span class="swatch-pair"><span class="swatch-dot" style="background:#ffffff;"></span><span class="swatch-dot" style="background:#171717;"></span></span>
+                  <span>Neutral</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-theme="dark" aria-pressed="true">
+                  <span class="swatch-pair"><span class="swatch-dot" style="background:#0a0a0a;"></span><span class="swatch-dot" style="background:#fafafa;"></span></span>
+                  <span>Obsidian</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <span class="builder-step-title">3. UI Design Style (<code class="mono">--style</code>)</span>
+              <div class="theme-strip" style="margin-top: 0;">
+                <button type="button" class="theme-pill" data-set-style="minimal" aria-pressed="true">
+                  <span>Swiss Minimal</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-style="soft" aria-pressed="false">
+                  <span>Soft Pill</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-style="editorial" aria-pressed="false">
+                  <span>Editorial Serif</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-style="brutalist" aria-pressed="false">
+                  <span>Neo-Brutalist</span>
+                </button>
+                <button type="button" class="theme-pill" data-set-style="terminal" aria-pressed="false">
+                  <span>Technical Mono</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <span class="builder-step-title">4. Service Providers (<code class="mono">--auth</code> · <code class="mono">--data</code> · <code class="mono">--billing</code>)</span>
+              <div class="builder-inputs-row">
+                <div class="builder-field">
+                  <label for="b-auth">Auth Provider</label>
+                  <select id="b-auth" class="builder-select">
+                    <option value="mock">mock (0 API keys)</option>
+                    <option value="supabase">supabase</option>
+                    <option value="firebase">firebase</option>
+                    <option value="clerk">clerk</option>
+                  </select>
+                </div>
+                <div class="builder-field">
+                  <label for="b-data">Data Repository</label>
+                  <select id="b-data" class="builder-select">
+                    <option value="mock">mock (0 API keys)</option>
+                    <option value="supabase">supabase</option>
+                    <option value="firebase">firebase</option>
+                  </select>
+                </div>
+                <div class="builder-field">
+                  <label for="b-billing">Billing Provider</label>
+                  <select id="b-billing" class="builder-select">
+                    <option value="mock">mock (0 API keys)</option>
+                    <option value="revenuecat">revenuecat</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-code-stack">
+            <div class="code-window">
+              <div class="window-header">
+                <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                <span class="mono">Generated CLI Command</span>
+                <button type="button" class="copy-btn" id="copy-builder-cli-btn">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  <span id="copy-builder-cli-label">Copy Command</span>
+                </button>
+              </div>
+              <pre class="window-body" id="builder-cli-code" style="white-space: pre-wrap;"><code>npx create-swapstack-app my-app --name "My App" --bundle-id com.acme.myapp --theme dark --style minimal --yes</code></pre>
+              <div style="padding: 12px 18px; border-top: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12.5px; color: #a3a3a3;">
+                <span>Prefer a local browser GUI?</span>
+                <code class="mono" style="color: #4ade80;">npx create-swapstack-app --ui</code>
+              </div>
+            </div>
+
+            <div class="code-window">
+              <div class="window-header">
+                <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                <span class="mono">Generated .env</span>
+                <button type="button" class="copy-btn" id="copy-builder-env-btn">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  <span id="copy-builder-env-label">Copy .env</span>
+                </button>
+              </div>
+              <pre class="window-body" id="builder-env-code"><code>APP_NAME="My App"
+APP_SLUG=my-app
+APP_SCHEME=my-app
+IOS_BUNDLE_ID=com.acme.myapp
+ANDROID_PACKAGE=com.acme.myapp
+
+EXPO_PUBLIC_AUTH_PROVIDER=mock
+EXPO_PUBLIC_DATA_PROVIDER=mock
+EXPO_PUBLIC_BILLING_PROVIDER=mock</code></pre>
             </div>
           </div>
         </div>
@@ -1280,6 +1445,9 @@ export type WorkoutRepository = {
    - ${s.designRule}
    - Update \`Card\` (\`${s.cardClasses}\`), \`Button\` (\`${s.buttonClasses}\`), and \`Input\` (\`${s.inputClasses}\`).
 3. Run \`pnpm run lint\`, \`pnpm run type-check\`, and \`pnpm test\`.`;
+      if (typeof updateBuilderOutput === 'function') {
+        updateBuilderOutput();
+      }
     }
 
     function applyThemePreset(themeKey) {
@@ -1868,6 +2036,95 @@ export type LedgerRepository = {
         copyExampleLabel.textContent = 'Copied';
       }
     });
+
+    // 8. Interactive Visual Setup Studio Builder
+    function updateBuilderOutput() {
+      const dirEl = document.getElementById('b-dir');
+      if (!dirEl) return;
+      const dir = dirEl.value.trim() || 'my-app';
+      const name = document.getElementById('b-name').value.trim() || 'My App';
+      const bundle = document.getElementById('b-bundle').value.trim() || 'com.acme.myapp';
+      const auth = document.getElementById('b-auth').value;
+      const data = document.getElementById('b-data').value;
+      const billing = document.getElementById('b-billing').value;
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-app';
+
+      const parts = [
+        'npx create-swapstack-app',
+        dir,
+        `--name "${name}"`,
+        `--bundle-id ${bundle}`,
+        `--theme ${activeThemeKey}`,
+        `--style ${activeStyleKey}`,
+      ];
+      if (auth !== 'mock') parts.push(`--auth ${auth}`);
+      if (data !== 'mock') parts.push(`--data ${data}`);
+      if (billing !== 'mock') parts.push(`--billing ${billing}`);
+      parts.push('--yes');
+
+      const fullCmd = parts.join(' ');
+      document.getElementById('builder-cli-code').textContent = fullCmd;
+      document.getElementById('cli-text').textContent = fullCmd;
+
+      const envLines = [
+        `APP_NAME="${name}"`,
+        `APP_SLUG=${slug}`,
+        `APP_SCHEME=${slug}`,
+        `IOS_BUNDLE_ID=${bundle}`,
+        `ANDROID_PACKAGE=${bundle}`,
+        '',
+        `EXPO_PUBLIC_AUTH_PROVIDER=${auth}`,
+        `EXPO_PUBLIC_DATA_PROVIDER=${data}`,
+        `EXPO_PUBLIC_BILLING_PROVIDER=${billing}`,
+      ];
+      if (auth === 'supabase' || data === 'supabase') {
+        envLines.push('', 'EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co', 'EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key');
+      }
+      if (auth === 'firebase' || data === 'firebase') {
+        envLines.push('', 'EXPO_PUBLIC_FIREBASE_API_KEY=AIzaSyYourFirebaseKey', 'EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project-id');
+      }
+      if (auth === 'clerk') {
+        envLines.push('', 'EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_key');
+      }
+      if (billing === 'revenuecat') {
+        envLines.push('', 'EXPO_PUBLIC_REVENUECAT_PUBLIC_SDK_KEY=appl_your_revenuecat_key');
+      }
+      document.getElementById('builder-env-code').textContent = envLines.join('\n');
+    }
+
+    ['b-dir', 'b-name', 'b-bundle', 'b-auth', 'b-data', 'b-billing'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', updateBuilderOutput);
+        el.addEventListener('change', updateBuilderOutput);
+      }
+    });
+
+    const copyBuilderCliBtn = document.getElementById('copy-builder-cli-btn');
+    const copyBuilderCliLabel = document.getElementById('copy-builder-cli-label');
+    copyBuilderCliBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(document.getElementById('builder-cli-code').textContent.trim());
+        copyBuilderCliLabel.textContent = 'Copied';
+        setTimeout(() => { copyBuilderCliLabel.textContent = 'Copy Command'; }, 1800);
+      } catch {
+        copyBuilderCliLabel.textContent = 'Copied';
+      }
+    });
+
+    const copyBuilderEnvBtn = document.getElementById('copy-builder-env-btn');
+    const copyBuilderEnvLabel = document.getElementById('copy-builder-env-label');
+    copyBuilderEnvBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(document.getElementById('builder-env-code').textContent.trim());
+        copyBuilderEnvLabel.textContent = 'Copied';
+        setTimeout(() => { copyBuilderEnvLabel.textContent = 'Copy .env'; }, 1800);
+      } catch {
+        copyBuilderEnvLabel.textContent = 'Copied';
+      }
+    });
+
+    updateBuilderOutput();
   </script>
 </body>
 </html>
