@@ -1815,3 +1815,69 @@ a:hover {
     display: none;
   }
 }
+
+/* Time saved */
+.saved-card {
+  max-width: 760px;
+  border-radius: var(--radius-lg);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.saved-list {
+  list-style: none;
+}
+
+.saved-row,
+.saved-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+}
+
+.saved-row + .saved-row {
+  border-top: 1px solid var(--border);
+}
+
+.saved-item {
+  font-size: 15px;
+  color: var(--fg);
+}
+
+.saved-time {
+  font-size: 14px;
+  color: var(--muted-fg);
+  white-space: nowrap;
+}
+
+.saved-total {
+  border-top: 1px solid var(--border-strong);
+  background-color: var(--muted);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.saved-total-time {
+  color: var(--success);
+  white-space: nowrap;
+}
+
+.saved-note {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted-fg);
+}
+
+@media (max-width: 600px) {
+  .saved-row,
+  .saved-total {
+    padding: 12px 14px;
+  }
+
+  .saved-item {
+    font-size: 14px;
+  }
+}
