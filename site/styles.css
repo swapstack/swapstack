@@ -1542,6 +1542,48 @@ a:hover {
     width: 100%;
     max-width: 330px;
   }
+  /* Keep the header inside a 320px screen: icon-only actions, no version pill */
+  .header-inner {
+    gap: 12px;
+  }
+
+  .version-pill,
+  .icon-btn-label {
+    display: none;
+  }
+
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+  /* Code windows: let the file title shrink instead of pushing the header wider */
+  .window-header {
+    gap: 10px;
+    padding: 0 12px;
+  }
+
+  .window-dots {
+    display: none;
+  }
+
+  .window-header > .mono {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .window-header > .window-badge,
+  .window-header > .copy-btn {
+    flex-shrink: 0;
+  }
+
+  .window-body {
+    padding: 16px;
+  }
 }
 
 /* Story, value cards, and closing CTA */
