@@ -1653,3 +1653,165 @@ a:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Backend swap animation under the hero phone */
+.swap-dock {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -16px;
+}
+
+.swap-wire {
+  position: relative;
+  width: 2px;
+  height: 28px;
+  background-color: var(--border-strong);
+  overflow: hidden;
+}
+
+.swap-pulse {
+  position: absolute;
+  left: -2px;
+  bottom: -8px;
+  width: 6px;
+  height: 8px;
+  border-radius: 3px;
+  background-color: var(--success);
+  animation: swap-pulse 3s ease-in infinite;
+}
+
+.swap-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.swap-label,
+.swap-status {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-fg);
+  white-space: nowrap;
+}
+
+.swap-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swap-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--success);
+  box-shadow: 0 0 0 3px var(--success-bg);
+}
+
+.swap-socket {
+  position: relative;
+  flex: 1;
+  height: 40px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-strong);
+  animation: swap-socket 3s ease-out infinite;
+}
+
+.swap-brick {
+  position: absolute;
+  inset: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary);
+  color: var(--primary-fg);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  animation: swap-brick 9s cubic-bezier(0.3, 0.7, 0.2, 1) infinite both;
+}
+
+.swap-brick-2 { animation-delay: 3s; }
+.swap-brick-3 { animation-delay: 6s; }
+
+/* Two LEGO-style studs on the brick */
+.swap-studs {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.swap-studs::before,
+.swap-studs::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  opacity: 0.55;
+}
+
+@keyframes swap-brick {
+  0%      { opacity: 0; transform: translateX(110%); }
+  4%      { opacity: 1; transform: translateX(-3%); }
+  6.5%    { opacity: 1; transform: translateX(0); }
+  29%     { opacity: 1; transform: translateX(0); }
+  33.3%   { opacity: 0; transform: translateX(-110%); }
+  100%    { opacity: 0; transform: translateX(-110%); }
+}
+
+@keyframes swap-socket {
+  0%, 8%  { border-color: var(--border-strong); }
+  14%     { border-color: var(--success); }
+  40%, 100% { border-color: var(--border-strong); }
+}
+
+@keyframes swap-pulse {
+  0%, 18% { transform: translateY(0); opacity: 0; }
+  22%     { opacity: 1; }
+  55%     { transform: translateY(-40px); opacity: 1; }
+  56%, 100% { transform: translateY(-40px); opacity: 0; }
+}
+
+/* Reduced motion: no sliding or travelling dot, just a slow crossfade between backends */
+@keyframes swap-brick-fade {
+  0%      { opacity: 0; }
+  4%      { opacity: 1; }
+  29%     { opacity: 1; }
+  33.3%   { opacity: 0; }
+  100%    { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swap-pulse {
+    display: none;
+  }
+
+  .swap-socket {
+    animation: none;
+  }
+
+  .swap-brick {
+    transform: none;
+    animation-name: swap-brick-fade;
+    animation-timing-function: linear;
+  }
+}
+
+@media (max-width: 420px) {
+  .swap-label {
+    display: none;
+  }
+}
